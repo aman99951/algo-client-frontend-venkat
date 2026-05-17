@@ -49,12 +49,13 @@ export default function CreditBadge({ apiKey, onBuyClick }) {
   if (balance === null) {
     return (
       <button
-        onClick={() => fetchBalance()}
-        className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-xs text-amber-600 hover:bg-amber-100 transition"
+        onClick={() => { if (!loading) fetchBalance() }}
+        disabled={loading}
+        className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-xs text-amber-600 hover:bg-amber-100 transition disabled:opacity-50"
         title="Credit balance unavailable — tap to retry"
       >
-        <Coins className="w-3.5 h-3.5" />
-        <span>Credits</span>
+        <Coins className={`w-3.5 h-3.5 ${loading ? 'animate-pulse' : ''}`} />
+        <span>{loading ? 'Loading...' : 'Credits'}</span>
       </button>
     );
   }

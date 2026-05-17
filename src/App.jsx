@@ -56,6 +56,7 @@ function App() {
   const [pendingRequestToken, setPendingRequestToken] = useState('')
   const [tradeMode, setTradeMode] = useState(() => localStorage.getItem('tv_trade_mode') || 'manual')
   const [disconnecting, setDisconnecting] = useState(false)
+  const [connectingBroker, setConnectingBroker] = useState(false)
   const [marketPulseData, setMarketPulseData] = useState(null) // for current index prices
   const [newsData, setNewsData] = useState(null) // Unified news data (sentiment + headlines + outlook)
   const [moodData, setMoodData] = useState(null) // Composite market mood (news + regime + VIX)
@@ -1066,13 +1067,14 @@ function App() {
 
   const disconnectUpstox = async () => {
     if (!confirm('Disconnect Upstox broker? Auto-trading via Upstox will stop.')) return
+    setDisconnecting(true)
     try {
       const res = await fetch(`${API_BASE}/api/signals/upstox/disconnect?api_key=${apiKey}`, { method: 'DELETE' })
       if (res.ok) {
         setUpstoxStatus(prev => ({ ...prev, is_connected: false, upstox_user_id: null, auto_trade_enabled: false }))
         setBrokerAccountInfo(null)
       }
-    } catch {}
+    } catch {} finally { setDisconnecting(false) }
   }
 
   // AliceBlue
@@ -1120,13 +1122,14 @@ function App() {
 
   const disconnectAliceBlue = async () => {
     if (!confirm('Disconnect AliceBlue broker? Auto-trading via AliceBlue will stop.')) return
+    setDisconnecting(true)
     try {
       const res = await fetch(`${API_BASE}/api/signals/aliceblue/disconnect?api_key=${apiKey}`, { method: 'DELETE' })
       if (res.ok) {
         setAliceBlueStatus(prev => ({ ...prev, is_connected: false, aliceblue_user_id: null, auto_trade_enabled: false }))
         setBrokerAccountInfo(null)
       }
-    } catch {}
+    } catch {} finally { setDisconnecting(false) }
   }
 
   const toggleTradeMode = async (mode) => {
@@ -1663,10 +1666,11 @@ function App() {
                 {disconnecting ? 'Disconnecting...' : 'Disconnect'}
               </button>
             ) : (
-              <button onClick={() => setShowSettings(true)}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white transition shadow-sm">
-                <Link2 className="w-3.5 h-3.5" />
-                Connect Broker
+              <button onClick={() => { setConnectingBroker(true); setShowSettings(true); setTimeout(() => setConnectingBroker(false), 1500) }}
+                disabled={connectingBroker}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white transition shadow-sm disabled:opacity-70">
+                <Link2 className={`w-3.5 h-3.5 ${connectingBroker ? 'animate-pulse' : ''}`} />
+                {connectingBroker ? 'Opening...' : 'Connect Broker'}
               </button>
             )}
           </div>
@@ -1857,7 +1861,10 @@ function App() {
                   className="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-semibold transition text-sm">
                   Cancel
                 </button>
-                <button onClick={async () => {
+                <button id="funds-proceed-btn" onClick={async (e) => {
+                  const btn = e.currentTarget
+                  btn.disabled = true
+                  btn.textContent = 'Switching...'
                   setShowFundsModal(false)
                   await forceTradeMode('auto')
                 }}
@@ -2599,7 +2606,7 @@ function SignalBoard({ signals, loadingSignals, onRefresh, onPlaceOrder, zerodha
             )
           }
           return (
-            <div key={idx} className="bg-white rounded-xl border border-dashed border-gray-200 p-4 flex flex-col items-center justify-center min-h-[100px] shadow-sm">
+            <div key={idx} className="bg-white rounded-xl border border-dashed border-gray-200 p-4 flex flex-col items-center justify-center min-h-[100px] shadow-sm cursor-default hover:bg-gray-50 hover:border-gray-300 transition">
               <span className="text-xs font-bold text-gray-500 mb-1">{idx}</span>
               <span className="text-xs text-gray-400">No active trade</span>
             </div>
@@ -3251,19 +3258,24 @@ function LoginForm({ onSuccess, onSwitchToRegister, onForgotPassword }) {
     }
   }
 
-  const handleApiKeyLogin = (e) => {
+  const [apiKeyLoggingIn, setApiKeyLoggingIn] = useState(false)
+  const handleApiKeyLogin = async (e) => {
     e.preventDefault()
     if (!apiKeyInput.trim()) { setError('Enter an API key'); return }
     setError('')
-    fetch(`${API_BASE}/api/signals/zerodha/status?api_key=${apiKeyInput.trim()}`)
-      .then(res => {
-        if (res.ok || res.status === 404) {
-          onSuccess({ email: 'api-key-user' }, apiKeyInput.trim())
-        } else {
-          setError('Invalid API key')
-        }
-      })
-      .catch(() => setError('Could not verify API key'))
+    setApiKeyLoggingIn(true)
+    try {
+      const res = await fetch(`${API_BASE}/api/signals/zerodha/status?api_key=${apiKeyInput.trim()}`)
+      if (res.ok || res.status === 404) {
+        onSuccess({ email: 'api-key-user' }, apiKeyInput.trim())
+      } else {
+        setError('Invalid API key')
+      }
+    } catch {
+      setError('Could not verify API key')
+    } finally {
+      setApiKeyLoggingIn(false)
+    }
   }
 
   return (
@@ -3317,9 +3329,9 @@ function LoginForm({ onSuccess, onSwitchToRegister, onForgotPassword }) {
               className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-900 font-mono text-sm placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
               placeholder="tv_xxxxxxxxxxxxxxxx" />
           </div>
-          <button type="submit"
-            className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg font-medium transition shadow-lg shadow-blue-200">
-            Connect
+          <button type="submit" disabled={apiKeyLoggingIn}
+            className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg font-medium transition disabled:opacity-50 shadow-lg shadow-blue-200">
+            {apiKeyLoggingIn ? 'Connecting...' : 'Connect'}
           </button>
         </form>
       )}
@@ -4419,6 +4431,13 @@ function AliceBlueCredentialsModal({ onClose, onSave }) {
 function SettingsPanel({ apiKey, user, zerodhaStatus, upstoxStatus, aliceBlueStatus, onConnectTelegram, onConnectZerodha, onConnectUpstox, onDisconnectUpstox, onConnectAliceBlue, onDisconnectAliceBlue, onRegenerateKey }) {
   const [showKey, setShowKey] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [regenLoading, setRegenLoading] = useState(false)
+
+  const handleRegenerate = async () => {
+    setRegenLoading(true)
+    await onRegenerateKey()
+    setRegenLoading(false)
+  }
 
   const copyKey = () => {
     navigator.clipboard.writeText(apiKey)
@@ -4453,9 +4472,10 @@ function SettingsPanel({ apiKey, user, zerodhaStatus, upstoxStatus, aliceBlueSta
             {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5 text-gray-400" />}
           </button>
         </div>
-        <button onClick={onRegenerateKey}
-          className="mt-2 text-xs text-amber-600 hover:text-amber-700 flex items-center gap-1 transition">
-          <RefreshCw className="w-3 h-3" /> Regenerate Key
+        <button onClick={handleRegenerate} disabled={regenLoading}
+          className="mt-2 text-xs text-amber-600 hover:text-amber-700 flex items-center gap-1 transition disabled:opacity-50">
+          <RefreshCw className={`w-3 h-3 ${regenLoading ? 'animate-spin' : ''}`} />
+          {regenLoading ? 'Regenerating...' : 'Regenerate Key'}
         </button>
       </div>
 
