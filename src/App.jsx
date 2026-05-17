@@ -18,12 +18,12 @@ const WS_BASE = import.meta.env.VITE_WS_URL || 'ws://localhost:8000'
 
 // Status badge config
 const STATUS_CONFIG = {
-  active:      { label: 'ACTIVE',      color: 'bg-yellow-500/20 text-yellow-400', border: 'border-yellow-500', icon: '🔔', pulse: true },
-  in_market:   { label: 'IN MARKET',   color: 'bg-blue-500/20 text-blue-400',     border: 'border-blue-500',   icon: '📊', pulse: true },
-  target_hit:  { label: 'TARGET HIT',  color: 'bg-green-500/20 text-green-400',   border: 'border-green-500',  icon: '🎯', pulse: false },
-  sl_hit:      { label: 'SL HIT',      color: 'bg-red-500/20 text-red-400',       border: 'border-red-500',    icon: '🛑', pulse: false },
-  manual_exit: { label: 'EXITED',      color: 'bg-gray-500/20 text-gray-400',     border: 'border-gray-500',   icon: '🔄', pulse: false },
-  expired:     { label: 'EXPIRED',     color: 'bg-gray-500/20 text-gray-500',     border: 'border-gray-600',   icon: '⏰', pulse: false },
+  active:      { label: 'ACTIVE',      color: 'bg-amber-50 text-amber-600 border-amber-200', border: 'border-amber-200', icon: '🔔', pulse: true },
+  in_market:   { label: 'IN MARKET',   color: 'bg-blue-50 text-blue-600 border-blue-200',     border: 'border-blue-200',   icon: '📊', pulse: true },
+  target_hit:  { label: 'TARGET HIT',  color: 'bg-emerald-50 text-emerald-600 border-emerald-200',   border: 'border-emerald-200',  icon: '🎯', pulse: false },
+  sl_hit:      { label: 'SL HIT',      color: 'bg-red-50 text-red-600 border-red-200',       border: 'border-red-200',    icon: '🛑', pulse: false },
+  manual_exit: { label: 'EXITED',      color                : 'bg-gray-100 text-gray-600 border-gray-200',     border: 'border-gray-200',   icon: '🔄', pulse: false },
+  expired:     { label: 'EXPIRED',     color: 'bg-gray-50 text-gray-400 border-gray-200',     border: 'border-gray-200',   icon: '⏰', pulse: false },
 }
 
 function App() {
@@ -1507,14 +1507,16 @@ function App() {
 
   if (authView !== 'dashboard') {
     return (
-      <div className="min-h-screen bg-[#0f0f1a] flex items-center justify-center px-4">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center px-4">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-3 mb-2">
-              <TrendingUp className="w-10 h-10 text-blue-400" />
-              <h1 className="text-3xl font-bold text-white">TradeVault</h1>
+              <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg shadow-blue-200">
+                <TrendingUp className="w-7 h-7 text-white" />
+              </div>
+              <h1 className="text-3xl font-bold text-gray-900">TradeVault</h1>
             </div>
-            <p className="text-gray-400">Real-time Trading Signals</p>
+            <p className="text-gray-500">Real-time Trading Signals</p>
           </div>
 
           {authView === 'login' ? (
@@ -1534,7 +1536,7 @@ function App() {
   // ─── Dashboard ──────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-[#0f0f1a] text-white">
+    <div className="min-h-screen bg-gray-50 text-gray-900">
       {/* Audio element - gracefully handles missing file */}
       <audio ref={audioRef} src="/notification.mp3" preload="none" onError={(e) => e.target.remove()} />
 
@@ -1542,17 +1544,19 @@ function App() {
       <CreditStore apiKey={apiKey} isOpen={showCreditStore} onClose={() => setShowCreditStore(false)} />
 
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-[#16213e]/95 backdrop-blur border-b border-white/10">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-200 shadow-sm">
+        <div className="w-full px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <TrendingUp className="w-6 h-6 text-blue-400" />
-            <h1 className="text-xl font-bold">TradeVault</h1>
+            <div className="p-1.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-sm">
+              <TrendingUp className="w-5 h-5 text-white" />
+            </div>
+            <h1 className="text-xl font-bold text-gray-900">TradeVault</h1>
           </div>
 
           <div className="flex items-center gap-2">
             {/* Connection Status */}
-            <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs ${
-              isConnected ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+            <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+              isConnected ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-red-50 text-red-600 border border-red-200'
             }`}>
               {isConnected ? <Wifi className="w-3 h-3" /> : <WifiOff className="w-3 h-3" />}
               <span className="hidden sm:inline">{connectionStatus}</span>
@@ -1560,13 +1564,13 @@ function App() {
 
             {/* Broker Account Info — name + balance */}
             {brokerAccountInfo?.connected && (
-              <div className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
-                connectedBroker?.color === 'orange' ? 'bg-orange-500/15 text-orange-300 border border-orange-500/20'
-                : connectedBroker?.color === 'purple' ? 'bg-purple-500/15 text-purple-300 border border-purple-500/20'
-                : 'bg-green-500/15 text-green-300 border border-green-500/20'
+              <div className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${
+                connectedBroker?.color === 'orange' ? 'bg-orange-50 text-orange-600 border-orange-200'
+                : connectedBroker?.color === 'purple' ? 'bg-purple-50 text-purple-600 border-purple-200'
+                : 'bg-emerald-50 text-emerald-600 border-emerald-200'
               }`}>
                 <span className="font-semibold">{brokerAccountInfo.user_name || brokerAccountInfo.user_id}</span>
-                <span className="text-gray-400">·</span>
+                <span className="text-gray-300">·</span>
                 <span className="font-mono">₹{Number(brokerAccountInfo.available_balance).toLocaleString('en-IN')}</span>
               </div>
             )}
@@ -1575,71 +1579,71 @@ function App() {
             <CreditBadge apiKey={apiKey} onBuyClick={() => setShowCreditStore(true)} />
 
             <button onClick={() => setSoundEnabled(!soundEnabled)}
-              className="p-2 hover:bg-white/10 rounded-lg transition">
+              className="p-2 hover:bg-gray-100 rounded-lg transition text-gray-500 hover:text-gray-700">
               {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
             </button>
 
             <button onClick={() => { setShowAutoTrigger(!showAutoTrigger); setShowSettings(false) }}
-              className={`p-2 hover:bg-white/10 rounded-lg transition ${showAutoTrigger ? 'bg-white/10 text-blue-400' : ''}`}
+              className={`p-2 hover:bg-gray-100 rounded-lg transition ${showAutoTrigger ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
               title="Auto-Trigger Settings">
               <Zap className="w-4 h-4" />
             </button>
 
             <button onClick={() => { setShowSettings(!showSettings); setShowAutoTrigger(false) }}
-              className={`p-2 hover:bg-white/10 rounded-lg transition ${showSettings ? 'bg-white/10 text-blue-400' : ''}`}>
+              className={`p-2 hover:bg-gray-100 rounded-lg transition ${showSettings ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}>
               <Settings className="w-4 h-4" />
             </button>
 
             <button onClick={handleLogout}
-              className="p-2 hover:bg-white/10 rounded-lg transition text-red-400" title="Logout">
+              className="p-2 hover:bg-red-50 rounded-lg transition text-red-500 hover:text-red-600" title="Logout">
               <LogOut className="w-4 h-4" />
             </button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 py-4">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 mx-auto">
         {/* ── Broker Connection Bar ───────────────────────────────── */}
-        <div className={`mb-4 p-3 rounded-xl border flex flex-col sm:flex-row items-start sm:items-center gap-3 ${
+        <div className={`mb-6 p-4 rounded-xl border shadow-sm flex flex-col sm:flex-row items-start sm:items-center gap-3 ${
           isBrokerConnected
             ? connectedBroker?.color === 'orange'
-              ? 'bg-orange-500/5 border-orange-500/20'
+              ? 'bg-orange-50 border-orange-200'
               : connectedBroker?.color === 'purple'
-                ? 'bg-purple-500/5 border-purple-500/20'
-                : 'bg-green-500/5 border-green-500/20'
-            : 'bg-[#16213e] border-white/5'
+                ? 'bg-purple-50 border-purple-200'
+                : 'bg-emerald-50 border-emerald-200'
+            : 'bg-white border-gray-200 shadow-sm'
         }`}>
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
               isBrokerConnected
-                ? connectedBroker?.color === 'orange' ? 'bg-orange-500/20'
-                  : connectedBroker?.color === 'purple' ? 'bg-purple-500/20'
-                  : 'bg-green-500/20'
-                : 'bg-gray-500/20'
+                ? connectedBroker?.color === 'orange' ? 'bg-orange-100'
+                  : connectedBroker?.color === 'purple' ? 'bg-purple-100'
+                  : 'bg-emerald-100'
+                : 'bg-gray-100'
             }`}>
               {isBrokerConnected
                 ? <Link2 className={`w-5 h-5 ${
-                    connectedBroker?.color === 'orange' ? 'text-orange-400'
-                    : connectedBroker?.color === 'purple' ? 'text-purple-400'
-                    : 'text-green-400'
+                    connectedBroker?.color === 'orange' ? 'text-orange-500'
+                    : connectedBroker?.color === 'purple' ? 'text-purple-500'
+                    : 'text-emerald-500'
                   }`} />
-                : <Unplug className="w-5 h-5 text-gray-500" />
+                : <Unplug className="w-5 h-5 text-gray-400" />
               }
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold">
+                <span className="text-sm font-semibold text-gray-900">
                   {isBrokerConnected ? `${connectedBroker.name} Connected` : 'Broker Not Connected'}
                 </span>
                 {isBrokerConnected && (
-                  <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                    connectedBroker?.color === 'orange' ? 'bg-orange-500/20 text-orange-400'
-                    : connectedBroker?.color === 'purple' ? 'bg-purple-500/20 text-purple-400'
-                    : 'bg-green-500/20 text-green-400'
+                  <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${
+                    connectedBroker?.color === 'orange' ? 'bg-orange-100 text-orange-600'
+                    : connectedBroker?.color === 'purple' ? 'bg-purple-100 text-purple-600'
+                    : 'bg-emerald-100 text-emerald-600'
                   }`}>LIVE</span>
                 )}
               </div>
-              <p className="text-xs text-gray-400 truncate">
+              <p className="text-xs text-gray-600 truncate">
                 {isBrokerConnected
                   ? `Account: ${connectedBroker.userId} · Orders placed via ${connectedBroker.name}`
                   : 'Connect your broker account to enable order placement'
@@ -1654,13 +1658,13 @@ function App() {
                 : connectedBroker?.name === 'AliceBlue' ? disconnectAliceBlue
                 : disconnectZerodha
               } disabled={disconnecting}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-red-500/30 text-red-400 hover:bg-red-500/10 transition disabled:opacity-50">
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-red-200 text-red-600 hover:bg-red-50 transition disabled:opacity-50">
                 <Power className="w-3.5 h-3.5" />
                 {disconnecting ? 'Disconnecting...' : 'Disconnect'}
               </button>
             ) : (
               <button onClick={() => setShowSettings(true)}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-green-600 hover:bg-green-700 text-white transition">
+                className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white transition shadow-sm">
                 <Link2 className="w-3.5 h-3.5" />
                 Connect Broker
               </button>
@@ -1670,15 +1674,15 @@ function App() {
 
         {/* ── Trade Mode Toggle — only during trade window ─────── */}
         {isTradeWindowOpen && (
-        <div className="mb-4 flex items-center gap-3 p-3 bg-[#16213e] rounded-xl border border-white/5">
-          <Radio className="w-4 h-4 text-gray-400 flex-shrink-0" />
-          <span className="text-xs text-gray-400 flex-shrink-0">Trade Mode:</span>
-          <div className="flex bg-[#0f172a] rounded-lg p-0.5 gap-0.5">
+        <div className="mb-6 flex items-center gap-3 p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
+          <Radio className="w-4 h-4 text-gray-500 flex-shrink-0" />
+          <span className="text-xs text-gray-600 flex-shrink-0">Trade Mode:</span>
+          <div className="flex bg-gray-100 rounded-lg p-0.5 gap-0.5">
             <button onClick={() => toggleTradeMode('manual')}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-md text-xs font-semibold transition-all ${
                 tradeMode === 'manual'
-                  ? 'bg-blue-600 text-white shadow-lg'
-                  : 'text-gray-400 hover:text-gray-300'
+                  ? 'bg-white text-gray-900 shadow-sm border border-gray-200'
+                  : 'text-gray-500 hover:text-gray-700'
               }`}>
               <ToggleLeft className="w-3.5 h-3.5" />
               Manual Trade
@@ -1692,23 +1696,21 @@ function App() {
             }}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-md text-xs font-semibold transition-all ${
                 tradeMode === 'auto'
-                  ? 'bg-green-600 text-white shadow-lg'
+                  ? 'bg-emerald-500 text-white shadow-sm'
                   : pnlLocked
-                  ? 'bg-amber-600/30 text-amber-400 animate-pulse border border-amber-500/50'
-                  : 'text-gray-400 hover:text-gray-300'
+                  ? 'bg-amber-50 text-amber-600 animate-pulse border border-amber-300'
+                  : 'text-gray-500 hover:text-gray-700'
               }`}>
               <ToggleRight className="w-3.5 h-3.5" />
-              {pnlLocked && tradeMode !== 'auto' ? '🔓 Resume Auto' : 'Auto Trade'}
+              {pnlLocked && tradeMode !== 'auto' ? 'Resume Auto' : 'Auto Trade'}
             </button>
           </div>
-          <span className="text-[10px] text-gray-500 ml-auto hidden sm:block">
+          <span className="text-xs text-gray-500 ml-auto hidden sm:block">
             {pnlLocked
-              ? '🔒 P&L limit hit — tap Auto Trade to override'
+              ? 'P&L limit hit — tap Auto Trade to override'
               : tradeMode === 'auto'
-              ? '⚡ Orders placed automatically on signal'
-              : brokerCreds
-                ? '🟢 Orders placed from your device (fast)'
-                : '👆 You place orders manually from signals'}
+              ? 'Orders placed automatically on signal'
+              : 'You place orders manually from signals'}
           </span>
         </div>
         )}
@@ -1716,37 +1718,37 @@ function App() {
         {/* ── Summary Bar — only during trade window ─────────────── */}
         {isTradeWindowOpen && (
         <div className="grid grid-cols-5 gap-2 mb-4">
-          <StatCard label="Active" value={stats.active} icon={<Activity className="w-4 h-4" />} color="text-blue-400" bgColor="bg-blue-500/10" />
-          <StatCard label="🎯 Target" value={stats.targetHit} icon={<Target className="w-4 h-4" />} color="text-green-400" bgColor="bg-green-500/10" />
-          <StatCard label="🛑 SL Hit" value={stats.slHit} icon={<ShieldCheck className="w-4 h-4" />} color="text-red-400" bgColor="bg-red-500/10" />
+          <StatCard label="Active" value={stats.active} icon={<Activity className="w-4 h-4" />} color="text-blue-600" bgColor="bg-blue-500/10" />
+          <StatCard label="🎯 Target" value={stats.targetHit} icon={<Target className="w-4 h-4" />} color="text-green-600" bgColor="bg-green-500/10" />
+          <StatCard label="🛑 SL Hit" value={stats.slHit} icon={<ShieldCheck className="w-4 h-4" />} color="text-red-600" bgColor="bg-red-500/10" />
           <StatCard label="Win Rate" value={stats.closed > 0 ? `${stats.winRate}%` : '—'}
             icon={<BarChart3 className="w-4 h-4" />}
-            color={stats.winRate >= 50 ? 'text-green-400' : 'text-yellow-400'}
+            color={stats.winRate >= 50 ? 'text-green-600' : 'text-yellow-600'}
             bgColor={stats.winRate >= 50 ? 'bg-green-500/10' : 'bg-yellow-500/10'} />
           <StatCard label={stats.hasUserOrders ? 'My P&L' : 'Day P&L'} value={`₹${stats.dayPnl >= 0 ? '+' : ''}${stats.dayPnl.toFixed(0)}`}
             icon={<TrendingUp className="w-4 h-4" />}
-            color={stats.dayPnl >= 0 ? 'text-green-400' : 'text-red-400'}
+            color={stats.dayPnl >= 0 ? 'text-green-600' : 'text-red-600'}
             bgColor={stats.dayPnl >= 0 ? 'bg-green-500/10' : 'bg-red-500/10'} />
         </div>
         )}
 
         {/* ── Broker vs Bot P&L comparison — shows when broker is connected ── */}
         {isTradeWindowOpen && isBrokerConnected && paperStats && paperStats.total_closed > 0 && (
-        <div className="mb-4 flex items-center gap-3 p-3 bg-[#16213e] rounded-xl border border-white/5">
+        <div className="mb-6 flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-200 shadow-sm">
           <div className="flex-1 flex items-center gap-2">
-            <span className="text-[10px] text-gray-500 uppercase tracking-wider">Broker (Live)</span>
-            <span className={`font-mono font-bold text-sm ${stats.dayPnl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+            <span className="text-xs text-gray-600 uppercase tracking-wider">Broker (Live)</span>
+            <span className={`font-mono font-bold text-sm ${stats.dayPnl >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
               ₹{stats.dayPnl >= 0 ? '+' : ''}{stats.dayPnl.toFixed(0)}
             </span>
-            <span className="text-gray-600 text-xs">({stats.closed} trades)</span>
+            <span className="text-gray-500 text-xs">({stats.closed} trades)</span>
           </div>
-          <div className="w-px h-6 bg-gray-700" />
+          <div className="w-px h-6 bg-gray-200" />
           <div className="flex-1 flex items-center gap-2">
-            <span className="text-[10px] text-gray-500 uppercase tracking-wider">Bot (Paper)</span>
-            <span className={`font-mono font-bold text-sm ${paperStats.total_pnl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+            <span className="text-xs text-gray-600 uppercase tracking-wider">Bot (Paper)</span>
+            <span className={`font-mono font-bold text-sm ${paperStats.total_pnl >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
               ₹{paperStats.total_pnl >= 0 ? '+' : ''}{paperStats.total_pnl.toFixed(0)}
             </span>
-            <span className="text-gray-600 text-xs">({paperStats.total_closed} trades)</span>
+            <span className="text-gray-500 text-xs">({paperStats.total_closed} trades)</span>
           </div>
         </div>
         )}
@@ -1795,53 +1797,53 @@ function App() {
 
         {/* ── Funds Sufficiency Modal ─────────────────────────────── */}
         {showFundsModal && fundsStatus && (
-          <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-            <div className="bg-[#1a2744] rounded-2xl border border-white/10 max-w-md w-full p-6 shadow-2xl">
+          <div className="fixed inset-0 bg-gray-900/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+            <div className="bg-white rounded-2xl shadow-xl border border-gray-200 max-w-md w-full p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold flex items-center gap-2">
                   {fundsStatus.sufficient ? (
                     <>
-                      <Check className="w-5 h-5 text-green-400" />
-                      <span className="text-green-400">Funds Sufficient</span>
+                      <Check className="w-5 h-5 text-emerald-500" />
+                      <span className="text-emerald-600">Funds Sufficient</span>
                     </>
                   ) : (
                     <>
-                      <AlertCircle className="w-5 h-5 text-yellow-400" />
-                      <span className="text-yellow-400">Low Balance Warning</span>
+                      <AlertCircle className="w-5 h-5 text-amber-500" />
+                      <span className="text-amber-600">Low Balance Warning</span>
                     </>
                   )}
                 </h3>
                 <button onClick={() => setShowFundsModal(false)}
-                  className="p-1 hover:bg-white/10 rounded-lg transition">
+                  className="p-1 hover:bg-gray-100 rounded-lg transition">
                   <X className="w-4 h-4 text-gray-400" />
                 </button>
               </div>
 
               <div className="space-y-3 mb-4">
-                <div className="bg-[#0f172a] rounded-lg p-3">
-                  <div className="text-xs text-gray-400 mb-1">Available Balance</div>
-                  <div className="text-2xl font-bold text-white">
+                <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                  <div className="text-xs text-gray-500 mb-1">Available Balance</div>
+                  <div className="text-2xl font-bold text-gray-900">
                     ₹{fundsStatus.available.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                   </div>
                 </div>
 
-                <div className="bg-[#0f172a] rounded-lg p-3">
-                  <div className="text-xs text-gray-400 mb-1">Estimated Required (with buffer)</div>
-                  <div className="text-xl font-semibold text-gray-300">
+                <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                  <div className="text-xs text-gray-500 mb-1">Estimated Required (with buffer)</div>
+                  <div className="text-xl font-semibold text-gray-700">
                     ₹{fundsStatus.required.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                   </div>
-                  <div className="text-[10px] text-gray-500 mt-1">
+                  <div className="text-xs text-gray-500 mt-1">
                     For {fundsStatus.indices.join(', ')}
                   </div>
                 </div>
 
                 {!fundsStatus.sufficient && (
-                  <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-3">
-                    <div className="text-xs text-yellow-400 flex items-start gap-2">
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                    <div className="text-xs text-amber-700 flex items-start gap-2">
                       <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
                       <div>
                         <div className="font-semibold mb-1">Insufficient Funds</div>
-                        <div className="text-[10px] leading-relaxed">
+                        <div className="text-xs leading-relaxed">
                           You may not be able to take all signals. Consider adding funds or reducing active indices.
                         </div>
                       </div>
@@ -1852,23 +1854,23 @@ function App() {
 
               <div className="flex gap-2">
                 <button onClick={() => setShowFundsModal(false)}
-                  className="flex-1 px-4 py-2.5 bg-gray-600 hover:bg-gray-500 rounded-lg font-semibold transition">
+                  className="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-semibold transition text-sm">
                   Cancel
                 </button>
                 <button onClick={async () => {
                   setShowFundsModal(false)
                   await forceTradeMode('auto')
                 }}
-                  className={`flex-1 px-4 py-2.5 rounded-lg font-semibold transition ${
+                  className={`flex-1 px-4 py-2.5 rounded-lg font-semibold transition text-sm text-white ${
                     fundsStatus.sufficient
-                      ? 'bg-green-600 hover:bg-green-500'
-                      : 'bg-yellow-600 hover:bg-yellow-500'
+                      ? 'bg-emerald-500 hover:bg-emerald-600'
+                      : 'bg-amber-500 hover:bg-amber-600'
                   }`}>
                   {fundsStatus.sufficient ? 'Continue' : 'Proceed Anyway'}
                 </button>
               </div>
 
-              <p className="text-[10px] text-gray-500 text-center mt-3">
+              <p className="text-xs text-gray-500 text-center mt-3">
                 Estimate based on ₹300/option × lot size. Actual margin may vary.
               </p>
             </div>
@@ -1940,16 +1942,16 @@ function App() {
             brokerPnlData={brokerPnlData}
           />
         ) : (
-          <div className="bg-[#16213e] rounded-xl border border-white/5 p-8 text-center">
-            <Moon className="w-10 h-10 mx-auto mb-3 text-indigo-400" />
-            <h3 className="text-white font-semibold text-lg mb-1">Markets Closed</h3>
-            <p className="text-gray-400 text-sm">Trading signals will appear here when markets open at 9:15 AM</p>
+          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8 text-center">
+            <Moon className="w-10 h-10 mx-auto mb-3 text-indigo-500" />
+            <h3 className="text-gray-900 font-semibold text-lg mb-1">Markets Closed</h3>
+            <p className="text-gray-600 text-sm">Trading signals will appear here when markets open at 9:15 AM</p>
             <p className="text-gray-500 text-xs mt-2">Market Pulse &amp; News widgets are available above</p>
           </div>
         )}
       </main>
 
-      <footer className="mt-8 py-4 text-center text-xs text-gray-600">
+      <footer className="mt-8 py-4 text-center text-xs text-gray-500">
         TradeVault Signals
       </footer>
     </div>
@@ -1962,11 +1964,11 @@ function App() {
 // ═══════════════════════════════════════════════════════════════════════
 
 const STANCE_STYLES = {
-  green:  { bg: 'bg-green-500/10', border: 'border-green-500/30', text: 'text-green-400', bar: 'bg-green-500' },
-  blue:   { bg: 'bg-blue-500/10',  border: 'border-blue-500/30',  text: 'text-blue-400',  bar: 'bg-blue-500' },
-  amber:  { bg: 'bg-amber-500/10', border: 'border-amber-500/30', text: 'text-amber-400', bar: 'bg-amber-500' },
-  red:    { bg: 'bg-red-500/10',   border: 'border-red-500/30',   text: 'text-red-400',   bar: 'bg-red-500' },
-  gray:   { bg: 'bg-gray-500/10',  border: 'border-gray-500/30',  text: 'text-gray-400',  bar: 'bg-gray-500' },
+  green:  { bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-600', bar: 'bg-emerald-500' },
+  blue:   { bg: 'bg-blue-50',  border: 'border-blue-200',  text: 'text-blue-600',  bar: 'bg-blue-500' },
+  amber:  { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-600', bar: 'bg-amber-500' },
+  red:    { bg: 'bg-red-50',   border: 'border-red-200',   text: 'text-red-600',   bar: 'bg-red-500' },
+  gray:   { bg: 'bg-gray-50',  border: 'border-gray-200',  text: 'text-gray-500',  bar: 'bg-gray-400' },
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -1992,12 +1994,11 @@ function NewsMoodBar({ newsData, moodData }) {
   const newsBreak   = breakdown?.news || {}
   const highImpact  = newsBreak?.high_impact || sentiment?.high_impact || []
 
-  // Traffic light based on composite bias (not just news)
   const light = moodBias === 'bullish' ? 'green' : moodBias === 'bearish' ? 'red' : 'gray'
   const lightConfig = {
-    green: { label: moodLabel, labelColor: 'text-green-400', barBg: 'bg-green-500/15', borderColor: 'border-green-500/20', barColor: 'bg-green-400' },
-    red:   { label: moodLabel, labelColor: 'text-red-400',   barBg: 'bg-red-500/15',   borderColor: 'border-red-500/20',   barColor: 'bg-red-400' },
-    gray:  { label: moodLabel, labelColor: 'text-gray-400',  barBg: 'bg-gray-500/10',  borderColor: 'border-gray-500/20',  barColor: 'bg-gray-400' },
+    green: { label: moodLabel, labelColor: 'text-emerald-600', barBg: 'bg-emerald-50', borderColor: 'border-emerald-200', barColor: 'bg-emerald-500' },
+    red:   { label: moodLabel, labelColor: 'text-red-600',   barBg: 'bg-red-50',   borderColor: 'border-red-200',   barColor: 'bg-red-500' },
+    gray:  { label: moodLabel, labelColor: 'text-gray-500',  barBg: 'bg-gray-50',  borderColor: 'border-gray-200',  barColor: 'bg-gray-400' },
   }
   const lc = lightConfig[light]
 
@@ -2007,12 +2008,11 @@ function NewsMoodBar({ newsData, moodData }) {
     ? Math.min(100, Math.max(0, ((compositeScore + 100) / 200) * 100))
     : Math.min(100, Math.max(0, ((displayScore + 30) / 60) * 100))
 
-  // Sub-indicator chip helper
   const Chip = ({ label, score, icon }) => {
-    const chipColor = score > 10 ? 'text-green-400 bg-green-500/10' : score < -10 ? 'text-red-400 bg-red-500/10' : 'text-gray-400 bg-gray-500/10'
+    const chipColor = score > 10 ? 'text-emerald-600 bg-emerald-50 border border-emerald-200' : score < -10 ? 'text-red-600 bg-red-50 border border-red-200' : 'text-gray-600 bg-gray-100 border border-gray-200'
     return (
-      <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium ${chipColor}`}>
-        {icon && <span className="text-[8px]">{icon}</span>}
+      <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-xs font-medium ${chipColor}`}>
+        {icon && <span className="text-xs">{icon}</span>}
         {label}
         <span className="font-mono ml-0.5">{score > 0 ? '+' : ''}{Math.round(score)}</span>
       </span>
@@ -2020,43 +2020,38 @@ function NewsMoodBar({ newsData, moodData }) {
   }
 
   return (
-    <div className={`${lc.barBg} border ${lc.borderColor} rounded-xl mb-3 overflow-hidden`}>
-      {/* ── Main row ─────────────────────────────────────────────── */}
+    <div className={`${lc.barBg} border ${lc.borderColor} rounded-xl mb-4 overflow-hidden shadow-sm`}>
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full p-2.5 flex items-center gap-3 hover:bg-white/[0.02] transition"
+        className="w-full p-2.5 flex items-center gap-3 hover:bg-black/[0.02] transition"
       >
-        {/* Traffic lights */}
         <div className="flex gap-1.5 flex-shrink-0">
           <div className={`w-3 h-3 rounded-full transition-all duration-500 ${
-            moodBias === 'bullish' ? 'bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.6)]' : 'bg-green-900/40'
+            moodBias === 'bullish' ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]' : 'bg-emerald-200'
           }`} />
           <div className={`w-3 h-3 rounded-full transition-all duration-500 ${
-            moodBias === 'neutral' ? 'bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.6)]' : 'bg-yellow-900/40'
+            moodBias === 'neutral' ? 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.6)]' : 'bg-amber-200'
           }`} />
           <div className={`w-3 h-3 rounded-full transition-all duration-500 ${
-            moodBias === 'bearish' ? 'bg-red-400 shadow-[0_0_8px_rgba(248,113,113,0.6)]' : 'bg-red-900/40'
+            moodBias === 'bearish' ? 'bg-red-400 shadow-[0_0_8px_rgba(248,113,113,0.6)]' : 'bg-red-200'
           }`} />
         </div>
 
-        {/* Label + bar */}
         <div className="flex flex-col flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[10px] text-gray-500 uppercase tracking-wider">
+            <span className="text-xs text-gray-600 uppercase tracking-wider">
               {hasComposite ? 'Market Mood' : 'News Mood'}
             </span>
             <span className={`text-xs font-bold ${lc.labelColor}`}>{lc.label}</span>
-            {/* VIX badge */}
             {vix.available && (
-              <span className={`text-[9px] px-1.5 py-0.5 rounded font-medium ${
-                vix.value < 16 ? 'bg-green-500/10 text-green-400'
-                : vix.value < 20 ? 'bg-gray-500/10 text-gray-400'
-                : 'bg-red-500/10 text-red-400'
+                <span className={`text-xs px-1.5 py-0.5 rounded font-medium border ${
+                vix.value < 16 ? 'bg-emerald-50 text-emerald-600 border-emerald-200'
+                : vix.value < 20 ? 'bg-gray-100 text-gray-600 border-gray-200'
+                : 'bg-red-50 text-red-600 border-red-200'
               }`}>
                 VIX {vix.value}
               </span>
             )}
-            {/* Sub-indicator chips (desktop) */}
             {hasComposite && (
               <div className="hidden sm:flex items-center gap-1">
                 <Chip label="News" score={newsBreak.score || 0} icon="📰" />
@@ -2065,8 +2060,7 @@ function NewsMoodBar({ newsData, moodData }) {
               </div>
             )}
           </div>
-          {/* Composite bar */}
-          <div className="w-full h-1 bg-gray-700/50 rounded-full mt-1 overflow-hidden">
+          <div className="w-full h-1.5 bg-gray-100 rounded-full mt-1 overflow-hidden">
             <div
               className={`h-full rounded-full transition-all duration-700 ${lc.barColor}`}
               style={{ width: `${barPct}%` }}
@@ -2074,32 +2068,27 @@ function NewsMoodBar({ newsData, moodData }) {
           </div>
         </div>
 
-        {/* High impact flash */}
         {highImpact.length > 0 && (
           <div className="flex-shrink-0 hidden sm:flex items-center gap-1">
-            <span className="w-1.5 h-1.5 bg-red-400 rounded-full animate-pulse" />
-            <span className="text-[10px] text-red-400 font-medium">{highImpact.length} Alert</span>
+            <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
+            <span className="text-xs text-red-600 font-medium">{highImpact.length} Alert</span>
           </div>
         )}
 
-        {/* Score badge */}
-        <div className={`flex-shrink-0 px-2 py-0.5 rounded-md text-[11px] font-mono font-bold ${
-          displayScore > 0 ? 'bg-green-500/20 text-green-400' : displayScore < 0 ? 'bg-red-500/20 text-red-400' : 'bg-gray-500/20 text-gray-400'
+          <div className={`flex-shrink-0 px-2 py-0.5 rounded-md text-[11px] font-mono font-bold ${
+          displayScore > 0 ? 'bg-emerald-50 text-emerald-600' : displayScore < 0 ? 'bg-red-50 text-red-600' : 'bg-gray-100 text-gray-600'
         }`}>
           {displayScore > 0 ? '+' : ''}{hasComposite ? compositeScore.toFixed(0) : displayScore.toFixed(0)}
         </div>
 
-        {/* Expand chevron */}
         <svg className={`w-3 h-3 text-gray-500 transition-transform ${expanded ? 'rotate-180' : ''}`}
           fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
 
-      {/* ── Expanded breakdown panel ─────────────────────────────── */}
       {expanded && hasComposite && (
-        <div className="px-3 pb-3 pt-1 border-t border-white/5 space-y-2">
-          {/* Breakdown bars */}
+        <div className="px-3 pb-3 pt-1 border-t border-gray-100 space-y-2">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {[
               { label: 'News', score: newsBreak.score || 0, weight: newsBreak.weight, icon: '📰',
@@ -2112,41 +2101,39 @@ function NewsMoodBar({ newsData, moodData }) {
                 detail: moodData.indices?.map(i => `${i.index}: ${i.momentum > 0 ? '+' : ''}${i.momentum?.toFixed(5)}`).join(', ') || 'N/A' },
             ].map(item => {
               const barW = Math.min(100, Math.max(0, ((item.score + 100) / 200) * 100))
-              const barC = item.score > 10 ? 'bg-green-400' : item.score < -10 ? 'bg-red-400' : 'bg-gray-400'
+              const barC = item.score > 10 ? 'bg-emerald-500' : item.score < -10 ? 'bg-red-500' : 'bg-gray-300'
               return (
-                <div key={item.label} className="bg-black/20 rounded-lg p-2">
+                <div key={item.label} className="bg-gray-50 rounded-lg p-2 border border-gray-100">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-[10px] text-gray-400">{item.icon} {item.label} <span className="text-gray-600">({Math.round((item.weight || 0) * 100)}%)</span></span>
-                    <span className={`text-[10px] font-mono font-bold ${
-                      item.score > 0 ? 'text-green-400' : item.score < 0 ? 'text-red-400' : 'text-gray-400'
+                    <span className="text-xs text-gray-600">{item.icon} {item.label} <span className="text-gray-500">({Math.round((item.weight || 0) * 100)}%)</span></span>
+                    <span className={`text-xs font-mono font-bold ${
+                      item.score > 0 ? 'text-emerald-600' : item.score < 0 ? 'text-red-600' : 'text-gray-500'
                     }`}>{item.score > 0 ? '+' : ''}{Math.round(item.score)}</span>
                   </div>
-                  <div className="w-full h-1 bg-gray-700/50 rounded-full overflow-hidden">
+                  <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
                     <div className={`h-full rounded-full transition-all duration-500 ${barC}`} style={{ width: `${barW}%` }} />
                   </div>
-                  <div className="text-[9px] text-gray-600 mt-1 truncate">{item.detail}</div>
+                  <div className="text-xs text-gray-500 mt-1 truncate">{item.detail}</div>
                 </div>
               )
             })}
           </div>
-          {/* VIX row */}
           {vix.available && (
-            <div className="bg-black/20 rounded-lg p-2 flex items-center gap-3">
-              <span className="text-[10px] text-gray-400">⚡ India VIX</span>
+            <div className="bg-gray-50 rounded-lg p-2 flex items-center gap-3 border border-gray-100">
+              <span className="text-xs text-gray-500">India VIX</span>
               <span className={`text-xs font-bold ${
-                vix.value < 16 ? 'text-green-400' : vix.value < 20 ? 'text-yellow-400' : 'text-red-400'
+                vix.value < 16 ? 'text-emerald-600' : vix.value < 20 ? 'text-amber-600' : 'text-red-600'
               }`}>{vix.value}</span>
-              <span className="text-[9px] text-gray-500">{vix.label}</span>
-              <span className={`text-[9px] font-mono ml-auto ${
-                vix.score > 0 ? 'text-green-400' : vix.score < 0 ? 'text-red-400' : 'text-gray-400'
+              <span className="text-xs text-gray-500">{vix.label}</span>
+              <span className={`text-xs font-mono ml-auto ${
+                vix.score > 0 ? 'text-emerald-600' : vix.score < 0 ? 'text-red-600' : 'text-gray-500'
               }`}>Score: {vix.score > 0 ? '+' : ''}{vix.score}</span>
             </div>
           )}
-          {/* Data sources */}
           <div className="flex items-center gap-1 flex-wrap">
-            <span className="text-[9px] text-gray-600">Sources:</span>
+            <span className="text-xs text-gray-500">Sources:</span>
             {(moodData.data_sources || []).map((src, i) => (
-              <span key={i} className="text-[8px] text-gray-600 bg-gray-800/50 px-1.5 py-0.5 rounded">{src}</span>
+              <span key={i} className="text-xs text-gray-500 bg-gray-100 border border-gray-200 px-1.5 py-0.5 rounded">{src}</span>
             ))}
           </div>
         </div>
@@ -2193,13 +2180,13 @@ function MarketPulse({ apiKey, onDataUpdate }) {
     <div className="mb-4">
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="w-full flex items-center justify-between px-3 py-2 bg-[#16213e] rounded-t-xl border border-white/5 hover:bg-[#1a2744] transition"
+        className="w-full flex items-center justify-between px-3 py-2 bg-white rounded-t-xl border border-gray-200 shadow-sm hover:bg-gray-50 transition"
       >
-        <span className="text-xs font-semibold flex items-center gap-2 text-gray-300">
-          <Activity className="w-3.5 h-3.5 text-blue-400" />
+        <span className="text-xs font-semibold flex items-center gap-2 text-gray-700">
+          <Activity className="w-3.5 h-3.5 text-blue-500" />
           Market Pulse
-          <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${
-            isMarketHours ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'
+          <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${
+            isMarketHours ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-gray-100 text-gray-600 border border-gray-200'
           }`}>
             {timeLabel}
           </span>
@@ -2208,45 +2195,42 @@ function MarketPulse({ apiKey, onDataUpdate }) {
       </button>
 
       {!collapsed && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-3 bg-[#16213e] rounded-b-xl border border-t-0 border-white/5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-3 bg-white rounded-b-xl border border-t-0 border-gray-200 shadow-sm">
           {pulseData.indices.map((idx) => {
             const s = STANCE_STYLES[idx.stance_color] || STANCE_STYLES.gray
-            const rsiColor = idx.rsi > 70 ? 'text-red-400' : idx.rsi < 30 ? 'text-green-400' : 'text-gray-300'
+            const rsiColor = idx.rsi > 70 ? 'text-red-600' : idx.rsi < 30 ? 'text-emerald-600' : 'text-gray-700'
 
             return (
               <div key={idx.index} className={`${s.bg} rounded-lg p-3 border ${s.border}`}>
-                {/* Header: Index + Stance */}
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-white">{idx.index}</span>
+                    <span className="text-sm font-bold text-gray-900">{idx.index}</span>
                     {idx.price && (
-                      <span className="text-xs text-gray-400 font-mono">₹{idx.price.toLocaleString()}</span>
+                      <span className="text-xs text-gray-600 font-mono">₹{idx.price.toLocaleString()}</span>
                     )}
                   </div>
-                  <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${s.bg} ${s.text} border ${s.border}`}>
+                  <span className={`px-2 py-0.5 rounded text-xs font-bold ${s.bg} ${s.text} border ${s.border}`}>
                     {idx.stance_icon} {idx.stance}
                   </span>
                 </div>
 
-                {/* Description */}
-                <p className="text-[10px] text-gray-400 mb-2">{idx.stance_desc}</p>
+                <p className="text-xs text-gray-600 mb-2">{idx.stance_desc}</p>
 
-                {/* Indicator bar */}
-                <div className="flex items-center gap-3 text-[10px]">
+                <div className="flex items-center gap-3 text-xs">
                   {idx.rsi != null && (
                     <span className={rsiColor}>
                       RSI: <span className="font-mono font-bold">{idx.rsi}</span>
                     </span>
                   )}
                   {idx.volatility_pct != null && (
-                    <span className="text-gray-400">
+                    <span className="text-gray-600">
                       Vol: <span className="font-mono">{idx.volatility_pct}%</span>
                     </span>
                   )}
                   {idx.bot_decision && (
                     <span className={`ml-auto font-semibold ${
                       idx.bot_decision === 'WAIT' ? 'text-gray-500' :
-                      idx.bot_decision === 'POSITION_OPEN' ? 'text-blue-400' : 'text-yellow-400'
+                      idx.bot_decision === 'POSITION_OPEN' ? 'text-blue-600' : 'text-amber-600'
                     }`}>
                       {idx.bot_decision}
                     </span>
@@ -2267,15 +2251,15 @@ function MarketPulse({ apiKey, onDataUpdate }) {
 // ═══════════════════════════════════════════════════════════════════════
 
 const SENTIMENT_BADGE = {
-  bullish: { bg: 'bg-green-500/20', text: 'text-green-400', icon: '📈' },
-  bearish: { bg: 'bg-red-500/20', text: 'text-red-400', icon: '📉' },
-  neutral: { bg: 'bg-gray-500/20', text: 'text-gray-400', icon: '➖' },
-  mixed:   { bg: 'bg-amber-500/20', text: 'text-amber-400', icon: '⚖️' },
+  bullish: { bg: 'bg-emerald-50 text-emerald-600 border border-emerald-200', text: 'text-emerald-600', icon: '📈' },
+  bearish: { bg: 'bg-red-50 text-red-600 border border-red-200', text: 'text-red-600', icon: '📉' },
+  neutral: { bg: 'bg-gray-50 text-gray-500 border border-gray-200', text: 'text-gray-500', icon: '➖' },
+  mixed:   { bg: 'bg-amber-50 text-amber-600 border border-amber-200', text: 'text-amber-600', icon: '⚖️' },
 }
 
 const IMPACT_BADGE = {
-  high:   { bg: 'bg-red-500/15', text: 'text-red-400', label: 'HIGH' },
-  medium: { bg: 'bg-amber-500/15', text: 'text-amber-400', label: 'MED' },
+  high:   { bg: 'bg-red-50 border border-red-200', text: 'text-red-600', label: 'HIGH' },
+  medium: { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-600', label: 'MED' },
 }
 
 const CATEGORY_ICONS = {
@@ -2313,16 +2297,15 @@ function MarketNewsWidget({ newsData: parentNewsData, apiKey, onRefreshComplete 
 
   return (
     <div className="mb-4">
-      {/* Header */}
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="w-full flex items-center justify-between px-3 py-2 bg-[#16213e] rounded-t-xl border border-white/5 hover:bg-[#1a2744] transition"
+        className="w-full flex items-center justify-between px-3 py-2 bg-white rounded-t-xl border border-gray-200 shadow-sm hover:bg-gray-50 transition"
       >
-        <span className="text-xs font-semibold flex items-center gap-2 text-gray-300">
-          <Newspaper className="w-3.5 h-3.5 text-purple-400" />
+        <span className="text-xs font-semibold flex items-center gap-2 text-gray-700">
+          <Newspaper className="w-3.5 h-3.5 text-purple-500" />
           Market News
           {headlines.length > 0 && (
-            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-purple-500/20 text-purple-400">
+            <span className="px-1.5 py-0.5 rounded text-xs font-bold bg-purple-50 text-purple-600 border border-purple-200">
               {headlines.length}
             </span>
           )}
@@ -2331,13 +2314,12 @@ function MarketNewsWidget({ newsData: parentNewsData, apiKey, onRefreshComplete 
       </button>
 
       {!collapsed && (
-        <div className="bg-[#16213e] rounded-b-xl border border-t-0 border-white/5 p-3">
-          {/* Tab bar + Refresh */}
+        <div className="bg-white rounded-b-xl border border-t-0 border-gray-200 shadow-sm p-3">
           <div className="flex items-center gap-2 mb-3">
             <button
               onClick={() => setShowOutlook(false)}
-              className={`px-3 py-1 rounded-lg text-[10px] font-semibold transition ${
-                !showOutlook ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' : 'text-gray-500 hover:text-gray-300'
+              className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${
+                !showOutlook ? 'bg-purple-50 text-purple-600 border border-purple-200' : 'text-gray-500 hover:text-gray-700'
               }`}
             >
               📰 Headlines
@@ -2345,8 +2327,8 @@ function MarketNewsWidget({ newsData: parentNewsData, apiKey, onRefreshComplete 
             {showOutlookTab && (
               <button
                 onClick={() => setShowOutlook(true)}
-                className={`px-3 py-1 rounded-lg text-[10px] font-semibold transition ${
-                  showOutlook ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'text-gray-500 hover:text-gray-300'
+                className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${
+                  showOutlook ? 'bg-blue-50 text-blue-600 border border-blue-200' : 'text-gray-500 hover:text-gray-700'
                 }`}
               >
                 🔮 Tomorrow's Outlook
@@ -2355,14 +2337,13 @@ function MarketNewsWidget({ newsData: parentNewsData, apiKey, onRefreshComplete 
             <button
               onClick={handleRefresh}
               disabled={refreshing}
-              className="ml-auto p-1 rounded hover:bg-white/5 text-gray-500 hover:text-gray-300 transition"
+              className="ml-auto p-1 rounded hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition"
               title="Refresh news"
             >
               <RefreshCw className={`w-3 h-3 ${refreshing ? 'animate-spin' : ''}`} />
             </button>
           </div>
 
-          {/* Headlines Tab */}
           {!showOutlook && (
             <div className="space-y-2 max-h-[340px] overflow-y-auto pr-1">
               {headlines.length === 0 ? (
@@ -2376,38 +2357,34 @@ function MarketNewsWidget({ newsData: parentNewsData, apiKey, onRefreshComplete 
                   const catIcon = CATEGORY_ICONS[item.category] || '📰'
 
                   return (
-                    <div key={item.id || i} className="bg-[#0f1a2e] rounded-lg p-2.5 border border-white/5 hover:border-white/10 transition">
+                    <div key={item.id || i} className="bg-gray-50 rounded-lg p-2.5 border border-gray-100 hover:border-gray-200 transition">
                       <div className="flex items-start gap-2">
                         <span className="text-sm mt-0.5">{catIcon}</span>
                         <div className="flex-1 min-w-0">
-                          {/* Headline */}
                           <a
                             href={item.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-xs font-medium text-gray-200 hover:text-white transition leading-tight line-clamp-2 block"
+                            className="text-xs font-medium text-gray-700 hover:text-gray-900 transition leading-tight line-clamp-2 block"
                           >
                             {item.headline}
                           </a>
 
-                          {/* AI Summary */}
                           {item.ai_summary && (
-                            <p className="text-[10px] text-gray-400 mt-1 italic">{item.ai_summary}</p>
+                            <p className="text-xs text-gray-600 mt-1 italic">{item.ai_summary}</p>
                           )}
 
-                          {/* Badges row */}
                           <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-                            <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${impact.bg} ${impact.text}`}>
+                            <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${impact.bg} ${impact.text}`}>
                               {impact.label}
                             </span>
-                            <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${sent.bg} ${sent.text}`}>
+                            <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${sent.bg}`}>
                               {sent.icon} {item.sentiment}
                             </span>
-                            <span className="text-[9px] text-gray-600">{item.source}</span>
+                            <span className="text-xs text-gray-500">{item.source}</span>
                             {item.published_at && (
-                              <span className="text-[9px] text-gray-600 ml-auto">
+                              <span className="text-xs text-gray-500 ml-auto">
                                 {(() => {
-                                  // Backend sends UTC without 'Z' — append it so browser converts to IST
                                   const ts = item.published_at.endsWith('Z') ? item.published_at : item.published_at + 'Z'
                                   return new Date(ts).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Kolkata' })
                                 })()}
@@ -2423,18 +2400,16 @@ function MarketNewsWidget({ newsData: parentNewsData, apiKey, onRefreshComplete 
             </div>
           )}
 
-          {/* Outlook Tab */}
           {showOutlook && (
             <div>
               {hasOutlook ? (
-                <div className="bg-[#0f1a2e] rounded-lg p-4 border border-blue-500/20">
-                  {/* Sentiment header */}
+                <div className="bg-gray-50 rounded-lg p-4 border border-blue-200">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <span className="text-lg">{SENTIMENT_BADGE[outlook.sentiment]?.icon || '📊'}</span>
                       <div>
-                        <p className="text-sm font-bold text-white">Next-Day Outlook</p>
-                        <p className="text-[10px] text-gray-500">
+                        <p className="text-sm font-bold text-gray-900">Next-Day Outlook</p>
+                        <p className="text-xs text-gray-500">
                           Generated {outlook.generated_at ? new Date(outlook.generated_at.endsWith?.('Z') ? outlook.generated_at : outlook.generated_at + 'Z').toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Kolkata' }) : ''}
                         </p>
                       </div>
@@ -2442,26 +2417,24 @@ function MarketNewsWidget({ newsData: parentNewsData, apiKey, onRefreshComplete 
                     {outlook.sentiment_score != null && (
                       <div className="text-center">
                         <p className={`text-xl font-bold font-mono ${
-                          outlook.sentiment_score > 20 ? 'text-green-400' :
-                          outlook.sentiment_score < -20 ? 'text-red-400' : 'text-amber-400'
+                          outlook.sentiment_score > 20 ? 'text-emerald-600' :
+                          outlook.sentiment_score < -20 ? 'text-red-600' : 'text-amber-600'
                         }`}>
                           {outlook.sentiment_score > 0 ? '+' : ''}{outlook.sentiment_score}
                         </p>
-                        <p className="text-[9px] text-gray-500">Sentiment Score</p>
+                        <p className="text-xs text-gray-500">Sentiment Score</p>
                       </div>
                     )}
                   </div>
 
-                  {/* Summary */}
-                  <p className="text-xs text-gray-300 leading-relaxed mb-3">{outlook.summary}</p>
+                  <p className="text-xs text-gray-600 leading-relaxed mb-3">{outlook.summary}</p>
 
-                  {/* Key Factors */}
                   {outlook.key_factors?.length > 0 && (
                     <div className="mb-3">
-                      <p className="text-[10px] font-semibold text-gray-400 mb-1">Key Factors</p>
+                      <p className="text-xs font-semibold text-gray-600 mb-1">Key Factors</p>
                       <div className="flex flex-wrap gap-1.5">
                         {outlook.key_factors.map((f, i) => (
-                          <span key={i} className="px-2 py-0.5 rounded-full text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                          <span key={i} className="px-2 py-0.5 rounded-full text-xs bg-blue-50 text-blue-600 border border-blue-200">
                             {f}
                           </span>
                         ))}
@@ -2469,13 +2442,12 @@ function MarketNewsWidget({ newsData: parentNewsData, apiKey, onRefreshComplete 
                     </div>
                   )}
 
-                  {/* Sectors to Watch */}
                   {outlook.sectors_to_watch?.length > 0 && (
                     <div>
-                      <p className="text-[10px] font-semibold text-gray-400 mb-1">Sectors to Watch</p>
+                      <p className="text-xs font-semibold text-gray-600 mb-1">Sectors to Watch</p>
                       <div className="flex flex-wrap gap-1.5">
                         {outlook.sectors_to_watch.map((s, i) => (
-                          <span key={i} className="px-2 py-0.5 rounded-full text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                          <span key={i} className="px-2 py-0.5 rounded-full text-xs bg-amber-50 text-amber-600 border border-amber-200">
                             {s}
                           </span>
                         ))}
@@ -2503,10 +2475,10 @@ function MarketNewsWidget({ newsData: parentNewsData, apiKey, onRefreshComplete 
 
 function StatCard({ label, value, icon, color, bgColor }) {
   return (
-    <div className={`${bgColor} rounded-xl p-2.5 border border-white/5`}>
-      <div className="flex items-center gap-1.5 mb-0.5">
-        <span className={`${color} hidden sm:block`}>{icon}</span>
-        <span className="text-[10px] text-gray-400 uppercase tracking-wide leading-tight">{label}</span>
+    <div className="bg-white rounded-xl p-3 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+      <div className="flex items-center gap-1.5 mb-1">
+        <span className={`${color}`}>{icon}</span>
+        <span className="text-xs text-gray-500 uppercase tracking-wide leading-tight">{label}</span>
       </div>
       <div className={`text-lg font-bold ${color} leading-tight`}>{value}</div>
     </div>
@@ -2588,30 +2560,28 @@ function SignalBoard({ signals, loadingSignals, onRefresh, onPlaceOrder, zerodha
 
   return (
     <div>
-      {/* ── Header ──────────────────────────────────────── */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <h2 className="text-lg font-semibold flex items-center gap-2">
-            <Radio className="w-5 h-5 text-blue-400" /> Live Trades
+          <h2 className="text-lg font-semibold flex items-center gap-2 text-gray-900">
+            <Radio className="w-5 h-5 text-blue-500" /> Live Trades
           </h2>
           {isBrokerConnected && (
-            <span className="text-[10px] bg-green-500/15 text-green-400 px-2 py-0.5 rounded-full font-semibold">
-              🔗 Broker Connected
+            <span className="text-xs bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full font-semibold border border-emerald-200">
+              Broker Connected
             </span>
           )}
           {!isBrokerConnected && (
-            <span className="text-[10px] bg-blue-500/15 text-blue-400 px-2 py-0.5 rounded-full font-semibold">
-              📋 Paper Mode
+            <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full font-semibold border border-blue-200">
+              Paper Mode
             </span>
           )}
         </div>
         <button onClick={onRefresh}
-          className="p-2 hover:bg-white/10 rounded-lg transition" title="Refresh">
+          className="p-2 hover:bg-gray-100 rounded-lg transition text-gray-500 hover:text-gray-700" title="Refresh">
           <RefreshCw className={`w-4 h-4 ${loadingSignals ? 'animate-spin' : ''}`} />
         </button>
       </div>
 
-      {/* ── Active Trades — 4 index slots (grid) ───────────────── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
         {INDEX_SLOTS.map(idx => {
           const signal = activeByIndex[idx]
@@ -2628,45 +2598,41 @@ function SignalBoard({ signals, loadingSignals, onRefresh, onPlaceOrder, zerodha
               />
             )
           }
-          // Empty slot — show placeholder
           return (
-            <div key={idx} className="bg-[#16213e]/50 rounded-xl border border-dashed border-white/10 p-4 flex flex-col items-center justify-center min-h-[100px]">
-              <span className="text-xs font-bold text-gray-600 mb-1">{idx}</span>
-              <span className="text-[10px] text-gray-700">No active trade</span>
+            <div key={idx} className="bg-white rounded-xl border border-dashed border-gray-200 p-4 flex flex-col items-center justify-center min-h-[100px] shadow-sm">
+              <span className="text-xs font-bold text-gray-500 mb-1">{idx}</span>
+              <span className="text-xs text-gray-400">No active trade</span>
             </div>
           )
         })}
       </div>
 
-      {/* ── Empty state if no signals at all ───────────────────── */}
       {signals.length === 0 && (
-        <div className="bg-[#16213e] rounded-xl border border-white/5 p-8 text-center mb-4">
-          <Activity className="w-8 h-8 mx-auto mb-2 text-gray-600" />
-          <p className="text-gray-400 text-sm font-medium">
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8 text-center mb-4">
+          <Activity className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+          <p className="text-gray-600 text-sm font-medium">
             {loadingSignals ? 'Loading signals...' : 'No signals yet today'}
           </p>
           <p className="text-xs text-gray-500 mt-1">Signals appear here in real-time during market hours</p>
         </div>
       )}
 
-      {/* ── Closed Trades — collapsible table ──────────────────── */}
-      {/* Show when backend stats report closed trades OR local signals exist */}
       {(useBackendOrders ? backendClosedOrders.length > 0 : (closedSignals.length > 0 || (backendStats && backendStats.total_closed > 0))) && (
-        <div className="bg-[#16213e] rounded-xl border border-white/5 overflow-hidden">
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
           <button onClick={() => setShowClosed(!showClosed)}
-            className="w-full flex items-center justify-between px-4 py-3 hover:bg-[#1a2744] transition">
-            <span className="text-sm font-semibold flex items-center gap-2 text-gray-300">
+            className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition">
+            <span className="text-sm font-semibold flex items-center gap-2 text-gray-700">
               <Clock className="w-4 h-4 text-gray-400" />
               Closed Trades
-              <span className="text-[10px] bg-green-500/15 text-green-400 px-1.5 py-0.5 rounded-full font-bold">
+              <span className="text-xs bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded-full font-bold border border-emerald-200">
                 🎯 {targetHits}
               </span>
-              <span className="text-[10px] bg-red-500/15 text-red-400 px-1.5 py-0.5 rounded-full font-bold">
+              <span className="text-xs bg-red-50 text-red-600 px-1.5 py-0.5 rounded-full font-bold border border-red-200">
                 🛑 {slHits}
               </span>
               {totalPnl !== 0 && (
-                <span className={`text-[10px] font-mono font-bold ml-1 ${
-                  totalPnl >= 0 ? 'text-green-400' : 'text-red-400'
+                <span className={`text-xs font-mono font-bold ml-1 ${
+                  totalPnl >= 0 ? 'text-emerald-600' : 'text-red-600'
                 }`}>
                   ₹{totalPnl >= 0 ? '+' : ''}{totalPnl.toFixed(0)}
                 </span>
@@ -2676,20 +2642,20 @@ function SignalBoard({ signals, loadingSignals, onRefresh, onPlaceOrder, zerodha
           </button>
 
           {showClosed && (
-            <div className="overflow-x-auto border-t border-white/5">
+            <div className="overflow-x-auto border-t border-gray-100">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-[#0f172a]/40">
-                    <th className="px-3 py-2 text-left text-[10px] text-gray-500 uppercase tracking-wider font-semibold whitespace-nowrap">Time</th>
-                    <th className="px-3 py-2 text-left text-[10px] text-gray-500 uppercase tracking-wider font-semibold whitespace-nowrap">Symbol</th>
-                    <th className="px-3 py-2 text-center text-[10px] text-gray-500 uppercase tracking-wider font-semibold whitespace-nowrap">Type</th>
-                    <th className="px-3 py-2 text-right text-[10px] text-gray-500 uppercase tracking-wider font-semibold whitespace-nowrap">Entry</th>
-                    <th className="px-3 py-2 text-right text-[10px] text-gray-500 uppercase tracking-wider font-semibold whitespace-nowrap">Exit</th>
-                    <th className="px-3 py-2 text-center text-[10px] text-gray-500 uppercase tracking-wider font-semibold whitespace-nowrap">Result</th>
-                    <th className="px-3 py-2 text-right text-[10px] text-gray-500 uppercase tracking-wider font-semibold whitespace-nowrap">P&L</th>
+                  <tr className="bg-gray-100">
+                    <th className="px-3 py-2 text-left text-xs text-gray-700 uppercase tracking-wider font-semibold whitespace-nowrap">Time</th>
+                    <th className="px-3 py-2 text-left text-xs text-gray-700 uppercase tracking-wider font-semibold whitespace-nowrap">Symbol</th>
+                    <th className="px-3 py-2 text-center text-xs text-gray-700 uppercase tracking-wider font-semibold whitespace-nowrap">Type</th>
+                    <th className="px-3 py-2 text-right text-xs text-gray-700 uppercase tracking-wider font-semibold whitespace-nowrap">Entry</th>
+                    <th className="px-3 py-2 text-right text-xs text-gray-700 uppercase tracking-wider font-semibold whitespace-nowrap">Exit</th>
+                    <th className="px-3 py-2 text-center text-xs text-gray-700 uppercase tracking-wider font-semibold whitespace-nowrap">Result</th>
+                    <th className="px-3 py-2 text-right text-xs text-gray-700 uppercase tracking-wider font-semibold whitespace-nowrap">P&L</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/5">
+                <tbody className="divide-y divide-gray-100">
                   {useBackendOrders
                     ? backendClosedOrders.map(order => (
                         <ClosedOrderRow key={order.id} order={order} brokerPositionsMap={brokerPositionsMap} />
@@ -2789,8 +2755,6 @@ function ActiveTradeCard({ signal, onPlaceOrder, zerodhaConnected, tradeMode, au
     setTimeout(() => setOrderMsg(null), 5000)
   }
 
-  // ── Derive trade mode label + colors ──
-  // Check if this specific index has auto-trigger ENABLED
   const indexAutoEnabled = autoTriggerConfigs.some(
     c => (c.index_name || '').toUpperCase() === index.toUpperCase() && c.is_enabled
   )
@@ -2800,39 +2764,35 @@ function ActiveTradeCard({ signal, onPlaceOrder, zerodhaConnected, tradeMode, au
 
   let modeLabel, modeIcon, modeBg, modeBorder, modeText
   if (orderFailed) {
-    modeLabel = 'ORDER FAILED'; modeIcon = '❌'; modeBg = 'bg-red-500/10'; modeBorder = 'border-red-500/50'; modeText = 'text-red-400'
+    modeLabel = 'ORDER FAILED'; modeIcon = '❌'; modeBg = 'bg-red-50'; modeBorder = 'border-red-200'; modeText = 'text-red-600'
   } else if (isLive) {
-    modeLabel = 'LIVE ORDER';  modeIcon = '🟢'; modeBg = 'bg-green-500/10'; modeBorder = 'border-green-500/50'; modeText = 'text-green-400'
+    modeLabel = 'LIVE ORDER';  modeIcon = '🟢'; modeBg = 'bg-emerald-50'; modeBorder = 'border-emerald-200'; modeText = 'text-emerald-600'
   } else if (isAuto && orderFailed) {
-    modeLabel = 'ORDER FAILED'; modeIcon = '❌'; modeBg = 'bg-red-500/10'; modeBorder = 'border-red-500/50'; modeText = 'text-red-400'
+    modeLabel = 'ORDER FAILED'; modeIcon = '❌'; modeBg = 'bg-red-50'; modeBorder = 'border-red-200'; modeText = 'text-red-600'
   } else if (isAuto) {
-    modeLabel = 'AUTO TRADE'; modeIcon = '⚡'; modeBg = 'bg-cyan-500/10'; modeBorder = 'border-cyan-500/50'; modeText = 'text-cyan-400'
+    modeLabel = 'AUTO TRADE'; modeIcon = '⚡'; modeBg = 'bg-cyan-50'; modeBorder = 'border-cyan-200'; modeText = 'text-cyan-600'
   } else if (isPaper) {
-    modeLabel = 'PAPER TRADE'; modeIcon = '📝'; modeBg = 'bg-gray-500/10'; modeBorder = 'border-gray-500/40'; modeText = 'text-gray-400'
+    modeLabel = 'PAPER TRADE'; modeIcon = '📝'; modeBg = 'bg-gray-50'; modeBorder = 'border-gray-200'; modeText = 'text-gray-500'
   } else {
-    modeLabel = 'SIGNAL';      modeIcon = '🔔'; modeBg = 'bg-yellow-500/10'; modeBorder = 'border-yellow-500/40'; modeText = 'text-yellow-400'
+    modeLabel = 'SIGNAL';      modeIcon = '🔔'; modeBg = 'bg-amber-50'; modeBorder = 'border-amber-200'; modeText = 'text-amber-600'
   }
 
-  // Direction styling
   const isCE = direction === 'CE'
-  const dirColor = isCE ? 'text-green-400' : 'text-red-400'
-  const dirBg = isCE ? 'bg-green-500/15 text-green-400 border-green-500/30' : 'bg-red-500/15 text-red-400 border-red-500/30'
-  const cardAccent = isCE ? 'border-l-green-500' : 'border-l-red-500'
+  const dirColor = isCE ? 'text-emerald-600' : 'text-red-600'
+  const dirBg = isCE ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-red-50 text-red-600 border-red-200'
+  const cardAccent = isCE ? 'border-l-emerald-500' : 'border-l-red-500'
 
-  // AI confidence color
   const aiConf = data.ai_confidence
-  const aiColor = aiConf >= 75 ? 'text-green-400' : aiConf >= 50 ? 'text-amber-400' : 'text-red-400'
-  const aiBg = aiConf >= 75 ? 'bg-green-500' : aiConf >= 50 ? 'bg-amber-500' : 'bg-red-500'
+  const aiColor = aiConf >= 75 ? 'text-emerald-600' : aiConf >= 50 ? 'text-amber-600' : 'text-red-600'
+  const aiBg = aiConf >= 75 ? 'bg-emerald-500' : aiConf >= 50 ? 'bg-amber-500' : 'bg-red-500'
 
   return (
-    <div className={`${modeBg} rounded-xl border ${modeBorder} border-l-4 ${cardAccent} overflow-hidden relative`}>
+    <div className="bg-white rounded-xl border border-gray-200 shadow-sm border-l-4 overflow-hidden relative">
 
-      {/* ── Top Strip: Trade Mode ── */}
-      <div className={`flex items-center justify-between px-3 py-1.5 border-b ${modeBorder}`}>
-        <span className={`text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 ${modeText}`}>
+      <div className={`flex items-center justify-between px-3 py-1.5 border-b ${modeBorder} ${modeBg}`}>
+        <span className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${modeText}`}>
           {modeIcon} {modeLabel}
         </span>
-        {/* Live pulse */}
         {status === 'in_market' && (
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-blue-400"></span>
@@ -2840,175 +2800,162 @@ function ActiveTradeCard({ signal, onPlaceOrder, zerodhaConnected, tradeMode, au
           </span>
         )}
         {status === 'active' && (
-          <span className="text-[9px] text-yellow-500 font-semibold animate-pulse">WAITING...</span>
+          <span className="text-xs text-amber-600 font-semibold animate-pulse">WAITING...</span>
         )}
       </div>
 
       <div className="p-3">
-        {/* ── Header: Index + Strike + Direction ── */}
         <div className="flex items-center gap-2 mb-1">
-          <span className="text-base font-bold text-white leading-tight">{index}</span>
-          {derivedStrike && <span className="text-xs font-mono text-gray-300">{derivedStrike}</span>}
-          <span className={`px-2 py-0.5 rounded border text-[10px] font-bold ${dirBg}`}>
+          <span className="text-base font-bold text-gray-900 leading-tight">{index}</span>
+          {derivedStrike && <span className="text-xs font-mono text-gray-500">{derivedStrike}</span>}
+          <span className={`px-2 py-0.5 rounded border text-xs font-bold ${dirBg}`}>
             {isCE ? '▲' : '▼'} {direction}
           </span>
-          {/* AI Confidence inline badge */}
           {aiConf != null && (
             <span className={`ml-auto text-xs font-bold font-mono flex items-center gap-1 ${aiColor}`}>
               🧠 {aiConf}%
             </span>
           )}
         </div>
-        {/* Option contract symbol */}
-        {estimatedSymbol && (
-          <div className="text-[10px] font-mono text-gray-500 mb-2 truncate" title={estimatedSymbol}>
-            📋 {estimatedSymbol}
-          </div>
-        )}
+          {estimatedSymbol && (
+            <div className="text-xs font-mono text-gray-500 mb-2 truncate" title={estimatedSymbol}>
+              📋 {estimatedSymbol}
+            </div>
+          )}
 
-        {/* Current option LTP */}
         {optionLTP && (
-          <div className="flex items-center gap-2 mb-2 text-[10px]">
+          <div className="flex items-center gap-2 mb-2 text-xs">
             <span className="text-gray-500">💹 LTP:</span>
-            <span className="font-mono font-bold text-white">₹{optionLTP.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
+            <span className="font-mono font-bold text-gray-900">₹{optionLTP.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
             {optionMove != null && (
-              <span className={`font-mono font-semibold ${optionMoveDirection === 'up' ? 'text-green-400' : 'text-red-400'}`}>
+              <span className={`font-mono font-semibold ${optionMoveDirection === 'up' ? 'text-emerald-600' : 'text-red-600'}`}>
                 ({optionMove >= 0 ? '+' : ''}{optionMove.toFixed(2)})
               </span>
             )}
           </div>
         )}
 
-        {/* ── Unrealized P&L (in-market) or Closed P&L ── */}
         {status === 'in_market' && unrealizedPnl != null && (
           <div className={`flex items-center justify-between mb-2 px-2 py-1.5 rounded-lg text-xs font-semibold ${
-            unrealizedPnl >= 0 ? 'bg-green-500/10 border border-green-500/30' : 'bg-red-500/10 border border-red-500/30'
+            unrealizedPnl >= 0 ? 'bg-emerald-50 border border-emerald-200' : 'bg-red-50 border border-red-200'
           }`}>
-            <span className="text-gray-400 text-[10px]">📊 Unrealized P&L</span>
-            <span className={`font-mono font-bold ${unrealizedPnl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+            <span className="text-gray-600 text-xs">📊 Unrealized P&L</span>
+            <span className={`font-mono font-bold ${unrealizedPnl >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
               ₹{unrealizedPnl >= 0 ? '+' : ''}{unrealizedPnl.toLocaleString('en-IN')}
             </span>
           </div>
         )}
         {status !== 'in_market' && status !== 'active' && closedPnl != null && closedPnl !== 0 && (
           <div className={`flex items-center justify-between mb-2 px-2 py-1.5 rounded-lg text-xs font-semibold ${
-            closedPnl >= 0 ? 'bg-green-500/10 border border-green-500/30' : 'bg-red-500/10 border border-red-500/30'
+            closedPnl >= 0 ? 'bg-emerald-50 border border-emerald-200' : 'bg-red-50 border border-red-200'
           }`}>
-            <span className="text-gray-400 text-[10px]">💰 P&L</span>
-            <span className={`font-mono font-bold ${closedPnl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+            <span className="text-gray-600 text-xs">💰 P&L</span>
+            <span className={`font-mono font-bold ${closedPnl >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
               ₹{closedPnl >= 0 ? '+' : ''}{Math.round(closedPnl).toLocaleString('en-IN')}
             </span>
           </div>
         )}
 
-        {/* ── Price Row: Entry → Target → SL ── */}
         <div className="flex items-center gap-1 mb-2 text-xs">
-          <div className="flex-1 bg-[#0d1526] rounded-lg px-2 py-1.5 text-center">
-            <div className="text-[9px] text-gray-500 uppercase">Entry</div>
-            <div className="font-mono font-bold text-white text-sm">{fmtPrice(entryPrice)}</div>
+          <div className="flex-1 bg-gray-50 rounded-lg px-2 py-1.5 text-center border border-gray-100">
+            <div className="text-xs text-gray-600 uppercase">Entry</div>
+            <div className="font-mono font-bold text-gray-900 text-sm">{fmtPrice(entryPrice)}</div>
           </div>
-          <span className="text-gray-600">→</span>
-          <div className="flex-1 bg-[#0d1526] rounded-lg px-2 py-1.5 text-center">
-            <div className="text-[9px] text-green-600 uppercase">Target</div>
-            <div className="font-mono font-bold text-green-400 text-sm">{fmtPrice(targetPrice)}</div>
+          <span className="text-gray-400">→</span>
+          <div className="flex-1 bg-gray-50 rounded-lg px-2 py-1.5 text-center border border-gray-100">
+            <div className="text-xs text-emerald-600 uppercase">Target</div>
+            <div className="font-mono font-bold text-emerald-600 text-sm">{fmtPrice(targetPrice)}</div>
           </div>
-          <span className="text-gray-600">|</span>
-          <div className="flex-1 bg-[#0d1526] rounded-lg px-2 py-1.5 text-center">
-            <div className="text-[9px] text-red-600 uppercase">SL</div>
-            <div className="font-mono font-bold text-red-400 text-sm">{fmtPrice(slPrice)}</div>
+          <span className="text-gray-400">|</span>
+          <div className="flex-1 bg-gray-50 rounded-lg px-2 py-1.5 text-center border border-gray-100">
+            <div className="text-xs text-red-600 uppercase">SL</div>
+            <div className="font-mono font-bold text-red-600 text-sm">{fmtPrice(slPrice)}</div>
           </div>
         </div>
 
-        {/* ── AI Confidence Bar + Expandable Narration ── */}
         {aiConf != null && (
           <div className="mb-2">
-            {/* Compact bar */}
-            <div className="w-full h-1 bg-gray-700/40 rounded-full overflow-hidden">
+            <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
               <div className={`h-full rounded-full transition-all duration-500 ${aiBg}`}
                 style={{ width: `${aiConf}%` }} />
             </div>
-            {/* Narration toggle */}
             {data.ai_narration && (
               <button onClick={() => setShowNarration(!showNarration)}
-                className="text-[9px] text-gray-500 hover:text-gray-300 mt-1 transition">
+                className="text-xs text-gray-500 hover:text-gray-700 mt-1 transition">
                 {showNarration ? '▾ Hide AI insight' : '▸ View AI insight'}
               </button>
             )}
             {showNarration && data.ai_narration && (
-              <p className="text-[10px] text-gray-400 italic leading-relaxed mt-1 pl-2 border-l-2 border-purple-500/30">
+              <p className="text-xs text-gray-600 italic leading-relaxed mt-1 pl-2 border-l-2 border-purple-300">
                 {data.ai_narration}
               </p>
             )}
-            {/* AI-suggested levels */}
             {(data.ai_target_pts || data.ai_sl_pts) && entryPrice && showNarration && (
-              <div className="flex items-center gap-3 mt-1 text-[9px]">
+              <div className="flex items-center gap-3 mt-1 text-xs">
                 {data.ai_target_pts && data.ai_target_pts !== data.target_points && (
-                  <span className="text-green-500">AI Target: {fmtPrice(entryPrice + data.ai_target_pts)}</span>
+                  <span className="text-emerald-600">AI Target: {fmtPrice(entryPrice + data.ai_target_pts)}</span>
                 )}
                 {data.ai_sl_pts && data.ai_sl_pts !== data.sl_points && (
-                  <span className="text-red-500">AI SL: {fmtPrice(entryPrice - data.ai_sl_pts)}</span>
+                  <span className="text-red-600">AI SL: {fmtPrice(entryPrice - data.ai_sl_pts)}</span>
                 )}
               </div>
             )}
             {data.ai_risk_factors?.length > 0 && (
               <div className="flex items-center gap-1 mt-1">
                 {data.ai_risk_factors.slice(0, 3).map((risk, i) => (
-                  <span key={i} className="text-[8px] bg-orange-500/10 text-orange-400 px-1.5 py-0.5 rounded">⚠ {risk}</span>
+                  <span key={i} className="text-xs bg-orange-50 text-orange-600 border border-orange-200 px-1.5 py-0.5 rounded">⚠ {risk}</span>
                 ))}
               </div>
             )}
           </div>
         )}
 
-        {/* AI analyzing state for new signals */}
         {aiConf == null && (() => {
           const sigAge = signalTime ? (Date.now() - new Date(signalTime).getTime()) / 1000 : 999
           if (sigAge < 120) {
             return (
               <div className="mb-2">
-                <span className="text-[9px] text-gray-600 flex items-center gap-1.5">
-                  🧠 <span className="animate-pulse">AI analyzing...</span>
-                </span>
+              <span className="text-xs text-gray-500 flex items-center gap-1.5">
+                🧠 <span className="animate-pulse">AI analyzing...</span>
+              </span>
               </div>
             )
           }
           return null
         })()}
 
-        {/* ── Footer: Time + Action ── */}
-        <div className="flex items-center justify-between pt-2 border-t border-white/5">
-          <span className="text-[10px] text-gray-500 flex items-center gap-1">
+        <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+          <span className="text-xs text-gray-500 flex items-center gap-1">
             <Clock className="w-3 h-3" /> {timeStr}
           </span>
 
-          {/* Action button — CLEAR state labels */}
           {!hasOrder && (tradeMode === 'manual' || !indexAutoEnabled) && status === 'in_market' ? (
             <button onClick={handlePlaceOrder} disabled={orderLoading}
-              className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition disabled:opacity-50 ${
+              className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition disabled:opacity-50 shadow-sm ${
                 zerodhaConnected
-                  ? 'bg-green-600 hover:bg-green-500 text-white'
-                  : 'bg-gray-600 hover:bg-gray-500 text-gray-100'
+                  ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white'
+                  : 'bg-gray-500 hover:bg-gray-600 text-white'
               }`}>
               {orderLoading ? <RefreshCw className="w-3 h-3 animate-spin" /> : zerodhaConnected ? <Zap className="w-3 h-3" /> : <Target className="w-3 h-3" />}
-              {zerodhaConnected ? '🟢 Place Live Order' : '📝 Paper Trade'}
+              {zerodhaConnected ? 'Place Live Order' : 'Paper Trade'}
             </button>
           ) : orderFailed ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-red-500/15 text-red-400 border border-red-500/30"
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-red-50 text-red-600 border border-red-200"
               title={data.my_order?.error_message || 'Order failed'}>
               ❌ Order Failed
             </span>
           ) : orderPlaced ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-green-500/15 text-green-400 border border-green-500/30">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-emerald-50 text-emerald-600 border border-emerald-200">
               <Check className="w-3 h-3" /> Live Order Active
             </span>
           ) : isAuto ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-cyan-500/15 text-cyan-400 border border-cyan-500/30">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-cyan-50 text-cyan-600 border border-cyan-200">
               ⚡ Auto Trading
             </span>
           ) : null}
 
           {orderMsg && (
-            <span className={`text-[9px] ml-2 ${orderMsg.success ? 'text-green-400' : 'text-red-400'}`}>
+            <span className={`text-xs ml-2 ${orderMsg.success ? 'text-emerald-600' : 'text-red-600'}`}>
               {orderMsg.message?.substring(0, 25)}
             </span>
           )}
@@ -3052,39 +2999,39 @@ function ClosedTradeRow({ signal }) {
   const fmtPrice = (v) => v != null ? `₹${Number(v).toFixed(2)}` : '—'
 
   return (
-    <tr className="hover:bg-[#1a2744]/30 transition" title={estimatedSymbol || undefined}>
+    <tr className="hover:bg-gray-50 transition" title={estimatedSymbol || undefined}>
       <td className="px-3 py-2.5 whitespace-nowrap">
-        <span className="text-xs text-gray-400 font-mono">{timeStr}</span>
+        <span className="text-xs text-gray-500 font-mono">{timeStr}</span>
       </td>
       <td className="px-3 py-2.5 whitespace-nowrap">
         <div>
-          <span className="text-xs font-semibold text-gray-300">{index} {strike}</span>
+          <span className="text-xs font-semibold text-gray-700">{index} {strike}</span>
           {hasOrder && (
-            <span className="ml-1 text-[8px] bg-blue-500/20 text-blue-400 px-1 py-0.5 rounded font-bold">MY</span>
+            <span className="ml-1 text-xs bg-blue-50 text-blue-600 px-1 py-0.5 rounded font-bold border border-blue-200">MY</span>
           )}
           {estimatedSymbol && (
-            <div className="text-[9px] font-mono text-gray-600 truncate max-w-[120px]">{estimatedSymbol}</div>
+            <div className="text-xs font-mono text-gray-400 truncate max-w-[120px]">{estimatedSymbol}</div>
           )}
         </div>
       </td>
       <td className="px-3 py-2.5 text-center whitespace-nowrap">
-        <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
-          direction === 'CE' ? 'bg-green-500/15 text-green-400' : 'bg-red-500/15 text-red-400'
+        <span className={`px-1.5 py-0.5 rounded text-xs font-bold border ${
+          direction === 'CE' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-red-50 text-red-600 border-red-200'
         }`}>{direction || '—'}</span>
       </td>
       <td className="px-3 py-2.5 text-right whitespace-nowrap">
-        <span className="text-xs font-mono text-gray-400">{fmtPrice(entryPrice)}</span>
+        <span className="text-xs font-mono text-gray-500">{fmtPrice(entryPrice)}</span>
       </td>
       <td className="px-3 py-2.5 text-right whitespace-nowrap">
-        <span className="text-xs font-mono text-gray-400">{fmtPrice(exitPrice)}</span>
+        <span className="text-xs font-mono text-gray-500">{fmtPrice(exitPrice)}</span>
       </td>
       <td className="px-3 py-2.5 text-center whitespace-nowrap">
-        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${cfg.color}`}>
+        <span className={`px-2 py-0.5 rounded text-xs font-bold border ${cfg.color}`}>
           {cfg.icon} {cfg.label}
         </span>
       </td>
       <td className="px-3 py-2.5 text-right whitespace-nowrap">
-        <span className={`text-xs font-mono font-bold ${pnl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+        <span className={`text-xs font-mono font-bold ${pnl >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
           {pnl !== 0 ? `₹${pnl >= 0 ? '+' : ''}${pnl.toFixed(0)}` : '—'}
         </span>
       </td>
@@ -3145,37 +3092,37 @@ function ClosedOrderRow({ order, brokerPositionsMap = {} }) {
   const fmtPrice = (v) => v != null ? `₹${Number(v).toFixed(2)}` : '—'
 
   return (
-    <tr className="hover:bg-[#1a2744]/30 transition" title={symbol || undefined}>
+    <tr className="hover:bg-gray-50 transition" title={symbol || undefined}>
       <td className="px-3 py-2.5 whitespace-nowrap">
-        <span className="text-xs text-gray-400 font-mono">{timeStr}</span>
+        <span className="text-xs text-gray-500 font-mono">{timeStr}</span>
       </td>
       <td className="px-3 py-2.5 whitespace-nowrap">
         <div>
-          <span className="text-xs font-semibold text-gray-300">{index} {strike}</span>
-          <span className="ml-1 text-[8px] bg-blue-500/20 text-blue-400 px-1 py-0.5 rounded font-bold">MY</span>
+          <span className="text-xs font-semibold text-gray-700">{index} {strike}</span>
+          <span className="ml-1 text-xs bg-blue-50 text-blue-600 px-1 py-0.5 rounded font-bold border border-blue-200">MY</span>
           {symbol && (
-            <div className="text-[9px] font-mono text-gray-600 truncate max-w-[120px]">{symbol}</div>
+            <div className="text-xs font-mono text-gray-400 truncate max-w-[120px]">{symbol}</div>
           )}
         </div>
       </td>
       <td className="px-3 py-2.5 text-center whitespace-nowrap">
-        <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
-          direction === 'CE' ? 'bg-green-500/15 text-green-400' : 'bg-red-500/15 text-red-400'
+        <span className={`px-1.5 py-0.5 rounded text-xs font-bold border ${
+          direction === 'CE' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-red-50 text-red-600 border-red-200'
         }`}>{direction || '—'}</span>
       </td>
       <td className="px-3 py-2.5 text-right whitespace-nowrap">
-        <span className="text-xs font-mono text-gray-400">{fmtPrice(entryPrice)}</span>
+        <span className="text-xs font-mono text-gray-500">{fmtPrice(entryPrice)}</span>
       </td>
       <td className="px-3 py-2.5 text-right whitespace-nowrap">
-        <span className="text-xs font-mono text-gray-400">{fmtPrice(exitPrice)}</span>
+        <span className="text-xs font-mono text-gray-500">{fmtPrice(exitPrice)}</span>
       </td>
       <td className="px-3 py-2.5 text-center whitespace-nowrap">
-        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${cfg.color}`}>
+        <span className={`px-2 py-0.5 rounded text-xs font-bold border ${cfg.color}`}>
           {cfg.icon} {cfg.label}
         </span>
       </td>
       <td className="px-3 py-2.5 text-right whitespace-nowrap">
-        <span className={`text-xs font-mono font-bold ${pnl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+        <span className={`text-xs font-mono font-bold ${pnl >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
           {pnl !== 0 ? `₹${pnl >= 0 ? '+' : ''}${pnl.toFixed(0)}` : '—'}
         </span>
       </td>
@@ -3192,15 +3139,15 @@ function AutoTriggerPanel({ configs, onUpdate, zerodhaConnected }) {
   const indices = ['NIFTY', 'BANKNIFTY', 'SENSEX', 'BANKEX']
 
   return (
-    <div className="mb-4 p-4 bg-[#16213e] rounded-xl border border-white/5">
-      <h3 className="text-sm font-bold mb-3 flex items-center gap-2">
-        <Zap className="w-4 h-4 text-blue-400" />
+    <div className="mb-6 p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
+      <h3 className="text-sm font-bold mb-3 flex items-center gap-2 text-gray-900">
+        <Zap className="w-4 h-4 text-blue-500" />
         Auto-Trigger Settings
         {!zerodhaConnected && (
-          <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-400">Paper Mode</span>
+          <span className="text-xs px-2 py-0.5 rounded bg-amber-50 text-amber-600 border border-amber-200">Paper Mode</span>
         )}
       </h3>
-      <p className="text-xs text-gray-400 mb-3">
+      <p className="text-xs text-gray-600 mb-3">
         When enabled, orders are automatically placed when signals arrive for the selected index.
       </p>
 
@@ -3226,16 +3173,16 @@ function AutoTriggerRow({ indexName, config, onUpdate }) {
   }
 
   return (
-    <div className="flex items-center justify-between p-3 rounded-lg bg-[#0f172a]/50">
+    <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 border border-gray-100">
       <div>
-        <span className="text-sm font-bold">{indexName}</span>
+        <span className="text-sm font-bold text-gray-900">{indexName}</span>
       </div>
       <button
         onClick={toggle}
         disabled={loading}
-        className={`relative w-12 h-6 rounded-full transition-colors ${config.is_enabled ? 'bg-blue-600' : 'bg-gray-700'}`}
+        className={`relative w-12 h-6 rounded-full transition-colors ${config.is_enabled ? 'bg-blue-500' : 'bg-gray-300'}`}
       >
-        <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${config.is_enabled ? 'translate-x-6' : ''}`} />
+        <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform shadow-sm ${config.is_enabled ? 'translate-x-6' : ''}`} />
       </button>
     </div>
   )
@@ -3268,7 +3215,7 @@ async function fetchWithRetry(url, options = {}, maxRetries = 3) {
 // ═══════════════════════════════════════════════════════════════════════
 
 function LoginForm({ onSuccess, onSwitchToRegister, onForgotPassword }) {
-  const [tab, setTab] = useState('email') // 'email' | 'apikey'
+  const [tab, setTab] = useState('email')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [apiKeyInput, setApiKeyInput] = useState('')
@@ -3280,24 +3227,19 @@ function LoginForm({ onSuccess, onSwitchToRegister, onForgotPassword }) {
     e.preventDefault()
     setError('')
     setLoading(true)
-
     try {
       const res = await fetchWithRetry(`${API_BASE}/api/signals/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
       })
-
       const data = await res.json()
-
       if (!res.ok) {
         setError(data.detail || 'Login failed')
         setLoading(false)
         return
       }
-
       const firstKey = data.api_key || ''
-
       onSuccess(
         { user_id: data.user_id, email: data.email, full_name: data.full_name },
         firstKey
@@ -3312,12 +3254,10 @@ function LoginForm({ onSuccess, onSwitchToRegister, onForgotPassword }) {
   const handleApiKeyLogin = (e) => {
     e.preventDefault()
     if (!apiKeyInput.trim()) { setError('Enter an API key'); return }
-    // Validate the key against server before accepting
     setError('')
     fetch(`${API_BASE}/api/signals/zerodha/status?api_key=${apiKeyInput.trim()}`)
       .then(res => {
         if (res.ok || res.status === 404) {
-          // Key is valid (404 just means no Zerodha connected yet)
           onSuccess({ email: 'api-key-user' }, apiKeyInput.trim())
         } else {
           setError('Invalid API key')
@@ -3327,21 +3267,20 @@ function LoginForm({ onSuccess, onSwitchToRegister, onForgotPassword }) {
   }
 
   return (
-    <div className="bg-[#16213e] rounded-2xl p-6 border border-white/10">
-      {/* Tabs */}
-      <div className="flex mb-6 bg-[#0f3460]/50 rounded-lg p-1">
+    <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 p-6 border border-gray-100">
+      <div className="flex mb-6 bg-gray-100 rounded-lg p-1">
         <button onClick={() => { setTab('email'); setError('') }}
-          className={`flex-1 py-2 rounded-md text-sm font-medium transition ${tab === 'email' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'}`}>
+          className={`flex-1 py-2 rounded-md text-sm font-medium transition ${tab === 'email' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
           <LogIn className="w-4 h-4 inline mr-1" /> Email Login
         </button>
         <button onClick={() => { setTab('apikey'); setError('') }}
-          className={`flex-1 py-2 rounded-md text-sm font-medium transition ${tab === 'apikey' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'}`}>
+          className={`flex-1 py-2 rounded-md text-sm font-medium transition ${tab === 'apikey' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
           <Key className="w-4 h-4 inline mr-1" /> API Key
         </button>
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm flex items-center gap-2">
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm flex items-center gap-2">
           <AlertCircle className="w-4 h-4 flex-shrink-0" /> {error}
         </div>
       )}
@@ -3349,51 +3288,51 @@ function LoginForm({ onSuccess, onSwitchToRegister, onForgotPassword }) {
       {tab === 'email' ? (
         <form onSubmit={handleEmailLogin} className="space-y-4">
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Email</label>
+            <label className="block text-sm text-gray-600 mb-1">Email</label>
             <input type="email" value={email} onChange={e => setEmail(e.target.value)} required
-              className="w-full px-4 py-3 bg-[#0f3460] rounded-lg border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+              className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
               placeholder="you@example.com" />
           </div>
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Password</label>
+            <label className="block text-sm text-gray-600 mb-1">Password</label>
             <div className="relative">
               <input type={showPassword ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} required
-                className="w-full px-4 py-3 bg-[#0f3460] rounded-lg border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 pr-10" />
+                className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 pr-10 transition" />
               <button type="button" onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white">
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
           </div>
           <button type="submit" disabled={loading}
-            className="w-full py-3 bg-blue-600 hover:bg-blue-500 rounded-lg font-medium transition disabled:opacity-50">
+            className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg font-medium transition disabled:opacity-50 shadow-lg shadow-blue-200">
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
       ) : (
         <form onSubmit={handleApiKeyLogin} className="space-y-4">
           <div>
-            <label className="block text-sm text-gray-400 mb-1">API Key</label>
+            <label className="block text-sm text-gray-600 mb-1">API Key</label>
             <input type="text" value={apiKeyInput} onChange={e => setApiKeyInput(e.target.value)}
-              className="w-full px-4 py-3 bg-[#0f3460] rounded-lg border border-white/10 text-white font-mono text-sm placeholder-gray-500 focus:outline-none focus:border-blue-500"
+              className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-900 font-mono text-sm placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
               placeholder="tv_xxxxxxxxxxxxxxxx" />
           </div>
           <button type="submit"
-            className="w-full py-3 bg-blue-600 hover:bg-blue-500 rounded-lg font-medium transition">
+            className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg font-medium transition shadow-lg shadow-blue-200">
             Connect
           </button>
         </form>
       )}
 
       <div className="mt-4 text-center">
-        <button onClick={onForgotPassword} className="text-gray-400 hover:text-blue-300 text-xs">
+        <button onClick={onForgotPassword} className="text-gray-500 hover:text-blue-600 text-xs transition">
           Forgot your password?
         </button>
       </div>
 
       <div className="mt-3 text-center">
-        <span className="text-gray-400 text-sm">Don't have an account? </span>
-        <button onClick={onSwitchToRegister} className="text-blue-400 hover:text-blue-300 text-sm font-medium">
+        <span className="text-gray-500 text-sm">Don't have an account? </span>
+        <button onClick={onSwitchToRegister} className="text-blue-600 hover:text-blue-700 text-sm font-medium transition">
           Register
         </button>
       </div>
@@ -3416,14 +3355,12 @@ function ForgotPasswordForm({ onBackToLogin }) {
     e.preventDefault()
     setError('')
     setLoading(true)
-
     try {
       const res = await fetch(`${API_BASE}/api/signals/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, frontend_url: window.location.origin })
       })
-
       if (res.ok) {
         setSent(true)
       } else {
@@ -3438,14 +3375,14 @@ function ForgotPasswordForm({ onBackToLogin }) {
   }
 
   return (
-    <div className="bg-[#16213e] rounded-2xl p-6 border border-white/10">
-      <h2 className="text-xl font-semibold text-white mb-2">Reset Password</h2>
-      <p className="text-gray-400 text-sm mb-6">
+    <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 p-6 border border-gray-100">
+      <h2 className="text-xl font-semibold text-gray-900 mb-2">Reset Password</h2>
+      <p className="text-gray-500 text-sm mb-6">
         Enter your email and we'll send you a link to reset your password.
       </p>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm flex items-center gap-2">
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm flex items-center gap-2">
           <AlertCircle className="w-4 h-4 flex-shrink-0" /> {error}
         </div>
       )}
@@ -3453,26 +3390,26 @@ function ForgotPasswordForm({ onBackToLogin }) {
       {sent ? (
         <div className="text-center py-6">
           <div className="text-4xl mb-3">📧</div>
-          <p className="text-green-400 font-medium mb-2">Check your email!</p>
-          <p className="text-gray-400 text-sm mb-6">
+          <p className="text-green-600 font-medium mb-2">Check your email!</p>
+          <p className="text-gray-500 text-sm mb-6">
             If that email is registered, you'll receive a password reset link shortly.
             The link expires in 15 minutes.
           </p>
           <button onClick={onBackToLogin}
-            className="text-blue-400 hover:text-blue-300 text-sm font-medium">
+            className="text-blue-600 hover:text-blue-700 text-sm font-medium transition">
             ← Back to Login
           </button>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Email</label>
+            <label className="block text-sm text-gray-600 mb-1">Email</label>
             <input type="email" value={email} onChange={e => setEmail(e.target.value)} required
-              className="w-full px-4 py-3 bg-[#0f3460] rounded-lg border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+              className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
               placeholder="you@example.com" />
           </div>
           <button type="submit" disabled={loading}
-            className="w-full py-3 bg-blue-600 hover:bg-blue-500 rounded-lg font-medium transition disabled:opacity-50">
+            className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg font-medium transition disabled:opacity-50 shadow-lg shadow-blue-200">
             {loading ? 'Sending...' : 'Send Reset Link'}
           </button>
         </form>
@@ -3480,7 +3417,7 @@ function ForgotPasswordForm({ onBackToLogin }) {
 
       {!sent && (
         <div className="mt-6 text-center">
-          <button onClick={onBackToLogin} className="text-blue-400 hover:text-blue-300 text-sm font-medium">
+          <button onClick={onBackToLogin} className="text-blue-600 hover:text-blue-700 text-sm font-medium transition">
             ← Back to Login
           </button>
         </div>
@@ -3505,7 +3442,6 @@ function ResetPasswordForm({ token, email, onBackToLogin }) {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
-
     if (newPassword.length < 6) {
       setError('Password must be at least 6 characters')
       return
@@ -3514,18 +3450,14 @@ function ResetPasswordForm({ token, email, onBackToLogin }) {
       setError('Passwords do not match')
       return
     }
-
     setLoading(true)
-
     try {
       const res = await fetch(`${API_BASE}/api/signals/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, token, new_password: newPassword })
       })
-
       const data = await res.json()
-
       if (res.ok) {
         setSuccess(true)
       } else {
@@ -3539,14 +3471,14 @@ function ResetPasswordForm({ token, email, onBackToLogin }) {
   }
 
   return (
-    <div className="bg-[#16213e] rounded-2xl p-6 border border-white/10">
-      <h2 className="text-xl font-semibold text-white mb-2">Set New Password</h2>
-      <p className="text-gray-400 text-sm mb-6">
-        Enter your new password for <strong className="text-white">{email}</strong>
+    <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 p-6 border border-gray-100">
+      <h2 className="text-xl font-semibold text-gray-900 mb-2">Set New Password</h2>
+      <p className="text-gray-500 text-sm mb-6">
+        Enter your new password for <strong className="text-gray-900">{email}</strong>
       </p>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm flex items-center gap-2">
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm flex items-center gap-2">
           <AlertCircle className="w-4 h-4 flex-shrink-0" /> {error}
         </div>
       )}
@@ -3554,37 +3486,37 @@ function ResetPasswordForm({ token, email, onBackToLogin }) {
       {success ? (
         <div className="text-center py-6">
           <div className="text-4xl mb-3">✅</div>
-          <p className="text-green-400 font-medium mb-2">Password reset successful!</p>
-          <p className="text-gray-400 text-sm mb-6">
+          <p className="text-green-600 font-medium mb-2">Password reset successful!</p>
+          <p className="text-gray-500 text-sm mb-6">
             You can now log in with your new password.
           </p>
           <button onClick={onBackToLogin}
-            className="w-full py-3 bg-blue-600 hover:bg-blue-500 rounded-lg font-medium transition">
+            className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg font-medium transition shadow-lg shadow-blue-200">
             Go to Login
           </button>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm text-gray-400 mb-1">New Password</label>
+            <label className="block text-sm text-gray-600 mb-1">New Password</label>
             <div className="relative">
               <input type={showPassword ? 'text' : 'password'} value={newPassword} onChange={e => setNewPassword(e.target.value)} required
-                className="w-full px-4 py-3 bg-[#0f3460] rounded-lg border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 pr-10"
+                className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 pr-10 transition"
                 placeholder="Min 6 characters" />
               <button type="button" onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white">
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
           </div>
           <div>
-            <label className="block text-sm text-gray-400 mb-1">Confirm Password</label>
+            <label className="block text-sm text-gray-600 mb-1">Confirm Password</label>
             <input type={showPassword ? 'text' : 'password'} value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required
-              className="w-full px-4 py-3 bg-[#0f3460] rounded-lg border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+              className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
               placeholder="Re-enter password" />
           </div>
           <button type="submit" disabled={loading}
-            className="w-full py-3 bg-blue-600 hover:bg-blue-500 rounded-lg font-medium transition disabled:opacity-50">
+            className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg font-medium transition disabled:opacity-50 shadow-lg shadow-blue-200">
             {loading ? 'Resetting...' : 'Reset Password'}
           </button>
         </form>
@@ -3592,7 +3524,7 @@ function ResetPasswordForm({ token, email, onBackToLogin }) {
 
       {!success && (
         <div className="mt-6 text-center">
-          <button onClick={onBackToLogin} className="text-blue-400 hover:text-blue-300 text-sm font-medium">
+          <button onClick={onBackToLogin} className="text-blue-600 hover:text-blue-700 text-sm font-medium transition">
             ← Back to Login
           </button>
         </div>
@@ -3619,34 +3551,27 @@ function RegisterForm({ onSuccess, onSwitchToLogin }) {
   const handleRegister = async (e) => {
     e.preventDefault()
     setError('')
-
     if (password !== confirmPassword) {
       setError('Passwords do not match')
       return
     }
-
     if (password.length < 6) {
       setError('Password must be at least 6 characters')
       return
     }
-
     setLoading(true)
-
     try {
       const res = await fetchWithRetry(`${API_BASE}/api/signals/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, full_name: fullName })
       })
-
       const data = await res.json()
-
       if (!res.ok) {
         setError(data.detail || 'Registration failed')
         setLoading(false)
         return
       }
-
       setRegisteredKey(data.api_key)
     } catch {
       setError('Network error — is the server running?')
@@ -3665,36 +3590,35 @@ function RegisterForm({ onSuccess, onSwitchToLogin }) {
     onSuccess({ email, full_name: fullName }, registeredKey)
   }
 
-  // Show API key after successful registration
   if (registeredKey) {
     return (
-      <div className="bg-[#16213e] rounded-2xl p-6 border border-white/10">
+      <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 p-6 border border-gray-100">
         <div className="text-center mb-4">
-          <div className="w-16 h-16 mx-auto mb-3 bg-green-500/20 rounded-full flex items-center justify-center">
-            <Check className="w-8 h-8 text-green-400" />
+          <div className="w-16 h-16 mx-auto mb-3 bg-green-100 rounded-full flex items-center justify-center">
+            <Check className="w-8 h-8 text-green-600" />
           </div>
-          <h3 className="text-xl font-bold text-white">Registration Successful!</h3>
-          <p className="text-gray-400 text-sm mt-1">Save your API key — it's shown only once</p>
+          <h3 className="text-xl font-bold text-gray-900">Registration Successful!</h3>
+          <p className="text-gray-500 text-sm mt-1">Save your API key — it's shown only once</p>
         </div>
 
-        <div className="mb-4 p-3 bg-[#0f3460] rounded-lg">
-          <label className="block text-xs text-gray-400 mb-1">Your API Key</label>
+        <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+          <label className="block text-xs text-gray-500 mb-1">Your API Key</label>
           <div className="flex items-center gap-2">
-            <code className="flex-1 text-sm text-blue-400 font-mono break-all">{registeredKey}</code>
+            <code className="flex-1 text-sm text-blue-600 font-mono break-all">{registeredKey}</code>
             <button onClick={copyKey}
-              className="p-2 hover:bg-white/10 rounded-lg transition flex-shrink-0">
-              {copied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
+              className="p-2 hover:bg-gray-100 rounded-lg transition flex-shrink-0">
+              {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4 text-gray-400" />}
             </button>
           </div>
         </div>
 
-        <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg text-amber-400 text-xs mb-4">
-          <AlertCircle className="w-4 h-4 inline mr-1" />
+        <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-700 text-xs mb-4 flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 flex-shrink-0" />
           This key has also been emailed to you. Keep it safe!
         </div>
 
         <button onClick={proceedToDashboard}
-          className="w-full py-3 bg-blue-600 hover:bg-blue-500 rounded-lg font-medium transition">
+          className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg font-medium transition shadow-lg shadow-blue-200">
           Open Dashboard
         </button>
       </div>
@@ -3702,47 +3626,47 @@ function RegisterForm({ onSuccess, onSwitchToLogin }) {
   }
 
   return (
-    <div className="bg-[#16213e] rounded-2xl p-6 border border-white/10">
-      <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-        <UserPlus className="w-5 h-5 text-blue-400" /> Create Account
+    <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 p-6 border border-gray-100">
+      <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+        <UserPlus className="w-5 h-5 text-blue-600" /> Create Account
       </h3>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm flex items-center gap-2">
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm flex items-center gap-2">
           <AlertCircle className="w-4 h-4 flex-shrink-0" /> {error}
         </div>
       )}
 
       <form onSubmit={handleRegister} className="space-y-4">
         <div>
-          <label className="block text-sm text-gray-400 mb-1">Full Name</label>
+          <label className="block text-sm text-gray-600 mb-1">Full Name</label>
           <input type="text" value={fullName} onChange={e => setFullName(e.target.value)} required
-            className="w-full px-4 py-3 bg-[#0f3460] rounded-lg border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500" />
+            className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition" />
         </div>
         <div>
-          <label className="block text-sm text-gray-400 mb-1">Email</label>
+          <label className="block text-sm text-gray-600 mb-1">Email</label>
           <input type="email" value={email} onChange={e => setEmail(e.target.value)} required
-            className="w-full px-4 py-3 bg-[#0f3460] rounded-lg border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500" />
+            className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition" />
         </div>
         <div>
-          <label className="block text-sm text-gray-400 mb-1">Password</label>
+          <label className="block text-sm text-gray-600 mb-1">Password</label>
           <input type="password" value={password} onChange={e => setPassword(e.target.value)} required
-            className="w-full px-4 py-3 bg-[#0f3460] rounded-lg border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500" />
+            className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition" />
         </div>
         <div>
-          <label className="block text-sm text-gray-400 mb-1">Confirm Password</label>
+          <label className="block text-sm text-gray-600 mb-1">Confirm Password</label>
           <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required
-            className="w-full px-4 py-3 bg-[#0f3460] rounded-lg border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500" />
+            className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition" />
         </div>
         <button type="submit" disabled={loading}
-          className="w-full py-3 bg-blue-600 hover:bg-blue-500 rounded-lg font-medium transition disabled:opacity-50">
+          className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg font-medium transition disabled:opacity-50 shadow-lg shadow-blue-200">
           {loading ? 'Creating account...' : 'Create Account'}
         </button>
       </form>
 
       <div className="mt-6 text-center">
-        <span className="text-gray-400 text-sm">Already have an account? </span>
-        <button onClick={onSwitchToLogin} className="text-blue-400 hover:text-blue-300 text-sm font-medium">
+        <span className="text-gray-500 text-sm">Already have an account? </span>
+        <button onClick={onSwitchToLogin} className="text-blue-600 hover:text-blue-700 text-sm font-medium transition">
           Sign In
         </button>
       </div>
@@ -3826,60 +3750,58 @@ function BrokerCredentialsModal({ onClose, onSave, onExchangeToken, initialReque
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-sm p-4"
          onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="bg-[#16213e] rounded-2xl border border-white/10 shadow-2xl w-full max-w-md p-6 animate-fade-in max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-xl border border-gray-200 w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold flex items-center gap-2">
-            <ExternalLink className="w-5 h-5 text-green-400" />
+          <h2 className="text-lg font-bold flex items-center gap-2 text-gray-900">
+            <ExternalLink className="w-5 h-5 text-emerald-500" />
             Connect Zerodha
           </h2>
-          <button onClick={onClose} className="p-1 hover:bg-white/10 rounded-full">
+          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-full transition">
             <X className="w-5 h-5 text-gray-400" />
           </button>
         </div>
 
-        {/* Step indicator */}
         <div className="flex items-center gap-2 mb-5">
           {[1, 2, 3].map(s => (
             <div key={s} className="flex items-center gap-2 flex-1">
               <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all ${
-                s < step ? 'bg-green-500 border-green-500 text-white' :
-                s === step ? 'border-blue-400 text-blue-400 bg-blue-400/10' :
-                'border-white/20 text-gray-500'
+                s < step ? 'bg-emerald-500 border-emerald-500 text-white' :
+                s === step ? 'border-blue-500 text-blue-600 bg-blue-50' :
+                'border-gray-300 text-gray-500'
               }`}>{s < step ? '✓' : s}</div>
-              {s < 3 && <div className={`flex-1 h-0.5 ${s < step ? 'bg-green-500' : 'bg-white/10'}`} />}
+              {s < 3 && <div className={`flex-1 h-0.5 ${s < step ? 'bg-emerald-500' : 'bg-gray-200'}`} />}
             </div>
           ))}
         </div>
 
         {error && (
-          <div className="mb-3 p-2 bg-red-500/20 border border-red-500/30 rounded-lg">
-            <p className="text-xs text-red-300">❌ {error}</p>
+          <div className="mb-3 p-2 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-xs text-red-600">❌ {error}</p>
           </div>
         )}
 
-        {/* ─── Step 1: Enter Kite Credentials ─── */}
         {step === 1 && (
           <>
             <div className="mb-4 space-y-2">
-              <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                <p className="text-xs font-semibold text-blue-300 mb-2">Step 1: Create Kite Connect App</p>
-                <p className="text-xs text-blue-300/80">
+              <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-xs font-semibold text-blue-700 mb-2">Step 1: Create Kite Connect App</p>
+                <p className="text-xs text-blue-600/80">
                   Go to{' '}
                   <a href="https://developers.kite.trade" target="_blank" rel="noopener noreferrer"
-                     className="underline text-blue-400 hover:text-blue-300">
+                     className="underline text-blue-600 hover:text-blue-700">
                     developers.kite.trade
                   </a>
                   {' '}→ Create a new app → Copy your <strong>API Key</strong> and <strong>API Secret</strong>.
                 </p>
               </div>
-              <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
-                <p className="text-xs font-semibold text-amber-300 mb-2">Important: Set Redirect URL</p>
-                <p className="text-xs text-amber-300/80 mb-1">
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                <p className="text-xs font-semibold text-amber-700 mb-2">Important: Set Redirect URL</p>
+                <p className="text-xs text-amber-600/80 mb-1">
                   In your Kite app settings, set the <strong>Redirect URL</strong> to:
                 </p>
-                <code className="block text-[10px] text-amber-400 bg-black/30 p-2 rounded break-all font-mono select-all">
+                <code className="block text-xs text-amber-700 bg-amber-50/50 p-2 rounded break-all font-mono select-all border border-amber-100">
                   {CALLBACK_URL}
                 </code>
               </div>
@@ -3887,34 +3809,34 @@ function BrokerCredentialsModal({ onClose, onSave, onExchangeToken, initialReque
 
             <form onSubmit={handleSaveCredentials} className="space-y-4">
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Kite API Key</label>
+                <label className="block text-sm text-gray-600 mb-1">Kite API Key</label>
                 <input
                   type="text"
                   value={kiteApiKey}
                   onChange={e => setKiteApiKey(e.target.value)}
                   placeholder="e.g. bol7cc1v3l7jvhda"
                   required
-                  className="w-full px-4 py-3 bg-[#0f3460] rounded-lg border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-green-500 font-mono text-sm"
+                  className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 font-mono text-sm transition"
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Kite API Secret</label>
+                <label className="block text-sm text-gray-600 mb-1">Kite API Secret</label>
                 <input
                   type="password"
                   value={kiteApiSecret}
                   onChange={e => setKiteApiSecret(e.target.value)}
                   placeholder="Your Kite API secret"
                   required
-                  className="w-full px-4 py-3 bg-[#0f3460] rounded-lg border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-green-500 font-mono text-sm"
+                  className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 font-mono text-sm transition"
                 />
               </div>
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={onClose}
-                  className="flex-1 py-3 rounded-lg border border-white/10 text-gray-400 hover:bg-white/5 transition text-sm">
+                  className="flex-1 py-3 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 transition text-sm">
                   Cancel
                 </button>
                 <button type="submit" disabled={saving}
-                  className="flex-1 py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold transition text-sm disabled:opacity-50">
+                  className="flex-1 py-3 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-semibold transition text-sm disabled:opacity-50">
                   {saving ? 'Saving...' : 'Save & Continue →'}
                 </button>
               </div>
@@ -3922,13 +3844,12 @@ function BrokerCredentialsModal({ onClose, onSave, onExchangeToken, initialReque
           </>
         )}
 
-        {/* ─── Step 2: Login to Zerodha & Paste Request Token ─── */}
         {step === 2 && (
           <>
             <div className="mb-4 space-y-3">
-              <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                <p className="text-xs font-semibold text-blue-300 mb-2">Step 2: Login to Zerodha</p>
-                <p className="text-xs text-blue-300/80">
+              <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-xs font-semibold text-blue-700 mb-2">Step 2: Login to Zerodha</p>
+                <p className="text-xs text-blue-600/80">
                   Click the button below to open the Zerodha login page in a <strong>new window</strong>.
                   After logging in, you'll see a <strong>request token</strong> — copy it.
                 </p>
@@ -3936,21 +3857,21 @@ function BrokerCredentialsModal({ onClose, onSave, onExchangeToken, initialReque
 
               {loginUrl ? (
                 <a href={loginUrl} target="_blank" rel="noopener noreferrer"
-                  className="w-full py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition text-sm flex items-center justify-center gap-2 no-underline">
+                  className="w-full py-3 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-semibold transition text-sm flex items-center justify-center gap-2 no-underline">
                   <ExternalLink className="w-4 h-4" />
                   Open Zerodha Login (New Tab)
                 </a>
               ) : (
                 <button onClick={handleFetchLoginUrl}
-                  className="w-full py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition text-sm flex items-center justify-center gap-2">
+                  className="w-full py-3 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-semibold transition text-sm flex items-center justify-center gap-2">
                   <ExternalLink className="w-4 h-4" />
                   {fetchingUrl ? 'Loading...' : 'Get Zerodha Login Link'}
                 </button>
               )}
 
-              <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
-                <p className="text-xs font-semibold text-amber-300 mb-2">Step 3: Paste Request Token</p>
-                <p className="text-xs text-amber-300/80">
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                <p className="text-xs font-semibold text-amber-700 mb-2">Step 3: Paste Request Token</p>
+                <p className="text-xs text-amber-600/80">
                   After Zerodha login, you'll see a page with the <strong>request token</strong>.
                   Copy it and paste it below.
                 </p>
@@ -3959,23 +3880,23 @@ function BrokerCredentialsModal({ onClose, onSave, onExchangeToken, initialReque
 
             <form onSubmit={handleExchangeToken} className="space-y-4">
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Request Token</label>
+                <label className="block text-sm text-gray-600 mb-1">Request Token</label>
                 <input
                   type="text"
                   value={requestToken}
                   onChange={e => setRequestToken(e.target.value)}
                   placeholder="Paste request token from Zerodha window"
                   required
-                  className="w-full px-4 py-3 bg-[#0f3460] rounded-lg border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 font-mono text-sm"
+                  className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-mono text-sm transition"
                 />
               </div>
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => { setStep(1); setError(''); }}
-                  className="flex-1 py-3 rounded-lg border border-white/10 text-gray-400 hover:bg-white/5 transition text-sm">
+                  className="flex-1 py-3 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 transition text-sm">
                   ← Back
                 </button>
                 <button type="submit" disabled={exchanging || !requestToken.trim()}
-                  className="flex-1 py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold transition text-sm disabled:opacity-50">
+                  className="flex-1 py-3 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-semibold transition text-sm disabled:opacity-50">
                   {exchanging ? 'Connecting...' : 'Generate Access Token'}
                 </button>
               </div>
@@ -3983,27 +3904,26 @@ function BrokerCredentialsModal({ onClose, onSave, onExchangeToken, initialReque
           </>
         )}
 
-        {/* ─── Step 3: Success ─── */}
         {step === 3 && (
           <div className="text-center py-4">
-            <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Check className="w-8 h-8 text-green-400" />
+            <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Check className="w-8 h-8 text-emerald-500" />
             </div>
-            <h3 className="text-lg font-bold text-green-400 mb-2">Connected!</h3>
-            <p className="text-sm text-gray-300 mb-1">
-              Zerodha account <strong className="text-green-300">{connectedUser}</strong> is now linked.
+            <h3 className="text-lg font-bold text-emerald-600 mb-2">Connected!</h3>
+            <p className="text-sm text-gray-600 mb-1">
+              Zerodha account <strong className="text-emerald-600">{connectedUser}</strong> is now linked.
             </p>
             <p className="text-xs text-gray-500 mb-6">
               Auto-trade signals will now place orders on your behalf.
             </p>
             <button onClick={onClose}
-              className="w-full py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold transition text-sm">
+              className="w-full py-3 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-semibold transition text-sm">
               Done
             </button>
           </div>
         )}
 
-        <p className="mt-3 text-[10px] text-gray-500 text-center">
+        <p className="mt-3 text-xs text-gray-400 text-center">
           Your credentials are encrypted (AES-256) and stored securely. They are only used for placing orders on your behalf.
         </p>
       </div>
@@ -4118,68 +4038,65 @@ function UpstoxCredentialsModal({ onClose, onSave, onExchangeCode, initialCode }
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-sm p-4"
          onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="bg-[#16213e] rounded-2xl border border-white/10 shadow-2xl w-full max-w-md p-6 animate-fade-in max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-xl border border-gray-200 w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold flex items-center gap-2">
-            <Link2 className="w-5 h-5 text-orange-400" />
+          <h2 className="text-lg font-bold flex items-center gap-2 text-gray-900">
+            <Link2 className="w-5 h-5 text-orange-500" />
             Connect Upstox
           </h2>
-          <button onClick={onClose} className="p-1 hover:bg-white/10 rounded-full">
+          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-full transition">
             <X className="w-5 h-5 text-gray-400" />
           </button>
         </div>
 
-        {/* Step indicator */}
         <div className="flex items-center gap-2 mb-5">
           {[1, 2, 3].map(s => (
             <div key={s} className="flex items-center gap-2 flex-1">
               <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all ${
                 s < step ? 'bg-orange-500 border-orange-500 text-white' :
-                s === step ? 'border-orange-400 text-orange-400 bg-orange-400/10' :
-                'border-white/20 text-gray-500'
+                s === step ? 'border-orange-500 text-orange-600 bg-orange-50' :
+                'border-gray-300 text-gray-500'
               }`}>{s < step ? '✓' : s}</div>
-              {s < 3 && <div className={`flex-1 h-0.5 ${s < step ? 'bg-orange-500' : 'bg-white/10'}`} />}
+              {s < 3 && <div className={`flex-1 h-0.5 ${s < step ? 'bg-orange-500' : 'bg-gray-200'}`} />}
             </div>
           ))}
         </div>
 
         {error && (
-          <div className="mb-3 p-2 bg-red-500/20 border border-red-500/30 rounded-lg">
-            <p className="text-xs text-red-300">❌ {error}</p>
+          <div className="mb-3 p-2 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-xs text-red-600">❌ {error}</p>
           </div>
         )}
 
-        {/* Loading state while checking existing credentials */}
         {checkingCreds && (
           <div className="text-center py-6">
-            <RefreshCw className="w-8 h-8 text-orange-400 animate-spin mx-auto mb-3" />
-            <p className="text-sm text-gray-300">Checking saved credentials...</p>
+            <RefreshCw className="w-8 h-8 text-orange-500 animate-spin mx-auto mb-3" />
+            <p className="text-sm text-gray-600">Checking saved credentials...</p>
           </div>
         )}
 
-        {/* ─── Step 1: Enter Upstox Credentials ─── */}
         {!checkingCreds && step === 1 && (
           <>
             <div className="mb-4 space-y-2">
-              <div className="p-3 bg-orange-500/10 border border-orange-500/20 rounded-lg">
-                <p className="text-xs font-semibold text-orange-300 mb-2">Step 1: Create Upstox API App</p>
-                <p className="text-xs text-orange-300/80">
+              <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                <p className="text-xs font-semibold text-orange-700 mb-2">Step 1: Create Upstox API App</p>
+                <p className="text-xs text-orange-600/80">
                   Go to{' '}
                   <a href="https://account.upstox.com/developer/apps" target="_blank" rel="noopener noreferrer"
-                     className="underline text-orange-400 hover:text-orange-300">
+                     className="underline text-orange-600 hover:text-orange-700">
                     account.upstox.com/developer/apps
                   </a>
                   {' '}→ Create a new app → Copy your <strong>API Key</strong> and <strong>API Secret</strong>.
                 </p>
               </div>
-              <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
-                <p className="text-xs font-semibold text-amber-300 mb-2">Important: Set Redirect URL</p>
-                <p className="text-xs text-amber-300/80 mb-1">
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                <p className="text-xs font-semibold text-amber-700 mb-2">Important: Set Redirect URL</p>
+                <p className="text-xs text-amber-600/80 mb-1">
                   In your Upstox app settings, set the <strong>Redirect URL</strong> to:
                 </p>
-                <code className="block text-[10px] text-amber-400 bg-black/30 p-2 rounded break-all font-mono select-all">
+                <code className="block text-xs text-amber-700 bg-amber-50/50 p-2 rounded break-all font-mono select-all border border-amber-100">
                   {`${API_BASE}/api/signals/upstox/callback`}
                 </code>
               </div>
@@ -4187,34 +4104,34 @@ function UpstoxCredentialsModal({ onClose, onSave, onExchangeCode, initialCode }
 
             <form onSubmit={handleSaveCredentials} className="space-y-4">
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Upstox API Key</label>
+                <label className="block text-sm text-gray-600 mb-1">Upstox API Key</label>
                 <input
                   type="text"
                   value={upstoxApiKey}
                   onChange={e => setUpstoxApiKey(e.target.value)}
                   placeholder="Your Upstox API key"
                   required
-                  className="w-full px-4 py-3 bg-[#0f3460] rounded-lg border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-orange-500 font-mono text-sm"
+                  className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 font-mono text-sm transition"
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Upstox API Secret</label>
+                <label className="block text-sm text-gray-600 mb-1">Upstox API Secret</label>
                 <input
                   type="password"
                   value={upstoxApiSecret}
                   onChange={e => setUpstoxApiSecret(e.target.value)}
                   placeholder="Your Upstox API secret"
                   required
-                  className="w-full px-4 py-3 bg-[#0f3460] rounded-lg border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-orange-500 font-mono text-sm"
+                  className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 font-mono text-sm transition"
                 />
               </div>
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={onClose}
-                  className="flex-1 py-3 rounded-lg border border-white/10 text-gray-400 hover:bg-white/5 transition text-sm">
+                  className="flex-1 py-3 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 transition text-sm">
                   Cancel
                 </button>
                 <button type="submit" disabled={saving}
-                  className="flex-1 py-3 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-semibold transition text-sm disabled:opacity-50">
+                  className="flex-1 py-3 rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-semibold transition text-sm disabled:opacity-50">
                   {saving ? 'Saving...' : 'Save & Continue →'}
                 </button>
               </div>
@@ -4222,49 +4139,48 @@ function UpstoxCredentialsModal({ onClose, onSave, onExchangeCode, initialCode }
           </>
         )}
 
-        {/* ─── Step 2: Login to Upstox & Paste Code ─── */}
         {!checkingCreds && step === 2 && (
           <>
             <div className="mb-4 space-y-3">
-              <div className="p-3 bg-orange-500/10 border border-orange-500/20 rounded-lg">
-                <p className="text-xs font-semibold text-orange-300 mb-2">Step 2: Login to Upstox</p>
-                <p className="text-xs text-orange-300/80">
+              <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                <p className="text-xs font-semibold text-orange-700 mb-2">Step 2: Login to Upstox</p>
+                <p className="text-xs text-orange-600/80">
                   Click the button below to open the Upstox login page. After logging in, you'll see an <strong>authorization code</strong> — copy it and paste it below.
                 </p>
               </div>
 
               {loginUrl ? (
                 <a href={loginUrl} target="_blank" rel="noopener noreferrer"
-                  className="w-full py-3 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-semibold transition text-sm flex items-center justify-center gap-2 no-underline">
+                  className="w-full py-3 rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-semibold transition text-sm flex items-center justify-center gap-2 no-underline">
                   <ExternalLink className="w-4 h-4" />
                   Open Upstox Login (New Tab)
                 </a>
               ) : (
-                <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
-                  <p className="text-xs text-amber-300">Go back to Step 1 and enter your Upstox credentials first.</p>
+                <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                  <p className="text-xs text-amber-600">Go back to Step 1 and enter your Upstox credentials first.</p>
                 </div>
               )}
             </div>
 
             <form onSubmit={handleExchangeCode} className="space-y-4">
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Authorization Code</label>
+                <label className="block text-sm text-gray-600 mb-1">Authorization Code</label>
                 <input
                   type="text"
                   value={code}
                   onChange={e => setCode(e.target.value)}
                   placeholder="Paste authorization code from Upstox"
                   required
-                  className="w-full px-4 py-3 bg-[#0f3460] rounded-lg border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-orange-500 font-mono text-sm"
+                  className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500 font-mono text-sm transition"
                 />
               </div>
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => { setStep(1); setError(''); }}
-                  className="flex-1 py-3 rounded-lg border border-white/10 text-gray-400 hover:bg-white/5 transition text-sm">
+                  className="flex-1 py-3 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 transition text-sm">
                   ← Back
                 </button>
                 <button type="submit" disabled={exchanging || !code.trim()}
-                  className="flex-1 py-3 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-semibold transition text-sm disabled:opacity-50">
+                  className="flex-1 py-3 rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-semibold transition text-sm disabled:opacity-50">
                   {exchanging ? 'Connecting...' : 'Connect Upstox'}
                 </button>
               </div>
@@ -4272,27 +4188,26 @@ function UpstoxCredentialsModal({ onClose, onSave, onExchangeCode, initialCode }
           </>
         )}
 
-        {/* ─── Step 3: Success ─── */}
         {!checkingCreds && step === 3 && (
           <div className="text-center py-4">
-            <div className="w-16 h-16 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Check className="w-8 h-8 text-orange-400" />
+            <div className="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Check className="w-8 h-8 text-orange-500" />
             </div>
-            <h3 className="text-lg font-bold text-orange-400 mb-2">Connected!</h3>
-            <p className="text-sm text-gray-300 mb-1">
-              Upstox account <strong className="text-orange-300">{connectedUser}</strong> is now linked.
+            <h3 className="text-lg font-bold text-orange-600 mb-2">Connected!</h3>
+            <p className="text-sm text-gray-600 mb-1">
+              Upstox account <strong className="text-orange-600">{connectedUser}</strong> is now linked.
             </p>
             <p className="text-xs text-gray-500 mb-6">
-              You can now trade via Upstox from TradeVault.
+              You can now trade via TradeVault.
             </p>
             <button onClick={onClose}
-              className="w-full py-3 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-semibold transition text-sm">
+              className="w-full py-3 rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-semibold transition text-sm">
               Done
             </button>
           </div>
         )}
 
-        <p className="mt-3 text-[10px] text-gray-500 text-center">
+        <p className="mt-3 text-xs text-gray-400 text-center">
           Your credentials are encrypted (AES-256) and stored securely. They are only used for placing orders on your behalf.
         </p>
       </div>
@@ -4357,35 +4272,34 @@ function AliceBlueCredentialsModal({ onClose, onSave }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-sm p-4"
          onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="bg-[#16213e] rounded-2xl border border-white/10 shadow-2xl w-full max-w-md p-6 animate-fade-in max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-xl border border-gray-200 w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold flex items-center gap-2">
-            <Link2 className="w-5 h-5 text-purple-400" />
+          <h2 className="text-lg font-bold flex items-center gap-2 text-gray-900">
+            <Link2 className="w-5 h-5 text-purple-500" />
             Connect AliceBlue
           </h2>
-          <button onClick={onClose} className="p-1 hover:bg-white/10 rounded-full">
+          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-full transition">
             <X className="w-5 h-5 text-gray-400" />
           </button>
         </div>
 
         {error && (
-          <div className="mb-3 p-2 bg-red-500/20 border border-red-500/30 rounded-lg">
-            <p className="text-xs text-red-300">❌ {error}</p>
+          <div className="mb-3 p-2 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-xs text-red-600">❌ {error}</p>
           </div>
         )}
 
-        {/* ─── Step 1: Enter Credentials & Connect ─── */}
         {step === 1 && (
           <>
             <div className="mb-4 space-y-2">
-              <div className="p-3 bg-purple-500/10 border border-purple-500/20 rounded-lg">
-                <p className="text-xs font-semibold text-purple-300 mb-2">AliceBlue v2 API Setup</p>
-                <p className="text-xs text-purple-300/80">
+              <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                <p className="text-xs font-semibold text-purple-700 mb-2">AliceBlue v2 API Setup</p>
+                <p className="text-xs text-purple-600/80">
                   Enter your credentials from{' '}
                   <a href="https://a3.aliceblueonline.com" target="_blank" rel="noopener noreferrer"
-                     className="underline text-purple-400 hover:text-purple-300">
+                     className="underline text-purple-600 hover:text-purple-700">
                     a3.aliceblueonline.com
                   </a>{' '}Developer Console.
                 </p>
@@ -4394,58 +4308,57 @@ function AliceBlueCredentialsModal({ onClose, onSave }) {
 
             <form onSubmit={handleConnect} className="space-y-4">
               <div>
-                <label className="block text-sm text-gray-400 mb-1">AliceBlue User ID</label>
+                <label className="block text-sm text-gray-600 mb-1">AliceBlue User ID</label>
                 <input
                   type="text"
                   value={abUserId}
                   onChange={e => setAbUserId(e.target.value.toUpperCase())}
                   placeholder="e.g., AB1234"
                   required
-                  className="w-full px-4 py-3 bg-[#0f3460] rounded-lg border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 font-mono text-sm"
+                  className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 font-mono text-sm transition"
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1">API Secret</label>
+                <label className="block text-sm text-gray-600 mb-1">API Secret</label>
                 <input
                   type="password"
                   value={abApiSecret}
                   onChange={e => setAbApiSecret(e.target.value)}
                   placeholder="Your AliceBlue API secret"
                   required
-                  className="w-full px-4 py-3 bg-[#0f3460] rounded-lg border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 font-mono text-sm"
+                  className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 font-mono text-sm transition"
                 />
               </div>
 
-              {/* OAuth section — shown after legacy auth failure or by toggle */}
               {showOAuth && (
-                <div className="space-y-3 p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
-                  <p className="text-xs font-semibold text-amber-300">OAuth Login Required</p>
-                  <p className="text-xs text-amber-300/80">
+                <div className="space-y-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                  <p className="text-xs font-semibold text-amber-700">OAuth Login Required</p>
+                  <p className="text-xs text-amber-600/80">
                     AliceBlue now requires OAuth login. Click below to open AliceBlue login page,
                     then paste the <strong>authCode</strong> from the redirect URL.
                   </p>
                   <div>
-                    <label className="block text-xs text-gray-400 mb-1">App Code (optional — defaults to API Secret)</label>
+                    <label className="block text-xs text-gray-500 mb-1">App Code (optional — defaults to API Secret)</label>
                     <input
                       type="text"
                       value={abAppCode}
                       onChange={e => setAbAppCode(e.target.value)}
                       placeholder="Your AliceBlue App Code"
-                      className="w-full px-3 py-2 bg-[#0f3460] rounded-lg border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-amber-500 font-mono text-xs"
+                      className="w-full px-3 py-2 bg-gray-50 rounded-lg border border-gray-200 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-amber-500 font-mono text-xs transition"
                     />
                   </div>
                   <button type="button" onClick={openAliceBlueLogin}
-                    className="w-full py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-semibold transition text-xs">
+                    className="w-full py-2 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-semibold transition text-xs">
                     🔐 Login to AliceBlue (opens new tab)
                   </button>
                   <div>
-                    <label className="block text-xs text-gray-400 mb-1">Auth Code (from redirect URL)</label>
+                    <label className="block text-xs text-gray-500 mb-1">Auth Code (from redirect URL)</label>
                     <input
                       type="text"
                       value={abAuthCode}
                       onChange={e => setAbAuthCode(e.target.value)}
                       placeholder="Paste authCode from AliceBlue redirect"
-                      className="w-full px-3 py-2 bg-[#0f3460] rounded-lg border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-amber-500 font-mono text-xs"
+                      className="w-full px-3 py-2 bg-gray-50 rounded-lg border border-gray-200 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-amber-500 font-mono text-xs transition"
                     />
                   </div>
                 </div>
@@ -4453,18 +4366,18 @@ function AliceBlueCredentialsModal({ onClose, onSave }) {
 
               {!showOAuth && (
                 <button type="button" onClick={() => setShowOAuth(true)}
-                  className="w-full text-xs text-purple-400 hover:text-purple-300 text-center py-1">
+                  className="w-full text-xs text-purple-600 hover:text-purple-700 text-center py-1 transition">
                   Having trouble? Use OAuth login →
                 </button>
               )}
 
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={onClose}
-                  className="flex-1 py-3 rounded-lg border border-white/10 text-gray-400 hover:bg-white/5 transition text-sm">
+                  className="flex-1 py-3 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 transition text-sm">
                   Cancel
                 </button>
                 <button type="submit" disabled={saving}
-                  className="flex-1 py-3 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-semibold transition text-sm disabled:opacity-50">
+                  className="flex-1 py-3 rounded-lg bg-purple-500 hover:bg-purple-600 text-white font-semibold transition text-sm disabled:opacity-50">
                   {saving ? 'Connecting...' : (abAuthCode ? 'Connect with Auth Code' : 'Connect AliceBlue')}
                 </button>
               </div>
@@ -4472,27 +4385,26 @@ function AliceBlueCredentialsModal({ onClose, onSave }) {
           </>
         )}
 
-        {/* ─── Step 2: Success ─── */}
         {step === 2 && (
           <div className="text-center py-4">
-            <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Check className="w-8 h-8 text-purple-400" />
+            <div className="w-16 h-16 bg-purple-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Check className="w-8 h-8 text-purple-500" />
             </div>
-            <h3 className="text-lg font-bold text-purple-400 mb-2">Connected!</h3>
-            <p className="text-sm text-gray-300 mb-1">
-              AliceBlue account <strong className="text-purple-300">{connectedUser}</strong> is now linked.
+            <h3 className="text-lg font-bold text-purple-600 mb-2">Connected!</h3>
+            <p className="text-sm text-gray-600 mb-1">
+              AliceBlue account <strong className="text-purple-600">{connectedUser}</strong> is now linked.
             </p>
-            <p className="text-xs text-gray-500 mb-6">
+            <p className="text-xs text-gray-400 mb-6">
               You can now trade via AliceBlue from TradeVault.
             </p>
             <button onClick={onClose}
-              className="w-full py-3 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-semibold transition text-sm">
+              className="w-full py-3 rounded-lg bg-purple-500 hover:bg-purple-600 text-white font-semibold transition text-sm">
               Done
             </button>
           </div>
         )}
 
-        <p className="mt-3 text-[10px] text-gray-500 text-center">
+        <p className="mt-3 text-xs text-gray-400 text-center">
           Your credentials are encrypted (AES-256) and stored securely. They are only used for placing orders on your behalf.
         </p>
       </div>
@@ -4515,34 +4427,34 @@ function SettingsPanel({ apiKey, user, zerodhaStatus, upstoxStatus, aliceBlueSta
   }
 
   return (
-    <div className="mb-4 p-4 bg-[#16213e] rounded-xl border border-white/5 space-y-4">
-      <h3 className="text-sm font-bold flex items-center gap-2">
+    <div className="mb-6 p-4 bg-white rounded-xl border border-gray-200 shadow-sm space-y-4">
+      <h3 className="text-sm font-bold flex items-center gap-2 text-gray-900">
         <Settings className="w-4 h-4 text-gray-400" /> Settings
       </h3>
 
       {/* User Info */}
-      <div className="p-3 bg-[#0f172a]/50 rounded-lg">
-        <div className="text-xs text-gray-400">Logged in as</div>
-        <div className="font-medium">{user?.full_name || user?.email}</div>
+      <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+        <div className="text-xs text-gray-500">Logged in as</div>
+        <div className="font-medium text-gray-900">{user?.full_name || user?.email}</div>
         <div className="text-xs text-gray-500">{user?.email}</div>
       </div>
 
       {/* API Key */}
-      <div className="p-3 bg-[#0f172a]/50 rounded-lg">
-        <div className="text-xs text-gray-400 mb-1">API Key</div>
+      <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+        <div className="text-xs text-gray-500 mb-1">API Key</div>
         <div className="flex items-center gap-2">
-          <code className="flex-1 text-sm font-mono text-blue-400 break-all">
+          <code className="flex-1 text-sm font-mono text-blue-600 break-all">
             {showKey ? apiKey : apiKey?.substring(0, 8) + '••••••••••'}
           </code>
-          <button onClick={() => setShowKey(!showKey)} className="p-1 hover:bg-white/10 rounded">
+          <button onClick={() => setShowKey(!showKey)} className="p-1 hover:bg-gray-200 rounded transition">
             {showKey ? <EyeOff className="w-3.5 h-3.5 text-gray-400" /> : <Eye className="w-3.5 h-3.5 text-gray-400" />}
           </button>
-          <button onClick={copyKey} className="p-1 hover:bg-white/10 rounded">
-            {copied ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5 text-gray-400" />}
+          <button onClick={copyKey} className="p-1 hover:bg-gray-200 rounded transition">
+            {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5 text-gray-400" />}
           </button>
         </div>
         <button onClick={onRegenerateKey}
-          className="mt-2 text-xs text-amber-400 hover:underline flex items-center gap-1">
+          className="mt-2 text-xs text-amber-600 hover:text-amber-700 flex items-center gap-1 transition">
           <RefreshCw className="w-3 h-3" /> Regenerate Key
         </button>
       </div>
@@ -4550,64 +4462,64 @@ function SettingsPanel({ apiKey, user, zerodhaStatus, upstoxStatus, aliceBlueSta
       {/* Integrations — only one broker at a time */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <button onClick={onConnectTelegram}
-          className="p-3 bg-[#0f172a]/50 rounded-lg text-left hover:bg-[#0f172a]/70 transition">
+          className="p-3 bg-gray-50 rounded-lg text-left hover:bg-gray-100 transition border border-gray-100">
           <div className="flex items-center gap-2 mb-1">
-            <Send className="w-4 h-4 text-blue-400" />
-            <span className="text-sm font-medium">Telegram</span>
+            <Send className="w-4 h-4 text-blue-500" />
+            <span className="text-sm font-medium text-gray-900">Telegram</span>
           </div>
-          <span className="text-[10px] text-gray-400">Get signals on Telegram</span>
+          <span className="text-xs text-gray-500">Get signals on Telegram</span>
         </button>
 
         <button onClick={onConnectZerodha}
-          className={`p-3 bg-[#0f172a]/50 rounded-lg text-left transition ${zerodhaStatus?.is_connected ? 'border border-green-500/30 hover:bg-[#0f172a]/70' : (upstoxStatus?.is_connected || aliceBlueStatus?.is_connected) ? 'opacity-40 cursor-not-allowed' : 'hover:bg-[#0f172a]/70'}`}>
+          className={`p-3 bg-gray-50 rounded-lg text-left transition border border-gray-100 ${zerodhaStatus?.is_connected ? 'border-emerald-300 bg-emerald-50' : (upstoxStatus?.is_connected || aliceBlueStatus?.is_connected) ? 'opacity-40 cursor-not-allowed' : 'hover:bg-gray-100'}`}>
           <div className="flex items-center gap-2 mb-1">
-            <ExternalLink className={`w-4 h-4 ${zerodhaStatus?.is_connected ? 'text-green-400' : 'text-gray-400'}`} />
-            <span className="text-sm font-medium">Zerodha</span>
+            <ExternalLink className={`w-4 h-4 ${zerodhaStatus?.is_connected ? 'text-emerald-500' : 'text-gray-400'}`} />
+            <span className="text-sm font-medium text-gray-900">Zerodha</span>
           </div>
-          <span className="text-[10px] text-gray-400">
+          <span className="text-xs text-gray-500">
             {zerodhaStatus?.is_connected
-              ? `✅ Connected (${zerodhaStatus.zerodha_user_id})`
+              ? `Connected (${zerodhaStatus.zerodha_user_id})`
               : zerodhaStatus?.has_credentials
-                ? '🔑 Tap to update credentials & login'
+                ? 'Tap to update credentials & login'
                 : 'Tap to connect for auto-trade'}
           </span>
         </button>
 
         <button onClick={upstoxStatus?.is_connected ? onDisconnectUpstox : onConnectUpstox}
-          className={`p-3 bg-[#0f172a]/50 rounded-lg text-left transition ${upstoxStatus?.is_connected ? 'border border-orange-500/30 hover:bg-[#0f172a]/70' : (zerodhaStatus?.is_connected || aliceBlueStatus?.is_connected) ? 'opacity-40 cursor-not-allowed' : 'hover:bg-[#0f172a]/70'}`}>
+          className={`p-3 bg-gray-50 rounded-lg text-left transition border border-gray-100 ${upstoxStatus?.is_connected ? 'border-orange-300 bg-orange-50' : (zerodhaStatus?.is_connected || aliceBlueStatus?.is_connected) ? 'opacity-40 cursor-not-allowed' : 'hover:bg-gray-100'}`}>
           <div className="flex items-center gap-2 mb-1">
-            <Link2 className={`w-4 h-4 ${upstoxStatus?.is_connected ? 'text-orange-400' : 'text-gray-400'}`} />
-            <span className="text-sm font-medium">Upstox</span>
+            <Link2 className={`w-4 h-4 ${upstoxStatus?.is_connected ? 'text-orange-500' : 'text-gray-400'}`} />
+            <span className="text-sm font-medium text-gray-900">Upstox</span>
           </div>
-          <span className="text-[10px] text-gray-400">
+          <span className="text-xs text-gray-500">
             {upstoxStatus?.is_connected
-              ? `🟠 Connected (${upstoxStatus.upstox_user_id})`
+              ? `Connected (${upstoxStatus.upstox_user_id})`
               : upstoxStatus?.has_credentials
-                ? '🔑 Tap to update & login'
+                ? 'Tap to update & login'
                 : 'Tap to connect Upstox'}
           </span>
         </button>
 
         <button onClick={aliceBlueStatus?.is_connected ? onDisconnectAliceBlue : onConnectAliceBlue}
-          className={`p-3 bg-[#0f172a]/50 rounded-lg text-left transition ${aliceBlueStatus?.is_connected ? 'border border-purple-500/30 hover:bg-[#0f172a]/70' : (zerodhaStatus?.is_connected || upstoxStatus?.is_connected) ? 'opacity-40 cursor-not-allowed' : 'hover:bg-[#0f172a]/70'}`}>
+          className={`p-3 bg-gray-50 rounded-lg text-left transition border border-gray-100 ${aliceBlueStatus?.is_connected ? 'border-purple-300 bg-purple-50' : (zerodhaStatus?.is_connected || upstoxStatus?.is_connected) ? 'opacity-40 cursor-not-allowed' : 'hover:bg-gray-100'}`}>
           <div className="flex items-center gap-2 mb-1">
-            <Link2 className={`w-4 h-4 ${aliceBlueStatus?.is_connected ? 'text-purple-400' : 'text-gray-400'}`} />
-            <span className="text-sm font-medium">AliceBlue</span>
+            <Link2 className={`w-4 h-4 ${aliceBlueStatus?.is_connected ? 'text-purple-500' : 'text-gray-400'}`} />
+            <span className="text-sm font-medium text-gray-900">AliceBlue</span>
           </div>
-          <span className="text-[10px] text-gray-400">
+          <span className="text-xs text-gray-500">
             {aliceBlueStatus?.is_connected
-              ? `🟣 Connected (${aliceBlueStatus.aliceblue_user_id})`
+              ? `Connected (${aliceBlueStatus.aliceblue_user_id})`
               : aliceBlueStatus?.has_credentials
-                ? '🔑 Tap to reconnect'
+                ? 'Tap to reconnect'
                 : 'Tap to connect AliceBlue'}
           </span>
         </button>
       </div>
 
       {/* Rate Limiting Info */}
-      <div className="p-3 bg-[#0f172a]/50 rounded-lg">
-        <p className="text-[10px] text-gray-500">
-          ℹ️ Only one broker can be connected at a time. Disconnect your current broker to switch.
+      <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+        <p className="text-xs text-gray-500">
+          Only one broker can be connected at a time. Disconnect your current broker to switch.
           Orders are placed via your own API key. Auto-trigger orders fire within seconds of signal.
         </p>
       </div>

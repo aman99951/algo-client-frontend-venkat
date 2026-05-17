@@ -216,12 +216,12 @@ function ProfitTargetControl({ apiKey, sessionId, compact = false, brokerPnlData
 
   if (loading) {
     return compact ? (
-      <div className="bg-gradient-to-br from-purple-900/20 to-blue-900/20 rounded-lg border border-purple-500/20 p-3">
-        <div className="text-xs text-gray-400">Loading...</div>
+      <div className="bg-white rounded-lg border border-gray-200 p-3">
+        <div className="text-xs text-gray-500">Loading...</div>
       </div>
     ) : (
-      <div className="bg-gradient-to-br from-purple-900/20 to-blue-900/20 rounded-xl border border-purple-500/20 p-6">
-        <div className="text-center text-gray-400">Loading profit target...</div>
+      <div className="bg-white rounded-xl border border-gray-200 p-6">
+        <div className="text-center text-gray-500">Loading profit target...</div>
       </div>
     )
   }
@@ -229,28 +229,28 @@ function ProfitTargetControl({ apiKey, sessionId, compact = false, brokerPnlData
   // Compact mode for top-right corner
   if (compact) {
     return (
-      <div className="bg-gradient-to-br from-purple-900/30 to-blue-900/30 backdrop-blur-sm rounded-lg border border-purple-500/30 p-3 shadow-xl">
+      <div className="bg-white rounded-lg border border-gray-200 p-3 shadow-sm">
         {/* Header */}
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <Target className="w-4 h-4 text-purple-400" />
-            <span className="text-xs font-bold text-white">Daily P&L</span>
+            <Target className="w-4 h-4 text-purple-500" />
+            <span className="text-xs font-bold text-gray-700">Daily P&L</span>
           </div>
           <div className={`text-xs px-2 py-0.5 rounded ${
-            profitTargetEnabled ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'
+            profitTargetEnabled ? 'bg-green-50 text-green-600' : 'bg-gray-100 text-gray-500'
           }`}>
             {profitTargetEnabled ? 'ON' : 'OFF'}
           </div>
         </div>
 
         {/* Current P&L */}
-        <div className={`text-2xl font-bold mb-1 ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
+        <div className={`text-2xl font-bold mb-1 ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
           {isPositive ? '+' : ''}₹{currentPnL.toFixed(2)}
         </div>
 
         {/* Progress Bar */}
         <div className="mb-2">
-          <div className="h-1.5 bg-gray-700 rounded-full overflow-hidden">
+          <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
             <div
               className={`h-full ${progressColor} transition-all duration-300`}
               style={{
@@ -262,21 +262,21 @@ function ProfitTargetControl({ apiKey, sessionId, compact = false, brokerPnlData
         </div>
 
         {/* Stats Row */}
-        <div className="flex justify-between text-[10px] text-gray-400 mb-2">
-          <span className="text-red-400">SL: -₹{Math.abs(stopLoss)}</span>
-          <span className="text-green-400">TP: +₹{profitTarget}</span>
+        <div className="flex justify-between text-xs text-gray-600 mb-2">
+          <span className="text-red-500">SL: -₹{Math.abs(stopLoss)}</span>
+          <span className="text-green-500">TP: +₹{profitTarget}</span>
           <span>{tradeCount.wins}W {tradeCount.losses}L</span>
         </div>
 
         {/* Status Alerts */}
         {targetReached && (
-          <div className="bg-green-500/10 border border-green-500/30 rounded px-2 py-1 text-[10px] text-green-400">
+          <div className="bg-green-50 border border-green-200 rounded px-2 py-1 text-xs text-green-600">
             🎯 Target Reached!
           </div>
         )}
         
         {currentPnL <= stopLoss && !targetReached && (
-          <div className="bg-red-500/10 border border-red-500/30 rounded px-2 py-1 text-[10px] text-red-400">
+          <div className="bg-red-50 border border-red-200 rounded px-2 py-1 text-xs text-red-600">
             ⛔ Stop Loss Hit
           </div>
         )}
@@ -286,25 +286,25 @@ function ProfitTargetControl({ apiKey, sessionId, compact = false, brokerPnlData
 
   // Full mode — compact widget
   return (
-    <div className="bg-gradient-to-br from-purple-900/20 to-blue-900/20 rounded-xl border border-purple-500/20 p-4 space-y-3">
+    <div className="bg-white rounded-xl border border-gray-200 p-4 space-y-3 shadow-sm">
       {/* Header row with P&L */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="p-1.5 bg-purple-500/20 rounded-lg">
-            <Target className="w-4 h-4 text-purple-400" />
+          <div className="p-1.5 bg-purple-50 rounded-lg">
+            <Target className="w-4 h-4 text-purple-500" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-white">Daily Profit Target</h3>
-            <p className="text-[10px] text-gray-400">Set daily stop loss & profit target</p>
+            <h3 className="text-sm font-bold text-gray-900">Daily Profit Target</h3>
+            <p className="text-xs text-gray-600">Set daily stop loss & profit target</p>
           </div>
         </div>
         
         <button
           onClick={() => setProfitTargetEnabled(!profitTargetEnabled)}
-          className={`px-2 py-0.5 rounded text-[10px] font-medium transition ${
+          className={`px-2 py-0.5 rounded text-xs font-medium transition ${
             profitTargetEnabled
-              ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-              : 'bg-gray-500/20 text-gray-400 border border-gray-500/30'
+              ? 'bg-green-50 text-green-600 border border-green-200'
+              : 'bg-gray-100 text-gray-500 border border-gray-200'
           }`}
         >
           {profitTargetEnabled ? 'ENABLED' : 'DISABLED'}
@@ -312,28 +312,28 @@ function ProfitTargetControl({ apiKey, sessionId, compact = false, brokerPnlData
       </div>
 
       {/* Compact P&L + Progress */}
-      <div className="bg-[#0f172a]/50 rounded-lg p-3">
+      <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
         <div className="flex items-baseline justify-between mb-1">
           <div className="flex items-baseline gap-3">
-            <span className="text-xs text-gray-400">Today's P&L</span>
-            <span className={`text-2xl font-bold ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
+            <span className="text-xs text-gray-600">Today's P&L</span>
+            <span className={`text-2xl font-bold ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
               {isPositive ? '+' : ''}₹{currentPnL.toFixed(2)}
             </span>
           </div>
-          <div className="flex items-center gap-2 text-[10px]">
+          <div className="flex items-center gap-2 text-xs">
             <span className="text-gray-500">Trades: {tradeCount.total}</span>
-            <span className="text-green-400">Wins: {tradeCount.wins}</span>
-            <span className="text-red-400">Losses: {tradeCount.losses}</span>
+            <span className="text-green-500">Wins: {tradeCount.wins}</span>
+            <span className="text-red-500">Losses: {tradeCount.losses}</span>
           </div>
         </div>
         
-        <div className="flex gap-3 text-[10px] mb-2">
-          <span className="text-gray-500">Realized: <span className={realizedPnL >= 0 ? 'text-green-400' : 'text-red-400'}>₹{realizedPnL.toFixed(2)}</span></span>
-          <span className="text-gray-500">Unrealized: <span className={unrealizedPnL >= 0 ? 'text-green-400' : 'text-red-400'}>₹{unrealizedPnL.toFixed(2)}</span></span>
+        <div className="flex gap-3 text-xs mb-2">
+          <span className="text-gray-500">Realized: <span className={realizedPnL >= 0 ? 'text-green-600' : 'text-red-600'}>₹{realizedPnL.toFixed(2)}</span></span>
+          <span className="text-gray-500">Unrealized: <span className={unrealizedPnL >= 0 ? 'text-green-600' : 'text-red-600'}>₹{unrealizedPnL.toFixed(2)}</span></span>
         </div>
 
         {/* Progress Bar */}
-        <div className="h-1.5 bg-gray-700 rounded-full overflow-hidden">
+        <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
           <div
             className={`h-full ${progressColor} transition-all duration-300`}
             style={{
@@ -342,7 +342,7 @@ function ProfitTargetControl({ apiKey, sessionId, compact = false, brokerPnlData
             }}
           />
         </div>
-        <div className="flex justify-between mt-0.5 text-[9px] text-gray-500">
+        <div className="flex justify-between mt-0.5 text-xs text-gray-500">
           <span>₹{stopLoss}</span>
           <span>₹0</span>
           <span>₹{profitTarget}</span>
@@ -350,30 +350,30 @@ function ProfitTargetControl({ apiKey, sessionId, compact = false, brokerPnlData
 
         {/* Status Messages */}
         {targetReached && (
-          <div className="mt-2 bg-green-500/10 border border-green-500/30 rounded px-2 py-1 flex items-center gap-1.5">
-            <CheckCircle2 className="w-3 h-3 text-green-400" />
-            <span className="text-[10px] font-semibold text-green-400">Target Reached — no new entries today</span>
+          <div className="mt-2 bg-green-50 border border-green-200 rounded px-2 py-1 flex items-center gap-1.5">
+            <CheckCircle2 className="w-3 h-3 text-green-500" />
+            <span className="text-xs font-semibold text-green-600">Target Reached — no new entries today</span>
           </div>
         )}
         
         {currentPnL <= stopLoss && !targetReached && (
-          <div className="mt-2 bg-red-500/10 border border-red-500/30 rounded px-2 py-1 flex items-center gap-1.5">
-            <ShieldAlert className="w-3 h-3 text-red-400" />
-            <span className="text-[10px] font-semibold text-red-400">Stop Loss Hit — no new entries today</span>
+          <div className="mt-2 bg-red-50 border border-red-200 rounded px-2 py-1 flex items-center gap-1.5">
+            <ShieldAlert className="w-3 h-3 text-red-500" />
+            <span className="text-xs font-semibold text-red-600">Stop Loss Hit — no new entries today</span>
           </div>
         )}
       </div>
 
       {/* Sliders — compact two-column layout */}
-      <div className="bg-[#0f172a]/50 rounded-lg p-3 space-y-2">
+      <div className="bg-gray-50 rounded-lg p-3 space-y-2 border border-gray-100">
         {/* Stop Loss Slider */}
         <div>
           <div className="flex items-center justify-between mb-1">
-            <label className="text-xs text-gray-300">
-              <TrendingDown className="w-3.5 h-3.5 inline mr-1 text-red-400" />
+            <label className="text-xs text-gray-600">
+              <TrendingDown className="w-3.5 h-3.5 inline mr-1 text-red-500" />
               Stop Loss Limit
             </label>
-            <span className="text-sm font-bold text-red-400">-₹{Math.abs(stopLoss)}</span>
+            <span className="text-sm font-bold text-red-500">-₹{Math.abs(stopLoss)}</span>
           </div>
           
           <input
@@ -383,12 +383,12 @@ function ProfitTargetControl({ apiKey, sessionId, compact = false, brokerPnlData
             step="500"
             value={stopLoss}
             onChange={(e) => handleStopLossChange(e.target.value)}
-            className="w-full h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer slider-red"
+            className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-red"
             disabled={!profitTargetEnabled}
           />
           
-          <div className="flex justify-between mt-0.5 text-[9px] text-gray-500">
-            <span className="text-red-500/70">-₹15,000</span>
+          <div className="flex justify-between mt-0.5 text-xs text-gray-500">
+            <span className="text-red-500">-₹15,000</span>
             <span>-₹10,000</span>
             <span>-₹5,000</span>
             <span>-₹500</span>
@@ -398,11 +398,11 @@ function ProfitTargetControl({ apiKey, sessionId, compact = false, brokerPnlData
         {/* Profit Target Slider */}
         <div>
           <div className="flex items-center justify-between mb-1">
-            <label className="text-xs text-gray-300">
-              <TrendingUp className="w-3.5 h-3.5 inline mr-1 text-green-400" />
+            <label className="text-xs text-gray-600">
+              <TrendingUp className="w-3.5 h-3.5 inline mr-1 text-green-500" />
               Profit Target
             </label>
-            <span className="text-sm font-bold text-green-400">+₹{profitTarget}</span>
+            <span className="text-sm font-bold text-green-500">+₹{profitTarget}</span>
           </div>
           
           <input
@@ -412,15 +412,15 @@ function ProfitTargetControl({ apiKey, sessionId, compact = false, brokerPnlData
             step="500"
             value={profitTarget}
             onChange={(e) => handleProfitTargetChange(e.target.value)}
-            className="w-full h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer slider-green"
+            className="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer slider-green"
             disabled={!profitTargetEnabled}
           />
           
-          <div className="flex justify-between mt-0.5 text-[9px] text-gray-500">
+          <div className="flex justify-between mt-0.5 text-xs text-gray-500">
             <span>₹500</span>
             <span>₹5,000</span>
             <span>₹10,000</span>
-            <span className="text-green-400/70">₹15,000</span>
+            <span className="text-green-600">₹15,000</span>
           </div>
         </div>
 
@@ -430,7 +430,7 @@ function ProfitTargetControl({ apiKey, sessionId, compact = false, brokerPnlData
           disabled={saving || !profitTargetEnabled}
           className={`w-full py-1.5 rounded-lg font-medium text-xs transition ${
             saving || !profitTargetEnabled
-              ? 'bg-gray-600 text-gray-400 cursor-not-allowed'
+              ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
               : 'bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700'
           }`}
         >
@@ -438,7 +438,7 @@ function ProfitTargetControl({ apiKey, sessionId, compact = false, brokerPnlData
         </button>
 
         {error && (
-          <div className="text-[10px] text-red-400 text-center">{error}</div>
+          <div className="text-xs text-red-500 text-center">{error}</div>
         )}
       </div>
     </div>
@@ -446,4 +446,3 @@ function ProfitTargetControl({ apiKey, sessionId, compact = false, brokerPnlData
 }
 
 export default ProfitTargetControl
-

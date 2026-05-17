@@ -12,8 +12,8 @@ export default defineConfig({
         name: 'TradeVault Signals',
         short_name: 'TVSignals',
         description: 'Real-time trading signals for NIFTY & BANKNIFTY options',
-        theme_color: '#1a1a2e',
-        background_color: '#1a1a2e',
+        theme_color: '#ffffff',
+        background_color: '#ffffff',
         display: 'standalone',
         icons: [
           {

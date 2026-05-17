@@ -29,39 +29,39 @@ function ClosedTradeRow({ signal }) {
   const fmtPrice = (v) => v != null ? `₹${Number(v).toFixed(2)}` : '—'
 
   return (
-    <tr className="hover:bg-[#1a2744]/30 transition" title={estimatedSymbol || undefined}>
+    <tr className="hover:bg-gray-50 transition" title={estimatedSymbol || undefined}>
       <td className="px-3 py-2.5 whitespace-nowrap">
-        <span className="text-xs text-gray-400 font-mono">{timeStr}</span>
+        <span className="text-xs text-gray-600 font-mono">{timeStr}</span>
       </td>
       <td className="px-3 py-2.5 whitespace-nowrap">
         <div>
-          <span className="text-xs font-semibold text-gray-300">{index} {strike}</span>
+          <span className="text-xs font-semibold text-gray-700">{index} {strike}</span>
           {hasOrder && (
-            <span className="ml-1 text-[8px] bg-blue-500/20 text-blue-400 px-1 py-0.5 rounded font-bold">MY</span>
+            <span className="ml-1 text-xs bg-blue-50 text-blue-600 px-1 py-0.5 rounded font-bold">MY</span>
           )}
           {estimatedSymbol && (
-            <div className="text-[9px] font-mono text-gray-600 truncate max-w-[120px]">{estimatedSymbol}</div>
+            <div className="text-xs font-mono text-gray-500 truncate max-w-[120px]">{estimatedSymbol}</div>
           )}
         </div>
       </td>
       <td className="px-3 py-2.5 text-center whitespace-nowrap">
-        <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
-          direction === 'CE' ? 'bg-green-500/15 text-green-400' : 'bg-red-500/15 text-red-400'
+        <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${
+          direction === 'CE' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'
         }`}>{direction || '—'}</span>
       </td>
       <td className="px-3 py-2.5 text-right whitespace-nowrap">
-        <span className="text-xs font-mono text-gray-400">{fmtPrice(entryPrice)}</span>
+        <span className="text-xs font-mono text-gray-600">{fmtPrice(entryPrice)}</span>
       </td>
       <td className="px-3 py-2.5 text-right whitespace-nowrap">
-        <span className="text-xs font-mono text-gray-400">{fmtPrice(exitPrice)}</span>
+        <span className="text-xs font-mono text-gray-600">{fmtPrice(exitPrice)}</span>
       </td>
       <td className="px-3 py-2.5 text-center whitespace-nowrap">
-        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${cfg.color}`}>
+        <span className={`px-2 py-0.5 rounded text-xs font-bold ${cfg.color}`}>
           {cfg.icon} {cfg.label}
         </span>
       </td>
       <td className="px-3 py-2.5 text-right whitespace-nowrap">
-        <span className={`text-xs font-mono font-bold ${pnl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+        <span className={`text-xs font-mono font-bold ${pnl >= 0 ? 'text-green-600' : 'text-red-600'}`}>
           {pnl !== 0 ? `₹${pnl >= 0 ? '+' : ''}${pnl.toFixed(0)}` : '—'}
         </span>
       </td>

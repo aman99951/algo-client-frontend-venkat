@@ -7,9 +7,9 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#1a1a2e',
-        secondary: '#16213e',
-        card: '#0f3460',
+        primary: '#0f172a',
+        secondary: '#f8fafc',
+        card: '#ffffff',
         accent: '#4361ee',
       }
     },
