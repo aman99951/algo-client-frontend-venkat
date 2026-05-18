@@ -5,7 +5,7 @@ import {
   LogIn, UserPlus, LogOut, Copy, Check, AlertCircle, Eye, EyeOff,
   Zap, ShieldCheck, Target, Activity, BarChart3, Clock, X,
   Power, Unplug, Link2, ToggleLeft, ToggleRight, Radio,
-  Newspaper, Sun, CloudRain, Moon
+  Newspaper, Sun, CloudRain, Moon, Coins
 } from 'lucide-react'
 import ProfitTargetControl from './components/ProfitTargetControl'
 import SafetyShield from './components/SafetyShield'
@@ -88,6 +88,11 @@ function App() {
   const [backendClosedOrders, setBackendClosedOrders] = useState([])  // Closed orders from backend
   const [brokerPnlData, setBrokerPnlData] = useState(null)  // Raw kite.positions() P&L
   const [paperStats, setPaperStats] = useState(null)  // Bot paper-trade stats for comparison
+
+  // Dashboard meta: telegram subscribers + credit balances
+  const [telegramSubscribers, setTelegramSubscribers] = useState(null)
+  const [creditBalance, setCreditBalance] = useState(null)
+  const [dashboardCreditBalance, setDashboardCreditBalance] = useState(null)
 
   // Broker credentials for client-side order placement (sessionStorage = cleared on tab close)
   const [brokerCreds, setBrokerCreds] = useState(() => {
@@ -691,6 +696,46 @@ function App() {
     const interval = setInterval(fetchBackendStats, 30000)
     return () => clearInterval(interval)
   }, [apiKey, fetchBackendStats])
+
+  // ─── FETCH DASHBOARD META (telegram subscribers + dashboard credits) ──
+  const fetchDashboardMeta = useCallback(async () => {
+    if (!apiKey) return
+    const headers = { 'X-API-Key': apiKey }
+    try {
+      const [subRes, balRes, dashCredRes] = await Promise.all([
+        fetch(`${API_BASE}/api/telegram/subscribers?session_id=${apiKey}`, { headers }),
+        fetch(`${API_BASE}/api/credits/balance?api_key=${apiKey}`),
+        fetch(`${API_BASE}/api/dashboard/credits/balance?session_id=${apiKey}`, { headers }),
+      ])
+      if (subRes.ok) {
+        const data = await subRes.json()
+        setTelegramSubscribers(data)
+      }
+      if (balRes.ok) {
+        const data = await balRes.json()
+        setCreditBalance(data)
+      }
+      if (dashCredRes.ok) {
+        const data = await dashCredRes.json()
+        setDashboardCreditBalance(data)
+      }
+    } catch (err) {
+      console.warn('[DashboardMeta] Failed to fetch:', err)
+    }
+  }, [apiKey])
+
+  // Poll dashboard meta every 60s
+  useEffect(() => {
+    if (!apiKey) {
+      setTelegramSubscribers(null)
+      setCreditBalance(null)
+      setDashboardCreditBalance(null)
+      return
+    }
+    fetchDashboardMeta()
+    const interval = setInterval(fetchDashboardMeta, 60000)
+    return () => clearInterval(interval)
+  }, [apiKey, fetchDashboardMeta])
 
   // ─── UNIFIED NEWS DATA POLLING ────────────────────────────────────
   // Single endpoint fetches news + sentiment + outlook together
@@ -1702,6 +1747,16 @@ function App() {
             bgColor={stats.dayPnl >= 0 ? 'bg-green-500/10' : 'bg-red-500/10'} />
         </div>
         )}
+
+        {/* ── Dashboard Meta Stats — always visible ─────────────── */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
+          <StatCard label="Telegram Subs" value={telegramSubscribers?.count ?? telegramSubscribers?.total ?? telegramSubscribers?.subscribers ?? '—'}
+            icon={<Send className="w-4 h-4" />} color="text-sky-600" bgColor="bg-sky-500/10" />
+          <StatCard label="Credits" value={creditBalance?.balance != null ? creditBalance.balance.toLocaleString() : '—'}
+            icon={<Coins className="w-4 h-4" />} color="text-violet-600" bgColor="bg-violet-500/10" />
+          <StatCard label="Dashboard Credits" value={dashboardCreditBalance?.balance != null ? dashboardCreditBalance.balance.toLocaleString() : '—'}
+            icon={<Coins className="w-4 h-4" />} color="text-emerald-600" bgColor="bg-emerald-500/10" />
+        </div>
 
         {/* ── Broker vs Bot P&L comparison — shows when broker is connected ── */}
         {isTradeWindowOpen && isBrokerConnected && paperStats && paperStats.total_closed > 0 && (

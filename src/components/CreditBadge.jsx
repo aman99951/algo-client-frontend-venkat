@@ -122,6 +122,20 @@ export default function CreditBadge({ apiKey, onBuyClick }) {
                   <div className="text-xs text-gray-600">Starting from ₹500</div>
                 </div>
               </button>
+              <button
+                onClick={() => { fetchBalance() }}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 transition text-left mt-1"
+              >
+                <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center">
+                  <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                </div>
+                <div>
+                  <div className="text-sm font-medium text-gray-900">Refresh Balance</div>
+                  <div className="text-xs text-gray-500">Check latest credits</div>
+                </div>
+              </button>
             </div>
 
             <div className="px-4 py-3 bg-gray-50 border-t border-gray-100">
