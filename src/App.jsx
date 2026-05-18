@@ -13,7 +13,7 @@ import CreditBadge from './components/CreditBadge'
 import CreditStore from './components/CreditStore'
 
 // API/WS base URLs are configured from env; local fallback points to backend dev server.
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+const API_BASE = import.meta.env.VITE_API_URL
 
 // Status badge config
 const STATUS_CONFIG = {
