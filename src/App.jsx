@@ -14,7 +14,6 @@ import CreditStore from './components/CreditStore'
 
 // API/WS base URLs are configured from env; local fallback points to backend dev server.
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000'
-const WS_BASE = import.meta.env.VITE_WS_URL || 'ws://localhost:8000'
 
 // Status badge config
 const STATUS_CONFIG = {
@@ -98,10 +97,10 @@ function App() {
     } catch { return null }
   })
 
-  const wsRef = useRef(null)
   const reconnectTimeoutRef = useRef(null)
   const reconnectAttemptRef = useRef(0)
   const pollIntervalRef = useRef(null)
+  const nextSinceRef = useRef(null)
   const audioRef = useRef(null)
 
   // If user is logged in and has API key, show dashboard
@@ -374,131 +373,6 @@ function App() {
     if (apiKey) loadAutoTriggerConfigs()
   }, [apiKey, loadAutoTriggerConfigs])
 
-  // ─── WebSocket connection ─────────────────────────────────────────
-
-  const connectWS = useCallback(() => {
-    if (!apiKey || wsRef.current?.readyState === WebSocket.OPEN) return
-
-    setConnectionStatus('connecting')
-
-    const clientId = `pwa_${Date.now()}`
-    const wsUrl = `${WS_BASE}/api/signals/ws/${clientId}?api_key=${apiKey}`
-
-    const ws = new WebSocket(wsUrl)
-    wsRef.current = ws
-
-    ws.onopen = () => {
-      setIsConnected(true)
-      setConnectionStatus('connected')
-      reconnectAttemptRef.current = 0  // Reset backoff on successful connection
-      // Reload signals from API to get latest state
-      loadTodaySignals()
-    }
-
-    ws.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data)
-
-        if (data.type === 'signal') {
-          const signalId = data.signal_id || data.data?.signal_id || ''
-          const signalType = data.signal  // 'detected' | 'entry' | 'exit'
-          const status = data.data?.status || signalType
-
-          setSignals(prev => {
-            // If this signal_id already exists, UPDATE it (status transition)
-            let existingIdx = prev.findIndex(s =>
-              s.signal_id && signalId && s.signal_id === signalId
-            )
-
-            // Fallback for exit messages with empty signal_id (race condition):
-            // match by index + direction + currently in_market
-            if (existingIdx === -1 && (signalType === 'exit' || signalType === 'entry') && !signalId) {
-              const msgIndex = data.data?.index || ''
-              const msgOption = data.data?.option_type || data.data?.direction || ''
-              existingIdx = prev.findIndex(s => {
-                const sIndex = s.data?.index || s.data?.index_name || ''
-                const sDir = s.data?.option_type || s.data?.direction || ''
-                const sStatus = s.data?.status || ''
-                return sIndex === msgIndex && sDir === msgOption &&
-                  (signalType === 'exit' ? sStatus === 'in_market' : sStatus === 'active')
-              })
-            }
-
-            if (existingIdx !== -1) {
-              // Update existing signal's status and data
-              const updated = [...prev]
-              updated[existingIdx] = {
-                ...updated[existingIdx],
-                signal: signalType,
-                data: { ...updated[existingIdx].data, ...data.data, status },
-                timestamp: data.timestamp || updated[existingIdx].timestamp,
-              }
-              return updated
-            }
-
-            // New signal — add to top (but skip if it's an orphan exit with no match)
-            if (signalType === 'exit' && !signalId) {
-              return prev  // Don't add orphan exits — the 30s poll will provide the correct state
-            }
-
-            return [{
-              ...data,
-              signal_id: signalId,
-              id: signalId || Date.now(),
-              receivedAt: new Date().toISOString()
-            }, ...prev]
-          })
-
-          playSound()
-          showNotification(data)
-        } else if (data.type === 'ai_enrichment') {
-          // AI confidence/narration arrived — merge into existing signal
-          const aiSignalId = data.signal_id || ''
-          if (aiSignalId) {
-            setSignals(prev => {
-              const idx = prev.findIndex(s => s.signal_id && s.signal_id === aiSignalId)
-              if (idx === -1) return prev
-              const updated = [...prev]
-              updated[idx] = {
-                ...updated[idx],
-                data: {
-                  ...updated[idx].data,
-                  ai_confidence: data.data?.confidence,
-                  ai_target_pts: data.data?.suggested_target_pts,
-                  ai_sl_pts: data.data?.suggested_sl_pts,
-                  ai_narration: data.data?.narration,
-                  ai_risk_factors: data.data?.risk_factors || [],
-                },
-              }
-              return updated
-            })
-          }
-        } else if (data.type === 'ping') {
-          ws.send(JSON.stringify({ type: 'pong' }))
-        }
-      } catch (err) {
-        console.error('Failed to parse message:', err)
-      }
-    }
-
-    ws.onclose = (event) => {
-      setIsConnected(false)
-      setConnectionStatus('disconnected')
-      wsRef.current = null
-
-      if (event.code !== 1000) {
-        // Exponential backoff: 2s, 4s, 8s, 16s, 30s max
-        const delay = Math.min(2000 * Math.pow(2, reconnectAttemptRef.current), 30000)
-        reconnectAttemptRef.current += 1
-        reconnectTimeoutRef.current = setTimeout(connectWS, delay)
-      }
-    }
-
-    ws.onerror = () => {
-      setConnectionStatus('error')
-    }
-  }, [apiKey, playSound, loadTodaySignals])
-
   // Show browser notification
   const showNotification = useCallback((data) => {
     if (!('Notification' in window) || Notification.permission !== 'granted') return
@@ -525,6 +399,96 @@ function App() {
     new Notification(title, { body, icon: '/favicon.svg', tag: data.signal_id || Date.now() })
   }, [])
 
+  // ─── Signal polling (replaces WebSocket) ──────────────────────────
+
+  const pollSignals = useCallback(async () => {
+    if (!apiKey) return
+
+    try {
+      const url = `${API_BASE}/api/signals/poll?api_key=${apiKey}${nextSinceRef.current ? `&since=${nextSinceRef.current}` : ''}`
+      const res = await fetch(url)
+      if (!res.ok) return
+
+      const { signals: newSignals, next_since } = await res.json()
+      nextSinceRef.current = next_since
+
+      if (newSignals?.length) {
+        newSignals.forEach(data => {
+          const signalId = data.signal_id || data.data?.signal_id || ''
+          const signalType = data.signal
+          const status = data.data?.status || signalType
+
+          setSignals(prev => {
+            let existingIdx = prev.findIndex(s =>
+              s.signal_id && signalId && s.signal_id === signalId
+            )
+
+            if (existingIdx === -1 && (signalType === 'exit' || signalType === 'entry') && !signalId) {
+              const msgIndex = data.data?.index || ''
+              const msgOption = data.data?.option_type || data.data?.direction || ''
+              existingIdx = prev.findIndex(s => {
+                const sIndex = s.data?.index || s.data?.index_name || ''
+                const sDir = s.data?.option_type || s.data?.direction || ''
+                const sStatus = s.data?.status || ''
+                return sIndex === msgIndex && sDir === msgOption &&
+                  (signalType === 'exit' ? sStatus === 'in_market' : sStatus === 'active')
+              })
+            }
+
+            if (existingIdx !== -1) {
+              const updated = [...prev]
+              updated[existingIdx] = {
+                ...updated[existingIdx],
+                signal: signalType,
+                data: { ...updated[existingIdx].data, ...data.data, status },
+                timestamp: data.timestamp || updated[existingIdx].timestamp,
+              }
+              return updated
+            }
+
+            if (signalType === 'exit' && !signalId) {
+              return prev
+            }
+
+            return [{
+              ...data,
+              signal_id: signalId,
+              id: signalId || Date.now(),
+              receivedAt: new Date().toISOString()
+            }, ...prev]
+          })
+
+          playSound()
+          showNotification(data)
+        })
+
+        setIsConnected(true)
+        setConnectionStatus('connected')
+      }
+    } catch (err) {
+      console.error('Poll signals error:', err)
+      setIsConnected(false)
+      setConnectionStatus('disconnected')
+    }
+  }, [apiKey, playSound, showNotification])
+
+  // Connect polling when API key is set
+  useEffect(() => {
+    if (apiKey) {
+      localStorage.setItem('tv_api_key', apiKey)
+      pollSignals()
+      const interval = setInterval(pollSignals, 5000)
+      pollIntervalRef.current = interval
+    }
+
+    return () => {
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current)
+        pollIntervalRef.current = null
+      }
+    }
+  }, [apiKey, pollSignals])
+
   // Request notification permission
   useEffect(() => {
     if ('Notification' in window && Notification.permission === 'default') {
@@ -536,14 +500,15 @@ function App() {
   useEffect(() => {
     if (apiKey) {
       localStorage.setItem('tv_api_key', apiKey)
-      connectWS()
     }
 
     return () => {
-      if (wsRef.current) wsRef.current.close(1000)
-      if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current)
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current)
+        pollIntervalRef.current = null
+      }
     }
-  }, [apiKey, connectWS])
+  }, [apiKey])
 
   // Check Zerodha status
   useEffect(() => {
@@ -879,7 +844,10 @@ function App() {
 
   // Logout
   const handleLogout = () => {
-    if (wsRef.current) wsRef.current.close(1000)
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current)
+      pollIntervalRef.current = null
+    }
     setUser(null)
     setApiKey('')
     setSignals([])
@@ -887,7 +855,6 @@ function App() {
     setConnectionStatus('disconnected')
     localStorage.removeItem('tv_api_key')
     localStorage.removeItem('tv_user')
-    // Clear broker credentials on logout
     setBrokerCreds(null)
     sessionStorage.removeItem('tv_broker_creds')
     setAuthView('login')
