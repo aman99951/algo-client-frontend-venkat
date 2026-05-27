@@ -17,12 +17,12 @@ const API_BASE = import.meta.env.VITE_API_URL
 
 // Status badge config
 const STATUS_CONFIG = {
-  active:      { label: 'ACTIVE',      color: 'bg-amber-50 text-amber-600 border-amber-200', border: 'border-amber-200', icon: '🔔', pulse: true },
-  in_market:   { label: 'IN MARKET',   color: 'bg-blue-50 text-blue-600 border-blue-200',     border: 'border-blue-200',   icon: '📊', pulse: true },
-  target_hit:  { label: 'TARGET HIT',  color: 'bg-emerald-50 text-emerald-600 border-emerald-200',   border: 'border-emerald-200',  icon: '🎯', pulse: false },
-  sl_hit:      { label: 'SL HIT',      color: 'bg-red-50 text-red-600 border-red-200',       border: 'border-red-200',    icon: '🛑', pulse: false },
-  manual_exit: { label: 'EXITED',      color                : 'bg-gray-100 text-gray-600 border-gray-200',     border: 'border-gray-200',   icon: '🔄', pulse: false },
-  expired:     { label: 'EXPIRED',     color: 'bg-gray-50 text-gray-400 border-gray-200',     border: 'border-gray-200',   icon: '⏰', pulse: false },
+  active:      { label: 'ACTIVE',      color: '', border: 'border-amber-200', icon: '🔔', pulse: true, badge: { bg: 'rgba(212,168,67,0.12)', text: '#d4a843' } },
+  in_market:   { label: 'IN MARKET',   color: '', border: 'border-blue-200',   icon: '📊', pulse: true, badge: { bg: 'rgba(99,102,241,0.12)', text: '#818cf8' } },
+  target_hit:  { label: 'TARGET HIT',  color: '', border: 'border-emerald-200',  icon: '🎯', pulse: false, badge: { bg: 'rgba(34,197,94,0.12)', text: '#22c55e' } },
+  sl_hit:      { label: 'SL HIT',      color: '', border: 'border-red-200',    icon: '🛑', pulse: false, badge: { bg: 'rgba(239,68,68,0.12)', text: '#ef4444' } },
+  manual_exit: { label: 'EXITED',      color: '', border: 'border-gray-200',   icon: '🔄', pulse: false, badge: { bg: 'rgba(255,255,255,0.06)', text: '#a09880' } },
+  expired:     { label: 'EXPIRED',     color: '', border: 'border-gray-200',   icon: '⏰', pulse: false, badge: { bg: 'rgba(255,255,255,0.04)', text: '#6b6580' } },
 }
 
 function App() {
@@ -1521,16 +1521,16 @@ function App() {
 
   if (authView !== 'dashboard') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 flex items-center justify-center px-4">
+      <div className="min-h-screen flex items-center justify-center px-4" style={{background: '#0a0a0f'}}>
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <div className="inline-flex items-center gap-3 mb-2">
-              <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg shadow-blue-200">
-                <TrendingUp className="w-7 h-7 text-white" />
+              <div className="p-2 rounded-xl" style={{background: 'linear-gradient(135deg, #d4a843, #b8922e)'}}>
+                <TrendingUp className="w-7 h-7 text-black" />
               </div>
-              <h1 className="text-3xl font-bold text-gray-900">TradeVault</h1>
+              <h1 className="text-3xl font-bold gold-text">TradeVault</h1>
             </div>
-            <p className="text-gray-500">Real-time Trading Signals</p>
+            <p style={{color: '#a09880'}}>Real-time Trading Signals</p>
           </div>
 
           {authView === 'login' ? (
@@ -1550,7 +1550,7 @@ function App() {
   // ─── Dashboard ──────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen" style={{background: '#0a0a0f', color: '#f0e6d0'}}>
+    <div className="min-h-screen" style={{background: '#0a0a0f', color: '#f0e6d0', overflowX: 'hidden'}}>
       {/* Audio element - gracefully handles missing file */}
       <audio ref={audioRef} src="/notification.mp3" preload="none" onError={(e) => e.target.remove()} />
 
@@ -1559,26 +1559,31 @@ function App() {
 
       {/* Header */}
       <header className="sticky top-0 z-50 glass shadow-[0_4px_30px_rgba(0,0,0,0.3)]">
-        <div className="w-full px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg" style={{background: 'linear-gradient(135deg, #d4a843, #b8922e)'}}>
-              <TrendingUp className="w-5 h-5 text-black" />
+        <div className="w-full px-2 sm:px-6 lg:px-8 py-2 sm:py-3 flex items-center justify-between gap-1">
+          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+            <div className="p-1 sm:p-1.5 rounded-lg" style={{background: 'linear-gradient(135deg, #d4a843, #b8922e)'}}>
+              <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-black" />
             </div>
-            <h1 className="text-xl font-bold gold-text">TradeVault</h1>
+            <h1 className="text-base sm:text-xl font-bold gold-text leading-tight">TradeVault</h1>
           </div>
 
-          <div className="flex items-center gap-2">
-            {/* Connection Status */}
-            <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border ${
-              isConnected ? 'border-emerald-500/30 text-emerald-400' : 'border-red-500/30 text-red-400'
-            }`} style={{background: isConnected ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)'}}>
+          <div className="flex items-center gap-0.5 sm:gap-2 min-w-0">
+            {/* Connection Status — tiny dot on mobile */}
+            <div className="sm:hidden flex-shrink-0">
+              <span className={`block w-2 h-2 rounded-full ${isConnected ? 'bg-emerald-400' : 'bg-red-400'}`} title={connectionStatus} />
+            </div>
+            <div className="hidden sm:flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border" style={{
+              borderColor: isConnected ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)',
+              color: isConnected ? '#22c55e' : '#ef4444',
+              background: isConnected ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)'
+            }}>
               {isConnected ? <Wifi className="w-3 h-3" /> : <WifiOff className="w-3 h-3" />}
-              <span className="hidden sm:inline">{connectionStatus}</span>
+              <span>{connectionStatus}</span>
             </div>
 
             {/* Broker Account Info — name + balance */}
             {brokerAccountInfo?.connected && (
-              <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border" style={{background: 'rgba(212,168,67,0.1)', borderColor: 'rgba(212,168,67,0.3)', color: '#f0d68a'}}>
+              <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border flex-shrink-0" style={{background: 'rgba(212,168,67,0.1)', borderColor: 'rgba(212,168,67,0.3)', color: '#f0d68a'}}>
                 <span className="font-semibold">{brokerAccountInfo.user_name || brokerAccountInfo.user_id}</span>
                 <span style={{color: '#6b6580'}}>·</span>
                 <span className="font-mono">₹{Number(brokerAccountInfo.available_balance).toLocaleString('en-IN')}</span>
@@ -1586,43 +1591,43 @@ function App() {
             )}
 
             {/* Credit Balance Badge */}
-            <CreditBadge apiKey={apiKey} onBuyClick={() => setShowCreditStore(true)} />
+            <div className="flex-shrink-0"><CreditBadge apiKey={apiKey} onBuyClick={() => setShowCreditStore(true)} /></div>
 
             <button onClick={() => setSoundEnabled(!soundEnabled)}
-              className="p-2 rounded-lg transition" style={{color: '#a09880'}} 
+              className="p-1.5 sm:p-2 rounded-lg transition flex-shrink-0" style={{color: '#a09880'}} 
               onMouseEnter={e => e.currentTarget.style.background = 'rgba(212,168,67,0.1)'} 
               onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-              {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+              {soundEnabled ? <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <VolumeX className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
             </button>
 
             <button onClick={() => { setShowAutoTrigger(!showAutoTrigger); setShowSettings(false) }}
-              className="p-2 rounded-lg transition" title="Auto-Trigger Settings"
+              className="p-1.5 sm:p-2 rounded-lg transition flex-shrink-0" title="Auto-Trigger Settings"
               style={{color: showAutoTrigger ? '#d4a843' : '#a09880', background: showAutoTrigger ? 'rgba(212,168,67,0.1)' : 'transparent'}}
               onMouseEnter={e => { if(!showAutoTrigger) e.currentTarget.style.background = 'rgba(212,168,67,0.08)' }} 
               onMouseLeave={e => { if(!showAutoTrigger) e.currentTarget.style.background = 'transparent' }}>
-              <Zap className="w-4 h-4" />
+              <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </button>
 
             <button onClick={() => { setShowSettings(!showSettings); setShowAutoTrigger(false) }}
-              className="p-2 rounded-lg transition" title="Settings"
+              className="p-1.5 sm:p-2 rounded-lg transition flex-shrink-0" title="Settings"
               style={{color: showSettings ? '#d4a843' : '#a09880', background: showSettings ? 'rgba(212,168,67,0.1)' : 'transparent'}}
               onMouseEnter={e => { if(!showSettings) e.currentTarget.style.background = 'rgba(212,168,67,0.08)' }} 
               onMouseLeave={e => { if(!showSettings) e.currentTarget.style.background = 'transparent' }}>
-              <Settings className="w-4 h-4" />
+              <Settings className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </button>
 
             <button onClick={handleLogout}
-              className="p-2 rounded-lg transition" title="Logout"
+              className="p-1.5 sm:p-2 rounded-lg transition flex-shrink-0" title="Logout"
               style={{color: '#ef4444'}}
               onMouseEnter={e => e.currentTarget.style.background = 'rgba(239,68,68,0.1)'} 
               onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-              <LogOut className="w-4 h-4" />
+              <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </button>
           </div>
         </div>
       </header>
 
-      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 mx-auto">
+      <main className="w-full px-2 sm:px-6 lg:px-8 py-4 sm:py-6 mx-auto" style={{maxWidth:'100vw', overflowX:'hidden'}}>
         {/* ── Broker Connection Bar ───────────────────────────────── */}
         <div className="mb-6 p-4 rounded-xl flex flex-col sm:flex-row items-start sm:items-center gap-3" style={{
           background: isBrokerConnected ? 'rgba(34,197,94,0.08)' : 'var(--bg-card)',
@@ -1724,7 +1729,7 @@ function App() {
 
         {/* ── Summary Bar — only during trade window ─────────────── */}
         {isTradeWindowOpen && (
-        <div className="grid grid-cols-5 gap-2 mb-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 mb-4">
           <StatCard label="Active" value={stats.active} icon={<Activity className="w-4 h-4" />} color="#6366f1" />
           <StatCard label="Target" value={stats.targetHit} icon={<Target className="w-4 h-4" />} color="#22c55e" />
           <StatCard label="SL Hit" value={stats.slHit} icon={<ShieldCheck className="w-4 h-4" />} color="#ef4444" />
@@ -1739,7 +1744,7 @@ function App() {
 
         {/* ── Broker vs Bot P&L comparison — shows when broker is connected ── */}
         {isTradeWindowOpen && isBrokerConnected && paperStats && paperStats.total_closed > 0 && (
-        <div className="mb-6 flex items-center gap-3 p-3 rounded-xl" style={{background: 'var(--bg-card)', border: '1px solid var(--border)'}}>
+        <div className="mb-6 flex flex-wrap items-center gap-3 p-3 rounded-xl" style={{background: 'var(--bg-card)', border: '1px solid var(--border)'}}>
           <div className="flex-1 flex items-center gap-2">
             <span className="text-xs uppercase tracking-wider" style={{color: '#a09880'}}>Broker (Live)</span>
             <span className={`font-mono font-bold text-sm ${stats.dayPnl >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
@@ -1822,53 +1827,47 @@ function App() {
 
         {/* ── Funds Sufficiency Modal ─────────────────────────────── */}
         {showFundsModal && fundsStatus && (
-          <div className="fixed inset-0 bg-gray-900/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
-            <div className="bg-white rounded-2xl shadow-xl border border-gray-200 max-w-md w-full p-6">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm" style={{background: 'rgba(0,0,0,0.6)'}}>
+            <div className="rounded-2xl shadow-xl max-w-md w-full p-6" style={{background: 'var(--bg-card)', border: '1px solid var(--border)'}}>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-bold flex items-center gap-2">
+                <h3 className="text-lg font-bold flex items-center gap-2" style={{color: '#f0e6d0'}}>
                   {fundsStatus.sufficient ? (
-                    <>
-                      <Check className="w-5 h-5 text-emerald-500" />
-                      <span className="text-emerald-600">Funds Sufficient</span>
-                    </>
+                    <><Check className="w-5 h-5" style={{color: '#22c55e'}} /><span style={{color: '#22c55e'}}>Funds Sufficient</span></>
                   ) : (
-                    <>
-                      <AlertCircle className="w-5 h-5 text-amber-500" />
-                      <span className="text-amber-600">Low Balance Warning</span>
-                    </>
+                    <><AlertCircle className="w-5 h-5" style={{color: '#d4a843'}} /><span style={{color: '#d4a843'}}>Low Balance Warning</span></>
                   )}
                 </h3>
                 <button onClick={() => setShowFundsModal(false)}
-                  className="p-1 hover:bg-gray-100 rounded-lg transition">
-                  <X className="w-4 h-4 text-gray-400" />
+                  className="p-1 rounded-lg transition" style={{color: '#6b6580'}} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                  <X className="w-4 h-4" />
                 </button>
               </div>
 
               <div className="space-y-3 mb-4">
-                <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
-                  <div className="text-xs text-gray-500 mb-1">Available Balance</div>
-                  <div className="text-2xl font-bold text-gray-900">
+                <div className="rounded-lg p-3" style={{background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)'}}>
+                  <div className="text-xs mb-1" style={{color: '#a09880'}}>Available Balance</div>
+                  <div className="text-2xl font-bold" style={{color: '#f0e6d0'}}>
                     ₹{fundsStatus.available.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                   </div>
                 </div>
 
-                <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
-                  <div className="text-xs text-gray-500 mb-1">Estimated Required (with buffer)</div>
-                  <div className="text-xl font-semibold text-gray-700">
+                <div className="rounded-lg p-3" style={{background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)'}}>
+                  <div className="text-xs mb-1" style={{color: '#a09880'}}>Estimated Required (with buffer)</div>
+                  <div className="text-xl font-semibold" style={{color: '#f0e6d0'}}>
                     ₹{fundsStatus.required.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                   </div>
-                  <div className="text-xs text-gray-500 mt-1">
+                  <div className="text-xs mt-1" style={{color: '#6b6580'}}>
                     For {fundsStatus.indices.join(', ')}
                   </div>
                 </div>
 
                 {!fundsStatus.sufficient && (
-                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                    <div className="text-xs text-amber-700 flex items-start gap-2">
+                  <div className="rounded-lg p-3" style={{background: 'rgba(212,168,67,0.08)', border: '1px solid rgba(212,168,67,0.2)'}}>
+                    <div className="text-xs flex items-start gap-2" style={{color: '#d4a843'}}>
                       <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
                       <div>
                         <div className="font-semibold mb-1">Insufficient Funds</div>
-                        <div className="text-xs leading-relaxed">
+                        <div className="text-xs leading-relaxed" style={{color: '#a09880'}}>
                           You may not be able to take all signals. Consider adding funds or reducing active indices.
                         </div>
                       </div>
@@ -1879,7 +1878,7 @@ function App() {
 
               <div className="flex gap-2">
                 <button onClick={() => setShowFundsModal(false)}
-                  className="flex-1 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-semibold transition text-sm">
+                  className="flex-1 px-4 py-2.5 rounded-lg font-semibold transition text-sm" style={{background: 'rgba(255,255,255,0.08)', color: '#a09880', border: '1px solid var(--border)'}} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.12)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}>
                   Cancel
                 </button>
                 <button id="funds-proceed-btn" onClick={async (e) => {
@@ -1889,16 +1888,13 @@ function App() {
                   setShowFundsModal(false)
                   await forceTradeMode('auto')
                 }}
-                  className={`flex-1 px-4 py-2.5 rounded-lg font-semibold transition text-sm text-white ${
-                    fundsStatus.sufficient
-                      ? 'bg-emerald-500 hover:bg-emerald-600'
-                      : 'bg-amber-500 hover:bg-amber-600'
-                  }`}>
+                  className="flex-1 px-4 py-2.5 rounded-lg font-semibold transition text-sm text-white"
+                  style={{background: fundsStatus.sufficient ? 'linear-gradient(135deg, #22c55e, #16a34a)' : 'linear-gradient(135deg, #d4a843, #b8922e)'}}>
                   {fundsStatus.sufficient ? 'Continue' : 'Proceed Anyway'}
                 </button>
               </div>
 
-              <p className="text-xs text-gray-500 text-center mt-3">
+              <p className="text-xs text-center mt-3" style={{color: '#6b6580'}}>
                 Estimate based on ₹300/option × lot size. Actual margin may vary.
               </p>
             </div>
@@ -2379,9 +2375,9 @@ function MarketNewsWidget({ newsData: parentNewsData, apiKey, onRefreshComplete 
                       <th className="text-left py-2 pr-2 w-8"></th>
                       <th className="text-left py-2 px-2">Headline</th>
                       <th className="text-center py-2 px-2 w-14">Impact</th>
-                      <th className="text-center py-2 px-2 w-20">Sentiment</th>
-                      <th className="text-left py-2 px-2 w-16">Source</th>
-                      <th className="text-right py-2 pl-2 w-16">Time</th>
+                      <th className="hidden sm:table-cell text-center py-2 px-2 w-20">Sentiment</th>
+                      <th className="hidden md:table-cell text-left py-2 px-2 w-16">Source</th>
+                      <th className="hidden md:table-cell text-right py-2 pl-2 w-16">Time</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -2418,13 +2414,13 @@ function MarketNewsWidget({ newsData: parentNewsData, apiKey, onRefreshComplete 
                               {impact.label}
                             </span>
                           </td>
-                          <td className="py-2.5 px-2 text-center">
+                          <td className="hidden sm:table-cell py-2.5 px-2 text-center">
                             <span className="px-1.5 py-0.5 rounded font-bold" style={{background: sent.bg, color: sent.text}}>
                               {sent.icon} {item.sentiment}
                             </span>
                           </td>
-                          <td className="py-2.5 px-2" style={{color: '#a09880'}}>{item.source}</td>
-                          <td className="py-2.5 pl-2 text-right whitespace-nowrap" style={{color: '#a09880'}}>
+                          <td className="hidden md:table-cell py-2.5 px-2" style={{color: '#a09880'}}>{item.source}</td>
+                          <td className="hidden md:table-cell py-2.5 pl-2 text-right whitespace-nowrap" style={{color: '#a09880'}}>
                             {item.published_at
                               ? (() => {
                                   const ts = item.published_at.endsWith('Z') ? item.published_at : item.published_at + 'Z'
@@ -2516,14 +2512,14 @@ function MarketNewsWidget({ newsData: parentNewsData, apiKey, onRefreshComplete 
 
 function StatCard({ label, value, icon, color }) {
   return (
-    <div className="rounded-xl p-3 transition-all" style={{background: 'var(--bg-card)', border: '1px solid var(--border)'}}
+    <div className="rounded-xl p-2 sm:p-3 transition-all" style={{background: 'var(--bg-card)', border: '1px solid var(--border)'}}
       onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(212,168,67,0.3)'; e.currentTarget.style.boxShadow = '0 0 20px rgba(212,168,67,0.08)' }}
       onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.boxShadow = 'none' }}>
-      <div className="flex items-center gap-1.5 mb-1">
-        <span style={{color}}>{icon}</span>
-        <span className="text-xs uppercase tracking-wide leading-tight" style={{color: '#a09880'}}>{label}</span>
+      <div className="flex items-center gap-1 sm:gap-1.5 mb-0.5 sm:mb-1">
+        <span className="w-3.5 h-3.5 sm:w-4 sm:h-4" style={{color}}>{icon}</span>
+        <span className="text-[10px] sm:text-xs uppercase tracking-wide leading-tight" style={{color: '#a09880'}}>{label}</span>
       </div>
-      <div className="text-lg font-bold leading-tight" style={{color}}>{value}</div>
+      <div className="text-sm sm:text-lg font-bold leading-tight" style={{color}}>{value}</div>
     </div>
   )
 }
@@ -2695,13 +2691,13 @@ function SignalBoard({ signals, loadingSignals, onRefresh, onPlaceOrder, zerodha
               <table className="w-full text-sm">
                 <thead>
                   <tr style={{background: 'rgba(255,255,255,0.03)'}}>
-                    <th className="px-3 py-2 text-left text-xs uppercase tracking-wider font-semibold whitespace-nowrap" style={{color: '#d4a843'}}>Time</th>
-                    <th className="px-3 py-2 text-left text-xs uppercase tracking-wider font-semibold whitespace-nowrap" style={{color: '#d4a843'}}>Symbol</th>
-                    <th className="px-3 py-2 text-center text-xs uppercase tracking-wider font-semibold whitespace-nowrap" style={{color: '#d4a843'}}>Type</th>
-                    <th className="px-3 py-2 text-right text-xs uppercase tracking-wider font-semibold whitespace-nowrap" style={{color: '#d4a843'}}>Entry</th>
-                    <th className="px-3 py-2 text-right text-xs uppercase tracking-wider font-semibold whitespace-nowrap" style={{color: '#d4a843'}}>Exit</th>
-                    <th className="px-3 py-2 text-center text-xs uppercase tracking-wider font-semibold whitespace-nowrap" style={{color: '#d4a843'}}>Result</th>
-                    <th className="px-3 py-2 text-right text-xs uppercase tracking-wider font-semibold whitespace-nowrap" style={{color: '#d4a843'}}>P&L</th>
+                    <th className="px-2 sm:px-3 py-2 text-left text-[10px] sm:text-xs uppercase tracking-wider font-semibold whitespace-nowrap" style={{color: '#d4a843'}}>Time</th>
+                    <th className="px-2 sm:px-3 py-2 text-left text-[10px] sm:text-xs uppercase tracking-wider font-semibold whitespace-nowrap" style={{color: '#d4a843'}}>Symbol</th>
+                    <th className="hidden sm:table-cell px-3 py-2 text-center text-xs uppercase tracking-wider font-semibold whitespace-nowrap" style={{color: '#d4a843'}}>Type</th>
+                    <th className="hidden sm:table-cell px-3 py-2 text-right text-xs uppercase tracking-wider font-semibold whitespace-nowrap" style={{color: '#d4a843'}}>Entry</th>
+                    <th className="hidden sm:table-cell px-3 py-2 text-right text-xs uppercase tracking-wider font-semibold whitespace-nowrap" style={{color: '#d4a843'}}>Exit</th>
+                    <th className="px-2 sm:px-3 py-2 text-center text-[10px] sm:text-xs uppercase tracking-wider font-semibold whitespace-nowrap" style={{color: '#d4a843'}}>Result</th>
+                    <th className="px-2 sm:px-3 py-2 text-right text-[10px] sm:text-xs uppercase tracking-wider font-semibold whitespace-nowrap" style={{color: '#d4a843'}}>P&L</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y" style={{borderColor: 'var(--border)'}}>
@@ -2838,8 +2834,8 @@ function ActiveTradeCard({ signal, onPlaceOrder, zerodhaConnected, tradeMode, au
   return (
     <div className="rounded-xl overflow-hidden relative" style={{background: 'var(--bg-card)', border: '1px solid var(--border)', borderLeft: `4px solid ${isCE ? '#22c55e' : '#ef4444'}`}}>
 
-      <div className="flex items-center justify-between px-3 py-1.5" style={{borderBottom: '1px solid var(--border)', background: isLive ? 'rgba(34,197,94,0.08)' : orderFailed ? 'rgba(239,68,68,0.08)' : isAuto ? 'rgba(212,168,67,0.08)' : 'rgba(255,255,255,0.03)'}}>
-        <span className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5" style={{color: isLive ? '#22c55e' : orderFailed ? '#ef4444' : isAuto ? '#d4a843' : '#a09880'}}>
+      <div className="flex items-center justify-between px-2 sm:px-3 py-1 sm:py-1.5" style={{borderBottom: '1px solid var(--border)', background: isLive ? 'rgba(34,197,94,0.08)' : orderFailed ? 'rgba(239,68,68,0.08)' : isAuto ? 'rgba(212,168,67,0.08)' : 'rgba(255,255,255,0.03)'}}>
+        <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider flex items-center gap-1" style={{color: isLive ? '#22c55e' : orderFailed ? '#ef4444' : isAuto ? '#d4a843' : '#a09880'}}>
           {modeIcon} {modeLabel}
         </span>
         {status === 'in_market' && (
@@ -2853,27 +2849,27 @@ function ActiveTradeCard({ signal, onPlaceOrder, zerodhaConnected, tradeMode, au
         )}
       </div>
 
-      <div className="p-3">
-        <div className="flex items-center gap-2 mb-1">
-          <span className="text-base font-bold leading-tight" style={{color: '#f0e6d0'}}>{index}</span>
-          {derivedStrike && <span className="text-xs font-mono" style={{color: '#a09880'}}>{derivedStrike}</span>}
-          <span className="px-2 py-0.5 rounded border text-xs font-bold" style={isCE ? {background: 'rgba(34,197,94,0.1)', color: '#22c55e', borderColor: 'rgba(34,197,94,0.2)'} : {background: 'rgba(239,68,68,0.1)', color: '#ef4444', borderColor: 'rgba(239,68,68,0.2)'}}>
+      <div className="p-2 sm:p-3">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-1">
+          <span className="text-sm sm:text-base font-bold leading-tight" style={{color: '#f0e6d0'}}>{index}</span>
+          {derivedStrike && <span className="text-[10px] sm:text-xs font-mono" style={{color: '#a09880'}}>{derivedStrike}</span>}
+          <span className="px-1.5 sm:px-2 py-0.5 rounded border text-[10px] sm:text-xs font-bold whitespace-nowrap" style={isCE ? {background: 'rgba(34,197,94,0.1)', color: '#22c55e', borderColor: 'rgba(34,197,94,0.2)'} : {background: 'rgba(239,68,68,0.1)', color: '#ef4444', borderColor: 'rgba(239,68,68,0.2)'}}>
             {isCE ? '▲' : '▼'} {direction}
           </span>
           {aiConf != null && (
-            <span className="ml-auto text-xs font-bold font-mono flex items-center gap-1" style={{color: aiColor === 'text-emerald-600' ? '#22c55e' : aiColor === 'text-amber-600' ? '#d4a843' : '#ef4444'}}>
+            <span className="ml-auto text-[10px] sm:text-xs font-bold font-mono flex items-center gap-1" style={{color: aiColor === 'text-emerald-600' ? '#22c55e' : aiColor === 'text-amber-600' ? '#d4a843' : '#ef4444'}}>
               🧠 {aiConf}%
             </span>
           )}
         </div>
           {estimatedSymbol && (
-            <div className="text-xs font-mono mb-2 truncate" style={{color: '#6b6580'}} title={estimatedSymbol}>
+            <div className="text-[10px] sm:text-xs font-mono mb-1.5 truncate" style={{color: '#6b6580'}} title={estimatedSymbol}>
               📋 {estimatedSymbol}
             </div>
           )}
 
         {optionLTP && (
-          <div className="flex items-center gap-2 mb-2 text-xs">
+          <div className="flex items-center gap-2 mb-1.5 text-[10px] sm:text-xs">
             <span style={{color: '#6b6580'}}>💹 LTP:</span>
             <span className="font-mono font-bold" style={{color: '#f0e6d0'}}>₹{optionLTP.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
             {optionMove != null && (
@@ -2885,36 +2881,36 @@ function ActiveTradeCard({ signal, onPlaceOrder, zerodhaConnected, tradeMode, au
         )}
 
         {status === 'in_market' && unrealizedPnl != null && (
-          <div className="flex items-center justify-between mb-2 px-2 py-1.5 rounded-lg text-xs font-semibold" style={unrealizedPnl >= 0 ? {background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.15)'} : {background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)'}}>
-            <span className="text-xs" style={{color: '#a09880'}}>📊 Unrealized P&L</span>
+          <div className="flex items-center justify-between mb-1.5 px-2 py-1 rounded-lg text-[10px] sm:text-xs font-semibold" style={unrealizedPnl >= 0 ? {background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.15)'} : {background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)'}}>
+            <span className="text-[10px] sm:text-xs" style={{color: '#a09880'}}>📊 Unrealized P&L</span>
             <span className="font-mono font-bold" style={unrealizedPnl >= 0 ? {color: '#22c55e'} : {color: '#ef4444'}}>
               ₹{unrealizedPnl >= 0 ? '+' : ''}{unrealizedPnl.toLocaleString('en-IN')}
             </span>
           </div>
         )}
         {status !== 'in_market' && status !== 'active' && closedPnl != null && closedPnl !== 0 && (
-          <div className="flex items-center justify-between mb-2 px-2 py-1.5 rounded-lg text-xs font-semibold" style={closedPnl >= 0 ? {background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.15)'} : {background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)'}}>
-            <span className="text-xs" style={{color: '#a09880'}}>💰 P&L</span>
+          <div className="flex items-center justify-between mb-1.5 px-2 py-1 rounded-lg text-[10px] sm:text-xs font-semibold" style={closedPnl >= 0 ? {background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.15)'} : {background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)'}}>
+            <span className="text-[10px] sm:text-xs" style={{color: '#a09880'}}>💰 P&L</span>
             <span className="font-mono font-bold" style={closedPnl >= 0 ? {color: '#22c55e'} : {color: '#ef4444'}}>
               ₹{closedPnl >= 0 ? '+' : ''}{Math.round(closedPnl).toLocaleString('en-IN')}
             </span>
           </div>
         )}
 
-        <div className="flex items-center gap-1 mb-2 text-xs">
-          <div className="flex-1 rounded-lg px-2 py-1.5 text-center" style={{background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)'}}>
-            <div className="text-xs uppercase" style={{color: '#6b6580'}}>Entry</div>
-            <div className="font-mono font-bold text-sm" style={{color: '#f0e6d0'}}>{fmtPrice(entryPrice)}</div>
+        <div className="flex items-center gap-1 mb-2 text-[10px] sm:text-xs">
+          <div className="flex-1 rounded-lg px-1 sm:px-2 py-1 sm:py-1.5 text-center" style={{background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)'}}>
+            <div className="text-[9px] sm:text-xs uppercase" style={{color: '#6b6580'}}>Entry</div>
+            <div className="font-mono font-bold text-[11px] sm:text-sm" style={{color: '#f0e6d0'}}>{fmtPrice(entryPrice)}</div>
           </div>
-          <span style={{color: '#6b6580'}}>→</span>
-          <div className="flex-1 rounded-lg px-2 py-1.5 text-center" style={{background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.15)'}}>
-            <div className="text-xs uppercase" style={{color: '#22c55e'}}>Target</div>
-            <div className="font-mono font-bold text-sm" style={{color: '#22c55e'}}>{fmtPrice(targetPrice)}</div>
+          <span className="hidden sm:inline" style={{color: '#6b6580'}}>→</span>
+          <div className="flex-1 rounded-lg px-1 sm:px-2 py-1 sm:py-1.5 text-center" style={{background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.15)'}}>
+            <div className="text-[9px] sm:text-xs uppercase" style={{color: '#22c55e'}}>Target</div>
+            <div className="font-mono font-bold text-[11px] sm:text-sm" style={{color: '#22c55e'}}>{fmtPrice(targetPrice)}</div>
           </div>
-          <span style={{color: '#6b6580'}}>|</span>
-          <div className="flex-1 rounded-lg px-2 py-1.5 text-center" style={{background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)'}}>
-            <div className="text-xs uppercase" style={{color: '#ef4444'}}>SL</div>
-            <div className="font-mono font-bold text-sm" style={{color: '#ef4444'}}>{fmtPrice(slPrice)}</div>
+          <span className="hidden sm:inline" style={{color: '#6b6580'}}>|</span>
+          <div className="flex-1 rounded-lg px-1 sm:px-2 py-1 sm:py-1.5 text-center" style={{background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)'}}>
+            <div className="text-[9px] sm:text-xs uppercase" style={{color: '#ef4444'}}>SL</div>
+            <div className="font-mono font-bold text-[11px] sm:text-sm" style={{color: '#ef4444'}}>{fmtPrice(slPrice)}</div>
           </div>
         </div>
 
@@ -2979,23 +2975,24 @@ function ActiveTradeCard({ signal, onPlaceOrder, zerodhaConnected, tradeMode, au
 
           {!hasOrder && (tradeMode === 'manual' || !indexAutoEnabled) && status === 'in_market' ? (
             <button onClick={handlePlaceOrder} disabled={orderLoading}
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition disabled:opacity-50 text-black"
+              className="inline-flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-[11px] font-semibold transition disabled:opacity-50 text-black"
               style={{background: zerodhaConnected ? 'linear-gradient(135deg, #22c55e, #16a34a)' : 'linear-gradient(135deg, #6b6580, #4a4560)'}}>
               {orderLoading ? <RefreshCw className="w-3 h-3 animate-spin" /> : zerodhaConnected ? <Zap className="w-3 h-3" /> : <Target className="w-3 h-3" />}
-              {zerodhaConnected ? 'Place Live Order' : 'Paper Trade'}
+              <span className="hidden sm:inline">{zerodhaConnected ? 'Place Live Order' : 'Paper Trade'}</span>
+              <span className="sm:hidden">{zerodhaConnected ? 'Order' : 'Paper'}</span>
             </button>
           ) : orderFailed ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold" style={{background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.2)'}}
+            <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-semibold" style={{background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.2)'}}
               title={data.my_order?.error_message || 'Order failed'}>
-              ❌ Order Failed
+              ❌ <span className="hidden sm:inline">Order </span>Failed
             </span>
           ) : orderPlaced ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold" style={{background: 'rgba(34,197,94,0.1)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.2)'}}>
-              <Check className="w-3 h-3" /> Live Order Active
+            <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-semibold" style={{background: 'rgba(34,197,94,0.1)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.2)'}}>
+              <Check className="w-3 h-3" /> <span className="hidden sm:inline">Live Order </span>Active
             </span>
           ) : isAuto ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold" style={{background: 'rgba(212,168,67,0.1)', color: '#d4a843', border: '1px solid rgba(212,168,67,0.2)'}}>
-              ⚡ Auto Trading
+            <span className="inline-flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-lg text-[10px] sm:text-[11px] font-semibold" style={{background: 'rgba(212,168,67,0.1)', color: '#d4a843', border: '1px solid rgba(212,168,67,0.2)'}}>
+              ⚡ <span className="hidden sm:inline">Auto </span>Trading
             </span>
           ) : null}
 
@@ -3045,38 +3042,38 @@ function ClosedTradeRow({ signal }) {
 
   return (
     <tr className="transition" title={estimatedSymbol || undefined} style={{background: 'transparent'}} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-      <td className="px-3 py-2.5 whitespace-nowrap">
-        <span className="text-xs text-gray-500 font-mono">{timeStr}</span>
+      <td className="px-2 sm:px-3 py-2.5 whitespace-nowrap">
+        <span className="text-[10px] sm:text-xs font-mono" style={{color: '#a09880'}}>{timeStr}</span>
       </td>
-      <td className="px-3 py-2.5 whitespace-nowrap">
+      <td className="px-2 sm:px-3 py-2.5 whitespace-nowrap">
         <div>
-          <span className="text-xs font-semibold text-gray-700">{index} {strike}</span>
+          <span className="text-xs font-semibold" style={{color: '#f0e6d0'}}>{index} {strike}</span>
           {hasOrder && (
-            <span className="ml-1 text-xs bg-blue-50 text-blue-600 px-1 py-0.5 rounded font-bold border border-blue-200">MY</span>
+            <span className="ml-1 text-xs px-1 py-0.5 rounded font-bold border" style={{background: 'rgba(99,102,241,0.12)', color: '#818cf8', borderColor: 'rgba(99,102,241,0.25)'}}>MY</span>
           )}
           {estimatedSymbol && (
-            <div className="text-xs font-mono text-gray-400 truncate max-w-[120px]">{estimatedSymbol}</div>
+            <div className="text-[10px] sm:text-xs font-mono truncate max-w-[80px] sm:max-w-[120px]" style={{color: '#6b6580'}}>{estimatedSymbol}</div>
           )}
         </div>
       </td>
-      <td className="px-3 py-2.5 text-center whitespace-nowrap">
+      <td className="hidden sm:table-cell px-3 py-2.5 text-center whitespace-nowrap">
         <span className={`px-1.5 py-0.5 rounded text-xs font-bold border ${
           direction === 'CE' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-red-50 text-red-600 border-red-200'
         }`}>{direction || '—'}</span>
       </td>
-      <td className="px-3 py-2.5 text-right whitespace-nowrap">
-        <span className="text-xs font-mono text-gray-500">{fmtPrice(entryPrice)}</span>
+      <td className="hidden sm:table-cell px-3 py-2.5 text-right whitespace-nowrap">
+        <span className="text-xs font-mono" style={{color: '#a09880'}}>{fmtPrice(entryPrice)}</span>
       </td>
-      <td className="px-3 py-2.5 text-right whitespace-nowrap">
-        <span className="text-xs font-mono text-gray-500">{fmtPrice(exitPrice)}</span>
+      <td className="hidden sm:table-cell px-3 py-2.5 text-right whitespace-nowrap">
+        <span className="text-xs font-mono" style={{color: '#a09880'}}>{fmtPrice(exitPrice)}</span>
       </td>
-      <td className="px-3 py-2.5 text-center whitespace-nowrap">
-        <span className={`px-2 py-0.5 rounded text-xs font-bold border ${cfg.color}`}>
+      <td className="px-2 sm:px-3 py-2.5 text-center whitespace-nowrap">
+        <span className="px-1.5 sm:px-2 py-0.5 rounded text-[10px] sm:text-xs font-bold border" style={{background: cfg.badge.bg, color: cfg.badge.text, borderColor: 'transparent'}}>
           {cfg.icon} {cfg.label}
         </span>
       </td>
-      <td className="px-3 py-2.5 text-right whitespace-nowrap">
-        <span className={`text-xs font-mono font-bold ${pnl >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+      <td className="px-2 sm:px-3 py-2.5 text-right whitespace-nowrap">
+        <span className="text-[10px] sm:text-xs font-mono font-bold" style={{color: pnl >= 0 ? '#22c55e' : '#ef4444'}}>
           {pnl !== 0 ? `₹${pnl >= 0 ? '+' : ''}${pnl.toFixed(0)}` : '—'}
         </span>
       </td>
@@ -3138,36 +3135,36 @@ function ClosedOrderRow({ order, brokerPositionsMap = {} }) {
 
   return (
     <tr className="transition" title={symbol || undefined} style={{background: 'transparent'}} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-      <td className="px-3 py-2.5 whitespace-nowrap">
-        <span className="text-xs text-gray-500 font-mono">{timeStr}</span>
+      <td className="px-2 sm:px-3 py-2.5 whitespace-nowrap">
+        <span className="text-[10px] sm:text-xs font-mono" style={{color: '#a09880'}}>{timeStr}</span>
       </td>
-      <td className="px-3 py-2.5 whitespace-nowrap">
+      <td className="px-2 sm:px-3 py-2.5 whitespace-nowrap">
         <div>
-          <span className="text-xs font-semibold text-gray-700">{index} {strike}</span>
-          <span className="ml-1 text-xs bg-blue-50 text-blue-600 px-1 py-0.5 rounded font-bold border border-blue-200">MY</span>
+          <span className="text-xs font-semibold" style={{color: '#f0e6d0'}}>{index} {strike}</span>
+          <span className="ml-1 text-xs px-1 py-0.5 rounded font-bold border" style={{background: 'rgba(99,102,241,0.12)', color: '#818cf8', borderColor: 'rgba(99,102,241,0.25)'}}>MY</span>
           {symbol && (
-            <div className="text-xs font-mono text-gray-400 truncate max-w-[120px]">{symbol}</div>
+            <div className="text-[10px] sm:text-xs font-mono truncate max-w-[80px] sm:max-w-[120px]" style={{color: '#6b6580'}}>{symbol}</div>
           )}
         </div>
       </td>
-      <td className="px-3 py-2.5 text-center whitespace-nowrap">
+      <td className="hidden sm:table-cell px-3 py-2.5 text-center whitespace-nowrap">
         <span className={`px-1.5 py-0.5 rounded text-xs font-bold border ${
           direction === 'CE' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-red-50 text-red-600 border-red-200'
         }`}>{direction || '—'}</span>
       </td>
-      <td className="px-3 py-2.5 text-right whitespace-nowrap">
-        <span className="text-xs font-mono text-gray-500">{fmtPrice(entryPrice)}</span>
+      <td className="hidden sm:table-cell px-3 py-2.5 text-right whitespace-nowrap">
+        <span className="text-xs font-mono" style={{color: '#a09880'}}>{fmtPrice(entryPrice)}</span>
       </td>
-      <td className="px-3 py-2.5 text-right whitespace-nowrap">
-        <span className="text-xs font-mono text-gray-500">{fmtPrice(exitPrice)}</span>
+      <td className="hidden sm:table-cell px-3 py-2.5 text-right whitespace-nowrap">
+        <span className="text-xs font-mono" style={{color: '#a09880'}}>{fmtPrice(exitPrice)}</span>
       </td>
-      <td className="px-3 py-2.5 text-center whitespace-nowrap">
-        <span className={`px-2 py-0.5 rounded text-xs font-bold border ${cfg.color}`}>
+      <td className="px-2 sm:px-3 py-2.5 text-center whitespace-nowrap">
+        <span className={`px-1.5 sm:px-2 py-0.5 rounded text-[10px] sm:text-xs font-bold border ${cfg.color}`}>
           {cfg.icon} {cfg.label}
         </span>
       </td>
-      <td className="px-3 py-2.5 text-right whitespace-nowrap">
-        <span className={`text-xs font-mono font-bold ${pnl >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+      <td className="px-2 sm:px-3 py-2.5 text-right whitespace-nowrap">
+        <span className={`text-[10px] sm:text-xs font-mono font-bold ${pnl >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
           {pnl !== 0 ? `₹${pnl >= 0 ? '+' : ''}${pnl.toFixed(0)}` : '—'}
         </span>
       </td>
@@ -3318,20 +3315,22 @@ function LoginForm({ onSuccess, onSwitchToRegister, onForgotPassword }) {
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 p-6 border border-gray-100">
-      <div className="flex mb-6 bg-gray-100 rounded-lg p-1">
+    <div className="rounded-2xl shadow-xl p-6" style={{background: 'var(--bg-card)', border: '1px solid var(--border)'}}>
+      <div className="flex mb-6 rounded-lg p-1" style={{background: 'rgba(255,255,255,0.04)'}}>
         <button onClick={() => { setTab('email'); setError('') }}
-          className={`flex-1 py-2 rounded-md text-sm font-medium transition ${tab === 'email' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+          className={`flex-1 py-2 rounded-md text-sm font-medium transition ${tab === 'email' ? 'shadow-sm' : ''}`}
+          style={tab === 'email' ? {background: 'rgba(212,168,67,0.12)', color: '#d4a843'} : {color: '#a09880'}}>
           <LogIn className="w-4 h-4 inline mr-1" /> Email Login
         </button>
         <button onClick={() => { setTab('apikey'); setError('') }}
-          className={`flex-1 py-2 rounded-md text-sm font-medium transition ${tab === 'apikey' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>
+          className={`flex-1 py-2 rounded-md text-sm font-medium transition ${tab === 'apikey' ? 'shadow-sm' : ''}`}
+          style={tab === 'apikey' ? {background: 'rgba(212,168,67,0.12)', color: '#d4a843'} : {color: '#a09880'}}>
           <Key className="w-4 h-4 inline mr-1" /> API Key
         </button>
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm flex items-center gap-2">
+        <div className="mb-4 p-3 rounded-lg text-sm flex items-center gap-2" style={{background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171'}}>
           <AlertCircle className="w-4 h-4 flex-shrink-0" /> {error}
         </div>
       )}
@@ -3339,51 +3338,63 @@ function LoginForm({ onSuccess, onSwitchToRegister, onForgotPassword }) {
       {tab === 'email' ? (
         <form onSubmit={handleEmailLogin} className="space-y-4">
           <div>
-            <label className="block text-sm text-gray-600 mb-1">Email</label>
+            <label className="block text-sm mb-1" style={{color: '#a09880'}}>Email</label>
             <input type="email" value={email} onChange={e => setEmail(e.target.value)} required
-              className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
-              placeholder="you@example.com" />
+              className="w-full px-4 py-3 rounded-lg border text-sm transition"
+              style={{background: 'rgba(255,255,255,0.05)', borderColor: 'var(--border)', color: '#f0e6d0', outline: 'none'}}
+              placeholder="you@example.com"
+              onFocus={e => { e.currentTarget.style.borderColor = '#d4a843'; e.currentTarget.style.boxShadow = '0 0 0 1px rgba(212,168,67,0.3)' }}
+              onBlur={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.boxShadow = 'none' }} />
           </div>
           <div>
-            <label className="block text-sm text-gray-600 mb-1">Password</label>
+            <label className="block text-sm mb-1" style={{color: '#a09880'}}>Password</label>
             <div className="relative">
               <input type={showPassword ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} required
-                className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 pr-10 transition" />
+                className="w-full px-4 py-3 rounded-lg border text-sm pr-10 transition"
+                style={{background: 'rgba(255,255,255,0.05)', borderColor: 'var(--border)', color: '#f0e6d0', outline: 'none'}}
+                onFocus={e => { e.currentTarget.style.borderColor = '#d4a843'; e.currentTarget.style.boxShadow = '0 0 0 1px rgba(212,168,67,0.3)' }}
+                onBlur={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.boxShadow = 'none' }} />
               <button type="button" onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                className="absolute right-3 top-1/2 -translate-y-1/2 transition"
+                style={{color: '#6b6580'}} onMouseEnter={e => e.currentTarget.style.color = '#a09880'} onMouseLeave={e => e.currentTarget.style.color = '#6b6580'}>
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
           </div>
           <button type="submit" disabled={loading}
-            className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg font-medium transition disabled:opacity-50 shadow-lg shadow-blue-200">
+            className="w-full py-3 rounded-lg font-medium transition disabled:opacity-50 text-black"
+            style={{background: 'linear-gradient(135deg, #d4a843, #b8922e)'}}>
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
       ) : (
         <form onSubmit={handleApiKeyLogin} className="space-y-4">
           <div>
-            <label className="block text-sm text-gray-600 mb-1">API Key</label>
+            <label className="block text-sm mb-1" style={{color: '#a09880'}}>API Key</label>
             <input type="text" value={apiKeyInput} onChange={e => setApiKeyInput(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-900 font-mono text-sm placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
-              placeholder="tv_xxxxxxxxxxxxxxxx" />
+              className="w-full px-4 py-3 rounded-lg border font-mono text-sm transition"
+              style={{background: 'rgba(255,255,255,0.05)', borderColor: 'var(--border)', color: '#f0e6d0', outline: 'none'}}
+              placeholder="tv_xxxxxxxxxxxxxxxx"
+              onFocus={e => { e.currentTarget.style.borderColor = '#d4a843'; e.currentTarget.style.boxShadow = '0 0 0 1px rgba(212,168,67,0.3)' }}
+              onBlur={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.boxShadow = 'none' }} />
           </div>
           <button type="submit" disabled={apiKeyLoggingIn}
-            className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg font-medium transition disabled:opacity-50 shadow-lg shadow-blue-200">
+            className="w-full py-3 rounded-lg font-medium transition disabled:opacity-50 text-black"
+            style={{background: 'linear-gradient(135deg, #d4a843, #b8922e)'}}>
             {apiKeyLoggingIn ? 'Connecting...' : 'Connect'}
           </button>
         </form>
       )}
 
       <div className="mt-4 text-center">
-        <button onClick={onForgotPassword} className="text-gray-500 hover:text-blue-600 text-xs transition">
+        <button onClick={onForgotPassword} className="text-xs transition" style={{color: '#6b6580'}} onMouseEnter={e => e.currentTarget.style.color = '#d4a843'} onMouseLeave={e => e.currentTarget.style.color = '#6b6580'}>
           Forgot your password?
         </button>
       </div>
 
       <div className="mt-3 text-center">
-        <span className="text-gray-500 text-sm">Don't have an account? </span>
-        <button onClick={onSwitchToRegister} className="text-blue-600 hover:text-blue-700 text-sm font-medium transition">
+        <span className="text-sm" style={{color: '#6b6580'}}>Don't have an account? </span>
+        <button onClick={onSwitchToRegister} className="text-sm font-medium transition" style={{color: '#d4a843'}} onMouseEnter={e => e.currentTarget.style.color = '#f0d68a'} onMouseLeave={e => e.currentTarget.style.color = '#d4a843'}>
           Register
         </button>
       </div>
@@ -3426,14 +3437,14 @@ function ForgotPasswordForm({ onBackToLogin }) {
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 p-6 border border-gray-100">
-      <h2 className="text-xl font-semibold text-gray-900 mb-2">Reset Password</h2>
-      <p className="text-gray-500 text-sm mb-6">
+    <div className="rounded-2xl shadow-xl p-6" style={{background: 'var(--bg-card)', border: '1px solid var(--border)'}}>
+      <h2 className="text-xl font-semibold mb-2" style={{color: '#f0e6d0'}}>Reset Password</h2>
+      <p className="text-sm mb-6" style={{color: '#a09880'}}>
         Enter your email and we'll send you a link to reset your password.
       </p>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm flex items-center gap-2">
+        <div className="mb-4 p-3 rounded-lg text-sm flex items-center gap-2" style={{background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171'}}>
           <AlertCircle className="w-4 h-4 flex-shrink-0" /> {error}
         </div>
       )}
@@ -3441,26 +3452,30 @@ function ForgotPasswordForm({ onBackToLogin }) {
       {sent ? (
         <div className="text-center py-6">
           <div className="text-4xl mb-3">📧</div>
-          <p className="text-green-600 font-medium mb-2">Check your email!</p>
-          <p className="text-gray-500 text-sm mb-6">
+          <p className="font-medium mb-2" style={{color: '#22c55e'}}>Check your email!</p>
+          <p className="text-sm mb-6" style={{color: '#a09880'}}>
             If that email is registered, you'll receive a password reset link shortly.
             The link expires in 15 minutes.
           </p>
           <button onClick={onBackToLogin}
-            className="text-blue-600 hover:text-blue-700 text-sm font-medium transition">
+            className="text-sm font-medium transition" style={{color: '#d4a843'}} onMouseEnter={e => e.currentTarget.style.color = '#f0d68a'} onMouseLeave={e => e.currentTarget.style.color = '#d4a843'}>
             ← Back to Login
           </button>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm text-gray-600 mb-1">Email</label>
+            <label className="block text-sm mb-1" style={{color: '#a09880'}}>Email</label>
             <input type="email" value={email} onChange={e => setEmail(e.target.value)} required
-              className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
-              placeholder="you@example.com" />
+              className="w-full px-4 py-3 rounded-lg border text-sm transition"
+              style={{background: 'rgba(255,255,255,0.05)', borderColor: 'var(--border)', color: '#f0e6d0', outline: 'none'}}
+              placeholder="you@example.com"
+              onFocus={e => { e.currentTarget.style.borderColor = '#d4a843'; e.currentTarget.style.boxShadow = '0 0 0 1px rgba(212,168,67,0.3)' }}
+              onBlur={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.boxShadow = 'none' }} />
           </div>
           <button type="submit" disabled={loading}
-            className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg font-medium transition disabled:opacity-50 shadow-lg shadow-blue-200">
+            className="w-full py-3 rounded-lg font-medium transition disabled:opacity-50 text-black"
+            style={{background: 'linear-gradient(135deg, #d4a843, #b8922e)'}}>
             {loading ? 'Sending...' : 'Send Reset Link'}
           </button>
         </form>
@@ -3468,7 +3483,7 @@ function ForgotPasswordForm({ onBackToLogin }) {
 
       {!sent && (
         <div className="mt-6 text-center">
-          <button onClick={onBackToLogin} className="text-blue-600 hover:text-blue-700 text-sm font-medium transition">
+          <button onClick={onBackToLogin} className="text-sm font-medium transition" style={{color: '#d4a843'}} onMouseEnter={e => e.currentTarget.style.color = '#f0d68a'} onMouseLeave={e => e.currentTarget.style.color = '#d4a843'}>
             ← Back to Login
           </button>
         </div>
@@ -3522,14 +3537,14 @@ function ResetPasswordForm({ token, email, onBackToLogin }) {
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 p-6 border border-gray-100">
-      <h2 className="text-xl font-semibold text-gray-900 mb-2">Set New Password</h2>
-      <p className="text-gray-500 text-sm mb-6">
-        Enter your new password for <strong className="text-gray-900">{email}</strong>
+    <div className="rounded-2xl shadow-xl p-6" style={{background: 'var(--bg-card)', border: '1px solid var(--border)'}}>
+      <h2 className="text-xl font-semibold mb-2" style={{color: '#f0e6d0'}}>Set New Password</h2>
+      <p className="text-sm mb-6" style={{color: '#a09880'}}>
+        Enter your new password for <strong style={{color: '#d4a843'}}>{email}</strong>
       </p>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm flex items-center gap-2">
+        <div className="mb-4 p-3 rounded-lg text-sm flex items-center gap-2" style={{background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171'}}>
           <AlertCircle className="w-4 h-4 flex-shrink-0" /> {error}
         </div>
       )}
@@ -3537,37 +3552,46 @@ function ResetPasswordForm({ token, email, onBackToLogin }) {
       {success ? (
         <div className="text-center py-6">
           <div className="text-4xl mb-3">✅</div>
-          <p className="text-green-600 font-medium mb-2">Password reset successful!</p>
-          <p className="text-gray-500 text-sm mb-6">
+          <p className="font-medium mb-2" style={{color: '#22c55e'}}>Password reset successful!</p>
+          <p className="text-sm mb-6" style={{color: '#a09880'}}>
             You can now log in with your new password.
           </p>
           <button onClick={onBackToLogin}
-            className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg font-medium transition shadow-lg shadow-blue-200">
+            className="w-full py-3 rounded-lg font-medium transition text-black"
+            style={{background: 'linear-gradient(135deg, #d4a843, #b8922e)'}}>
             Go to Login
           </button>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm text-gray-600 mb-1">New Password</label>
+            <label className="block text-sm mb-1" style={{color: '#a09880'}}>New Password</label>
             <div className="relative">
               <input type={showPassword ? 'text' : 'password'} value={newPassword} onChange={e => setNewPassword(e.target.value)} required
-                className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 pr-10 transition"
-                placeholder="Min 6 characters" />
+                className="w-full px-4 py-3 rounded-lg border text-sm pr-10 transition"
+                style={{background: 'rgba(255,255,255,0.05)', borderColor: 'var(--border)', color: '#f0e6d0', outline: 'none'}}
+                placeholder="Min 6 characters"
+                onFocus={e => { e.currentTarget.style.borderColor = '#d4a843'; e.currentTarget.style.boxShadow = '0 0 0 1px rgba(212,168,67,0.3)' }}
+                onBlur={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.boxShadow = 'none' }} />
               <button type="button" onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                className="absolute right-3 top-1/2 -translate-y-1/2 transition"
+                style={{color: '#6b6580'}} onMouseEnter={e => e.currentTarget.style.color = '#a09880'} onMouseLeave={e => e.currentTarget.style.color = '#6b6580'}>
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
           </div>
           <div>
-            <label className="block text-sm text-gray-600 mb-1">Confirm Password</label>
+            <label className="block text-sm mb-1" style={{color: '#a09880'}}>Confirm Password</label>
             <input type={showPassword ? 'text' : 'password'} value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required
-              className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
-              placeholder="Re-enter password" />
+              className="w-full px-4 py-3 rounded-lg border text-sm transition"
+              style={{background: 'rgba(255,255,255,0.05)', borderColor: 'var(--border)', color: '#f0e6d0', outline: 'none'}}
+              placeholder="Re-enter password"
+              onFocus={e => { e.currentTarget.style.borderColor = '#d4a843'; e.currentTarget.style.boxShadow = '0 0 0 1px rgba(212,168,67,0.3)' }}
+              onBlur={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.boxShadow = 'none' }} />
           </div>
           <button type="submit" disabled={loading}
-            className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg font-medium transition disabled:opacity-50 shadow-lg shadow-blue-200">
+            className="w-full py-3 rounded-lg font-medium transition disabled:opacity-50 text-black"
+            style={{background: 'linear-gradient(135deg, #d4a843, #b8922e)'}}>
             {loading ? 'Resetting...' : 'Reset Password'}
           </button>
         </form>
@@ -3575,7 +3599,7 @@ function ResetPasswordForm({ token, email, onBackToLogin }) {
 
       {!success && (
         <div className="mt-6 text-center">
-          <button onClick={onBackToLogin} className="text-blue-600 hover:text-blue-700 text-sm font-medium transition">
+          <button onClick={onBackToLogin} className="text-sm font-medium transition" style={{color: '#d4a843'}} onMouseEnter={e => e.currentTarget.style.color = '#f0d68a'} onMouseLeave={e => e.currentTarget.style.color = '#d4a843'}>
             ← Back to Login
           </button>
         </div>
@@ -3643,33 +3667,34 @@ function RegisterForm({ onSuccess, onSwitchToLogin }) {
 
   if (registeredKey) {
     return (
-      <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 p-6 border border-gray-100">
+      <div className="rounded-2xl shadow-xl p-6" style={{background: 'var(--bg-card)', border: '1px solid var(--border)'}}>
         <div className="text-center mb-4">
-          <div className="w-16 h-16 mx-auto mb-3 bg-green-100 rounded-full flex items-center justify-center">
-            <Check className="w-8 h-8 text-green-600" />
+          <div className="w-16 h-16 mx-auto mb-3 rounded-full flex items-center justify-center" style={{background: 'rgba(34,197,94,0.1)'}}>
+            <Check className="w-8 h-8" style={{color: '#22c55e'}} />
           </div>
-          <h3 className="text-xl font-bold text-gray-900">Registration Successful!</h3>
-          <p className="text-gray-500 text-sm mt-1">Save your API key — it's shown only once</p>
+          <h3 className="text-xl font-bold" style={{color: '#f0e6d0'}}>Registration Successful!</h3>
+          <p className="text-sm mt-1" style={{color: '#a09880'}}>Save your API key — it's shown only once</p>
         </div>
 
-        <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
-          <label className="block text-xs text-gray-500 mb-1">Your API Key</label>
+        <div className="mb-4 p-3 rounded-lg" style={{background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)'}}>
+          <label className="block text-xs mb-1" style={{color: '#a09880'}}>Your API Key</label>
           <div className="flex items-center gap-2">
-            <code className="flex-1 text-sm text-blue-600 font-mono break-all">{registeredKey}</code>
+            <code className="flex-1 text-sm font-mono break-all" style={{color: '#d4a843'}}>{registeredKey}</code>
             <button onClick={copyKey}
-              className="p-2 hover:bg-gray-100 rounded-lg transition flex-shrink-0">
-              {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4 text-gray-400" />}
+              className="p-2 rounded-lg transition flex-shrink-0" style={{color: '#6b6580'}} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+              {copied ? <Check className="w-4 h-4" style={{color: '#22c55e'}} /> : <Copy className="w-4 h-4" />}
             </button>
           </div>
         </div>
 
-        <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-700 text-xs mb-4 flex items-center gap-2">
+        <div className="mb-4 p-3 rounded-lg text-xs flex items-center gap-2" style={{background: 'rgba(212,168,67,0.08)', border: '1px solid rgba(212,168,67,0.2)', color: '#d4a843'}}>
           <AlertCircle className="w-4 h-4 flex-shrink-0" />
           This key has also been emailed to you. Keep it safe!
         </div>
 
         <button onClick={proceedToDashboard}
-          className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg font-medium transition shadow-lg shadow-blue-200">
+          className="w-full py-3 rounded-lg font-medium transition text-black"
+          style={{background: 'linear-gradient(135deg, #d4a843, #b8922e)'}}>
           Open Dashboard
         </button>
       </div>
@@ -3677,47 +3702,60 @@ function RegisterForm({ onSuccess, onSwitchToLogin }) {
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 p-6 border border-gray-100">
-      <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-        <UserPlus className="w-5 h-5 text-blue-600" /> Create Account
+    <div className="rounded-2xl shadow-xl p-6" style={{background: 'var(--bg-card)', border: '1px solid var(--border)'}}>
+      <h3 className="text-lg font-bold mb-4 flex items-center gap-2" style={{color: '#f0e6d0'}}>
+        <UserPlus className="w-5 h-5" style={{color: '#d4a843'}} /> Create Account
       </h3>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm flex items-center gap-2">
+        <div className="mb-4 p-3 rounded-lg text-sm flex items-center gap-2" style={{background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#f87171'}}>
           <AlertCircle className="w-4 h-4 flex-shrink-0" /> {error}
         </div>
       )}
 
       <form onSubmit={handleRegister} className="space-y-4">
         <div>
-          <label className="block text-sm text-gray-600 mb-1">Full Name</label>
+          <label className="block text-sm mb-1" style={{color: '#a09880'}}>Full Name</label>
           <input type="text" value={fullName} onChange={e => setFullName(e.target.value)} required
-            className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition" />
+            className="w-full px-4 py-3 rounded-lg border text-sm transition"
+            style={{background: 'rgba(255,255,255,0.05)', borderColor: 'var(--border)', color: '#f0e6d0', outline: 'none'}}
+            onFocus={e => { e.currentTarget.style.borderColor = '#d4a843'; e.currentTarget.style.boxShadow = '0 0 0 1px rgba(212,168,67,0.3)' }}
+            onBlur={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.boxShadow = 'none' }} />
         </div>
         <div>
-          <label className="block text-sm text-gray-600 mb-1">Email</label>
+          <label className="block text-sm mb-1" style={{color: '#a09880'}}>Email</label>
           <input type="email" value={email} onChange={e => setEmail(e.target.value)} required
-            className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition" />
+            className="w-full px-4 py-3 rounded-lg border text-sm transition"
+            style={{background: 'rgba(255,255,255,0.05)', borderColor: 'var(--border)', color: '#f0e6d0', outline: 'none'}}
+            onFocus={e => { e.currentTarget.style.borderColor = '#d4a843'; e.currentTarget.style.boxShadow = '0 0 0 1px rgba(212,168,67,0.3)' }}
+            onBlur={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.boxShadow = 'none' }} />
         </div>
         <div>
-          <label className="block text-sm text-gray-600 mb-1">Password</label>
+          <label className="block text-sm mb-1" style={{color: '#a09880'}}>Password</label>
           <input type="password" value={password} onChange={e => setPassword(e.target.value)} required
-            className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition" />
+            className="w-full px-4 py-3 rounded-lg border text-sm transition"
+            style={{background: 'rgba(255,255,255,0.05)', borderColor: 'var(--border)', color: '#f0e6d0', outline: 'none'}}
+            onFocus={e => { e.currentTarget.style.borderColor = '#d4a843'; e.currentTarget.style.boxShadow = '0 0 0 1px rgba(212,168,67,0.3)' }}
+            onBlur={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.boxShadow = 'none' }} />
         </div>
         <div>
-          <label className="block text-sm text-gray-600 mb-1">Confirm Password</label>
+          <label className="block text-sm mb-1" style={{color: '#a09880'}}>Confirm Password</label>
           <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required
-            className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition" />
+            className="w-full px-4 py-3 rounded-lg border text-sm transition"
+            style={{background: 'rgba(255,255,255,0.05)', borderColor: 'var(--border)', color: '#f0e6d0', outline: 'none'}}
+            onFocus={e => { e.currentTarget.style.borderColor = '#d4a843'; e.currentTarget.style.boxShadow = '0 0 0 1px rgba(212,168,67,0.3)' }}
+            onBlur={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.boxShadow = 'none' }} />
         </div>
         <button type="submit" disabled={loading}
-          className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg font-medium transition disabled:opacity-50 shadow-lg shadow-blue-200">
+          className="w-full py-3 rounded-lg font-medium transition disabled:opacity-50 text-black"
+          style={{background: 'linear-gradient(135deg, #d4a843, #b8922e)'}}>
           {loading ? 'Creating account...' : 'Create Account'}
         </button>
       </form>
 
       <div className="mt-6 text-center">
-        <span className="text-gray-500 text-sm">Already have an account? </span>
-        <button onClick={onSwitchToLogin} className="text-blue-600 hover:text-blue-700 text-sm font-medium transition">
+        <span className="text-sm" style={{color: '#6b6580'}}>Already have an account? </span>
+        <button onClick={onSwitchToLogin} className="text-sm font-medium transition" style={{color: '#d4a843'}} onMouseEnter={e => e.currentTarget.style.color = '#f0d68a'} onMouseLeave={e => e.currentTarget.style.color = '#d4a843'}>
           Sign In
         </button>
       </div>
@@ -3803,14 +3841,14 @@ function BrokerCredentialsModal({ onClose, onSave, onExchangeToken, initialReque
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-sm p-4"
          onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="bg-white rounded-2xl shadow-xl border border-gray-200 w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
+      <div className="rounded-2xl shadow-xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto" style={{background: 'var(--bg-card)', border: '1px solid var(--border)'}}>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold flex items-center gap-2 text-gray-900">
-            <ExternalLink className="w-5 h-5 text-emerald-500" />
+          <h2 className="text-lg font-bold flex items-center gap-2" style={{color: '#f0e6d0'}}>
+            <ExternalLink className="w-5 h-5" style={{color: '#22c55e'}} />
             Connect Zerodha
           </h2>
-          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-full transition">
-            <X className="w-5 h-5 text-gray-400" />
+          <button onClick={onClose} className="p-1 rounded-full transition" style={{color: '#6b6580'}} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+            <X className="w-5 h-5" />
           </button>
         </div>
 
@@ -3820,39 +3858,39 @@ function BrokerCredentialsModal({ onClose, onSave, onExchangeToken, initialReque
               <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-all ${
                 s < step ? 'bg-emerald-500 border-emerald-500 text-white' :
                 s === step ? 'border-blue-500 text-blue-600 bg-blue-50' :
-                'border-gray-300 text-gray-500'
+                'border-gray-600 text-gray-500'
               }`}>{s < step ? '✓' : s}</div>
-              {s < 3 && <div className={`flex-1 h-0.5 ${s < step ? 'bg-emerald-500' : 'bg-gray-200'}`} />}
+              {s < 3 && <div className={`flex-1 h-0.5 ${s < step ? 'bg-emerald-500' : ''}`} style={s >= step ? {background: 'rgba(255,255,255,0.1)'} : {}} />}
             </div>
           ))}
         </div>
 
         {error && (
-          <div className="mb-3 p-2 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-xs text-red-600">❌ {error}</p>
+          <div className="mb-3 p-2 rounded-lg" style={{background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)'}}>
+            <p className="text-xs" style={{color: '#f87171'}}>❌ {error}</p>
           </div>
         )}
 
         {step === 1 && (
           <>
             <div className="mb-4 space-y-2">
-              <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                <p className="text-xs font-semibold text-blue-700 mb-2">Step 1: Create Kite Connect App</p>
-                <p className="text-xs text-blue-600/80">
+              <div className="rounded-lg p-3" style={{background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)'}}>
+                <p className="text-xs font-semibold mb-2" style={{color: '#818cf8'}}>Step 1: Create Kite Connect App</p>
+                <p className="text-xs" style={{color: '#a09880'}}>
                   Go to{' '}
                   <a href="https://developers.kite.trade" target="_blank" rel="noopener noreferrer"
-                     className="underline text-blue-600 hover:text-blue-700">
+                     className="underline" style={{color: '#818cf8'}}>
                     developers.kite.trade
                   </a>
                   {' '}→ Create a new app → Copy your <strong>API Key</strong> and <strong>API Secret</strong>.
                 </p>
               </div>
-              <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                <p className="text-xs font-semibold text-amber-700 mb-2">Important: Set Redirect URL</p>
-                <p className="text-xs text-amber-600/80 mb-1">
+              <div className="rounded-lg p-3" style={{background: 'rgba(212,168,67,0.08)', border: '1px solid rgba(212,168,67,0.2)'}}>
+                <p className="text-xs font-semibold mb-2" style={{color: '#d4a843'}}>Important: Set Redirect URL</p>
+                <p className="text-xs mb-1" style={{color: '#a09880'}}>
                   In your Kite app settings, set the <strong>Redirect URL</strong> to:
                 </p>
-                <code className="block text-xs text-amber-700 bg-amber-50/50 p-2 rounded break-all font-mono select-all border border-amber-100">
+                <code className="block text-xs p-2 rounded break-all font-mono select-all border" style={{background: 'rgba(0,0,0,0.3)', color: '#d4a843', borderColor: 'rgba(212,168,67,0.2)'}}>
                   {CALLBACK_URL}
                 </code>
               </div>
@@ -3860,34 +3898,40 @@ function BrokerCredentialsModal({ onClose, onSave, onExchangeToken, initialReque
 
             <form onSubmit={handleSaveCredentials} className="space-y-4">
               <div>
-                <label className="block text-sm text-gray-600 mb-1">Kite API Key</label>
+                <label className="block text-sm mb-1" style={{color: '#a09880'}}>Kite API Key</label>
                 <input
                   type="text"
                   value={kiteApiKey}
                   onChange={e => setKiteApiKey(e.target.value)}
                   placeholder="e.g. bol7cc1v3l7jvhda"
                   required
-                  className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 font-mono text-sm transition"
+                  className="w-full px-4 py-3 rounded-lg border font-mono text-sm transition"
+                  style={{background: 'rgba(255,255,255,0.05)', borderColor: 'var(--border)', color: '#f0e6d0', outline: 'none'}}
+                  onFocus={e => { e.currentTarget.style.borderColor = '#22c55e'; e.currentTarget.style.boxShadow = '0 0 0 1px #22c55e' }}
+                  onBlur={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.boxShadow = 'none' }}
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-600 mb-1">Kite API Secret</label>
+                <label className="block text-sm mb-1" style={{color: '#a09880'}}>Kite API Secret</label>
                 <input
                   type="password"
                   value={kiteApiSecret}
                   onChange={e => setKiteApiSecret(e.target.value)}
                   placeholder="Your Kite API secret"
                   required
-                  className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 font-mono text-sm transition"
+                  className="w-full px-4 py-3 rounded-lg border font-mono text-sm transition"
+                  style={{background: 'rgba(255,255,255,0.05)', borderColor: 'var(--border)', color: '#f0e6d0', outline: 'none'}}
+                  onFocus={e => { e.currentTarget.style.borderColor = '#22c55e'; e.currentTarget.style.boxShadow = '0 0 0 1px #22c55e' }}
+                  onBlur={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.boxShadow = 'none' }}
                 />
               </div>
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={onClose}
-                  className="flex-1 py-3 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 transition text-sm">
+                  className="flex-1 py-3 rounded-lg border transition text-sm" style={{borderColor: 'var(--border)', color: '#a09880', background: 'transparent'}} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                   Cancel
                 </button>
                 <button type="submit" disabled={saving}
-                  className="flex-1 py-3 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-semibold transition text-sm disabled:opacity-50">
+                  className="flex-1 py-3 rounded-lg text-white font-semibold transition text-sm disabled:opacity-50" style={{background: 'linear-gradient(135deg, #22c55e, #16a34a)'}}>
                   {saving ? 'Saving...' : 'Save & Continue →'}
                 </button>
               </div>
@@ -3898,9 +3942,9 @@ function BrokerCredentialsModal({ onClose, onSave, onExchangeToken, initialReque
         {step === 2 && (
           <>
             <div className="mb-4 space-y-3">
-              <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                <p className="text-xs font-semibold text-blue-700 mb-2">Step 2: Login to Zerodha</p>
-                <p className="text-xs text-blue-600/80">
+              <div className="rounded-lg p-3" style={{background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)'}}>
+                <p className="text-xs font-semibold mb-2" style={{color: '#818cf8'}}>Step 2: Login to Zerodha</p>
+                <p className="text-xs" style={{color: '#a09880'}}>
                   Click the button below to open the Zerodha login page in a <strong>new window</strong>.
                   After logging in, you'll see a <strong>request token</strong> — copy it.
                 </p>
@@ -3908,21 +3952,21 @@ function BrokerCredentialsModal({ onClose, onSave, onExchangeToken, initialReque
 
               {loginUrl ? (
                 <a href={loginUrl} target="_blank" rel="noopener noreferrer"
-                  className="w-full py-3 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-semibold transition text-sm flex items-center justify-center gap-2 no-underline">
+                  className="w-full py-3 rounded-lg text-white font-semibold transition text-sm flex items-center justify-center gap-2 no-underline" style={{background: 'linear-gradient(135deg, #6366f1, #4f46e5)'}}>
                   <ExternalLink className="w-4 h-4" />
                   Open Zerodha Login (New Tab)
                 </a>
               ) : (
                 <button onClick={handleFetchLoginUrl}
-                  className="w-full py-3 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-semibold transition text-sm flex items-center justify-center gap-2">
+                  className="w-full py-3 rounded-lg text-white font-semibold transition text-sm flex items-center justify-center gap-2" style={{background: 'linear-gradient(135deg, #6366f1, #4f46e5)'}}>
                   <ExternalLink className="w-4 h-4" />
                   {fetchingUrl ? 'Loading...' : 'Get Zerodha Login Link'}
                 </button>
               )}
 
-              <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                <p className="text-xs font-semibold text-amber-700 mb-2">Step 3: Paste Request Token</p>
-                <p className="text-xs text-amber-600/80">
+              <div className="rounded-lg p-3" style={{background: 'rgba(212,168,67,0.08)', border: '1px solid rgba(212,168,67,0.2)'}}>
+                <p className="text-xs font-semibold mb-2" style={{color: '#d4a843'}}>Step 3: Paste Request Token</p>
+                <p className="text-xs" style={{color: '#a09880'}}>
                   After Zerodha login, you'll see a page with the <strong>request token</strong>.
                   Copy it and paste it below.
                 </p>
@@ -3931,23 +3975,26 @@ function BrokerCredentialsModal({ onClose, onSave, onExchangeToken, initialReque
 
             <form onSubmit={handleExchangeToken} className="space-y-4">
               <div>
-                <label className="block text-sm text-gray-600 mb-1">Request Token</label>
+                <label className="block text-sm mb-1" style={{color: '#a09880'}}>Request Token</label>
                 <input
                   type="text"
                   value={requestToken}
                   onChange={e => setRequestToken(e.target.value)}
                   placeholder="Paste request token from Zerodha window"
                   required
-                  className="w-full px-4 py-3 bg-gray-50 rounded-lg border border-gray-200 text-gray-900 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 font-mono text-sm transition"
+                  className="w-full px-4 py-3 rounded-lg border font-mono text-sm transition"
+                  style={{background: 'rgba(255,255,255,0.05)', borderColor: 'var(--border)', color: '#f0e6d0', outline: 'none'}}
+                  onFocus={e => { e.currentTarget.style.borderColor = '#6366f1'; e.currentTarget.style.boxShadow = '0 0 0 1px #6366f1' }}
+                  onBlur={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.boxShadow = 'none' }}
                 />
               </div>
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => { setStep(1); setError(''); }}
-                  className="flex-1 py-3 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 transition text-sm">
+                  className="flex-1 py-3 rounded-lg border transition text-sm" style={{borderColor: 'var(--border)', color: '#a09880', background: 'transparent'}} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                   ← Back
                 </button>
                 <button type="submit" disabled={exchanging || !requestToken.trim()}
-                  className="flex-1 py-3 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-semibold transition text-sm disabled:opacity-50">
+                  className="flex-1 py-3 rounded-lg text-white font-semibold transition text-sm disabled:opacity-50" style={{background: 'linear-gradient(135deg, #22c55e, #16a34a)'}}>
                   {exchanging ? 'Connecting...' : 'Generate Access Token'}
                 </button>
               </div>
@@ -3957,24 +4004,24 @@ function BrokerCredentialsModal({ onClose, onSave, onExchangeToken, initialReque
 
         {step === 3 && (
           <div className="text-center py-4">
-            <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Check className="w-8 h-8 text-emerald-500" />
+            <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{background: 'rgba(34,197,94,0.1)'}}>
+              <Check className="w-8 h-8" style={{color: '#22c55e'}} />
             </div>
-            <h3 className="text-lg font-bold text-emerald-600 mb-2">Connected!</h3>
-            <p className="text-sm text-gray-600 mb-1">
-              Zerodha account <strong className="text-emerald-600">{connectedUser}</strong> is now linked.
+            <h3 className="text-lg font-bold mb-2" style={{color: '#22c55e'}}>Connected!</h3>
+            <p className="text-sm mb-1" style={{color: '#a09880'}}>
+              Zerodha account <strong style={{color: '#22c55e'}}>{connectedUser}</strong> is now linked.
             </p>
-            <p className="text-xs text-gray-500 mb-6">
+            <p className="text-xs mb-6" style={{color: '#6b6580'}}>
               Auto-trade signals will now place orders on your behalf.
             </p>
             <button onClick={onClose}
-              className="w-full py-3 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-semibold transition text-sm">
+              className="w-full py-3 rounded-lg text-white font-semibold transition text-sm" style={{background: 'linear-gradient(135deg, #22c55e, #16a34a)'}}>
               Done
             </button>
           </div>
         )}
 
-        <p className="mt-3 text-xs text-gray-400 text-center">
+        <p className="mt-3 text-xs text-center" style={{color: '#6b6580'}}>
           Your credentials are encrypted (AES-256) and stored securely. They are only used for placing orders on your behalf.
         </p>
       </div>
@@ -4091,14 +4138,14 @@ function UpstoxCredentialsModal({ onClose, onSave, onExchangeCode, initialCode }
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-sm p-4"
          onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="bg-white rounded-2xl shadow-xl border border-gray-200 w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
+      <div className="rounded-2xl shadow-xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto" style={{background: 'var(--bg-card)', border: '1px solid var(--border)'}}>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold flex items-center gap-2 text-gray-900">
-            <Link2 className="w-5 h-5 text-orange-500" />
+          <h2 className="text-lg font-bold flex items-center gap-2" style={{color: '#f0e6d0'}}>
+            <Link2 className="w-5 h-5" style={{color: '#f97316'}} />
             Connect Upstox
           </h2>
-          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-full transition">
-            <X className="w-5 h-5 text-gray-400" />
+          <button onClick={onClose} className="p-1 rounded-full transition" style={{color: '#6b6580'}} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+            <X className="w-5 h-5" />
           </button>
         </div>
 
@@ -4325,14 +4372,14 @@ function AliceBlueCredentialsModal({ onClose, onSave }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 backdrop-blur-sm p-4"
          onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="bg-white rounded-2xl shadow-xl border border-gray-200 w-full max-w-md p-6 max-h-[90vh] overflow-y-auto">
+      <div className="rounded-2xl shadow-xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto" style={{background: 'var(--bg-card)', border: '1px solid var(--border)'}}>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold flex items-center gap-2 text-gray-900">
-            <Link2 className="w-5 h-5 text-purple-500" />
+          <h2 className="text-lg font-bold flex items-center gap-2" style={{color: '#f0e6d0'}}>
+            <Link2 className="w-5 h-5" style={{color: '#a855f7'}} />
             Connect AliceBlue
           </h2>
-          <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-full transition">
-            <X className="w-5 h-5 text-gray-400" />
+          <button onClick={onClose} className="p-1 rounded-full transition" style={{color: '#6b6580'}} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+            <X className="w-5 h-5" />
           </button>
         </div>
 
