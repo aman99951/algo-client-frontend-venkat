@@ -39,7 +39,7 @@ export const CATEGORY_ICONS = {
 }
 
 // Lot sizes for standard indices
-export const LOT_SIZES = { NIFTY: 65, BANKNIFTY: 30, SENSEX: 20, BANKEX: 30 }
+export const LOT_SIZES = { NIFTY: 65, BANKNIFTY: 30, SENSEX: 20 }
 
 // Index slots order
-export const INDEX_SLOTS = ['NIFTY', 'BANKNIFTY', 'SENSEX', 'BANKEX']
+export const INDEX_SLOTS = ['NIFTY', 'BANKNIFTY', 'SENSEX']

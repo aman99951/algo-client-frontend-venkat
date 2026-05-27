@@ -800,11 +800,10 @@ function App() {
         const targetPrice = d.target_price || (entryPrice + (d.target_points || 30))
         const slPrice = d.sl_price || (entryPrice - (d.stop_loss_points || 20))
         const symbol = d.estimated_symbol || `${d.index || d.index_name || ''}${d.strike || ''}${d.direction || ''}`
-        // SENSEX/BANKEX trade on BFO (BSE F&O), NIFTY/BANKNIFTY on NFO
+        // SENSEX trades on BFO (BSE F&O), NIFTY/BANKNIFTY on NFO
         const indexUpper = (d.index || d.index_name || '').toUpperCase()
-        const exchange = (indexUpper === 'SENSEX' || indexUpper === 'BANKEX') ? 'BFO' : 'NFO'
-        // BANKEX only supports NRML, all others use MIS (intraday)
-        const productType = (indexUpper === 'BANKEX') ? 'NRML' : 'MIS'
+        const exchange = indexUpper === 'SENSEX' ? 'BFO' : 'NFO'
+        const productType = 'MIS'
 
         if (!symbol || !entryPrice) {
           return { success: false, message: 'Signal data incomplete — cannot build order' }
@@ -1275,14 +1274,14 @@ function App() {
       
       // Estimate required margin for active indices
       // Assuming ~₹300 per option * lot size + 20% buffer
-      const LOT_SIZES = { NIFTY: 65, BANKNIFTY: 30, SENSEX: 20, BANKEX: 30 }
+      const LOT_SIZES = { NIFTY: 65, BANKNIFTY: 30, SENSEX: 20 }
       const OPTION_PRICE_EST = 300 // Conservative estimate
       const BUFFER = 1.2 // 20% safety buffer
       
       // Get unique active indices from autoTriggerConfigs or all 4
       const activeIndices = autoTriggerConfigs.length > 0 
         ? [...new Set(autoTriggerConfigs.map(c => c.index_name))]
-        : ['NIFTY', 'BANKNIFTY', 'SENSEX', 'BANKEX']
+        : ['NIFTY', 'BANKNIFTY', 'SENSEX']
       
       const requiredPerIndex = activeIndices.reduce((sum, idx) => {
         const lotSize = LOT_SIZES[idx] || 50
@@ -1551,7 +1550,7 @@ function App() {
   // ─── Dashboard ──────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900">
+    <div className="min-h-screen" style={{background: '#0a0a0f', color: '#f0e6d0'}}>
       {/* Audio element - gracefully handles missing file */}
       <audio ref={audioRef} src="/notification.mp3" preload="none" onError={(e) => e.target.remove()} />
 
@@ -1559,33 +1558,29 @@ function App() {
       <CreditStore apiKey={apiKey} isOpen={showCreditStore} onClose={() => setShowCreditStore(false)} />
 
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-200 shadow-sm">
+      <header className="sticky top-0 z-50 glass shadow-[0_4px_30px_rgba(0,0,0,0.3)]">
         <div className="w-full px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="p-1.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-sm">
-              <TrendingUp className="w-5 h-5 text-white" />
+            <div className="p-1.5 rounded-lg" style={{background: 'linear-gradient(135deg, #d4a843, #b8922e)'}}>
+              <TrendingUp className="w-5 h-5 text-black" />
             </div>
-            <h1 className="text-xl font-bold text-gray-900">TradeVault</h1>
+            <h1 className="text-xl font-bold gold-text">TradeVault</h1>
           </div>
 
           <div className="flex items-center gap-2">
             {/* Connection Status */}
-            <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
-              isConnected ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-red-50 text-red-600 border border-red-200'
-            }`}>
+            <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border ${
+              isConnected ? 'border-emerald-500/30 text-emerald-400' : 'border-red-500/30 text-red-400'
+            }`} style={{background: isConnected ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)'}}>
               {isConnected ? <Wifi className="w-3 h-3" /> : <WifiOff className="w-3 h-3" />}
               <span className="hidden sm:inline">{connectionStatus}</span>
             </div>
 
             {/* Broker Account Info — name + balance */}
             {brokerAccountInfo?.connected && (
-              <div className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${
-                connectedBroker?.color === 'orange' ? 'bg-orange-50 text-orange-600 border-orange-200'
-                : connectedBroker?.color === 'purple' ? 'bg-purple-50 text-purple-600 border-purple-200'
-                : 'bg-emerald-50 text-emerald-600 border-emerald-200'
-              }`}>
+              <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border" style={{background: 'rgba(212,168,67,0.1)', borderColor: 'rgba(212,168,67,0.3)', color: '#f0d68a'}}>
                 <span className="font-semibold">{brokerAccountInfo.user_name || brokerAccountInfo.user_id}</span>
-                <span className="text-gray-300">·</span>
+                <span style={{color: '#6b6580'}}>·</span>
                 <span className="font-mono">₹{Number(brokerAccountInfo.available_balance).toLocaleString('en-IN')}</span>
               </div>
             )}
@@ -1594,23 +1589,33 @@ function App() {
             <CreditBadge apiKey={apiKey} onBuyClick={() => setShowCreditStore(true)} />
 
             <button onClick={() => setSoundEnabled(!soundEnabled)}
-              className="p-2 hover:bg-gray-100 rounded-lg transition text-gray-500 hover:text-gray-700">
+              className="p-2 rounded-lg transition" style={{color: '#a09880'}} 
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(212,168,67,0.1)'} 
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
               {soundEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
             </button>
 
             <button onClick={() => { setShowAutoTrigger(!showAutoTrigger); setShowSettings(false) }}
-              className={`p-2 hover:bg-gray-100 rounded-lg transition ${showAutoTrigger ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
-              title="Auto-Trigger Settings">
+              className="p-2 rounded-lg transition" title="Auto-Trigger Settings"
+              style={{color: showAutoTrigger ? '#d4a843' : '#a09880', background: showAutoTrigger ? 'rgba(212,168,67,0.1)' : 'transparent'}}
+              onMouseEnter={e => { if(!showAutoTrigger) e.currentTarget.style.background = 'rgba(212,168,67,0.08)' }} 
+              onMouseLeave={e => { if(!showAutoTrigger) e.currentTarget.style.background = 'transparent' }}>
               <Zap className="w-4 h-4" />
             </button>
 
             <button onClick={() => { setShowSettings(!showSettings); setShowAutoTrigger(false) }}
-              className={`p-2 hover:bg-gray-100 rounded-lg transition ${showSettings ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}>
+              className="p-2 rounded-lg transition" title="Settings"
+              style={{color: showSettings ? '#d4a843' : '#a09880', background: showSettings ? 'rgba(212,168,67,0.1)' : 'transparent'}}
+              onMouseEnter={e => { if(!showSettings) e.currentTarget.style.background = 'rgba(212,168,67,0.08)' }} 
+              onMouseLeave={e => { if(!showSettings) e.currentTarget.style.background = 'transparent' }}>
               <Settings className="w-4 h-4" />
             </button>
 
             <button onClick={handleLogout}
-              className="p-2 hover:bg-red-50 rounded-lg transition text-red-500 hover:text-red-600" title="Logout">
+              className="p-2 rounded-lg transition" title="Logout"
+              style={{color: '#ef4444'}}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(239,68,68,0.1)'} 
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
               <LogOut className="w-4 h-4" />
             </button>
           </div>
@@ -1619,46 +1624,30 @@ function App() {
 
       <main className="w-full px-4 sm:px-6 lg:px-8 py-6 mx-auto">
         {/* ── Broker Connection Bar ───────────────────────────────── */}
-        <div className={`mb-6 p-4 rounded-xl border shadow-sm flex flex-col sm:flex-row items-start sm:items-center gap-3 ${
-          isBrokerConnected
-            ? connectedBroker?.color === 'orange'
-              ? 'bg-orange-50 border-orange-200'
-              : connectedBroker?.color === 'purple'
-                ? 'bg-purple-50 border-purple-200'
-                : 'bg-emerald-50 border-emerald-200'
-            : 'bg-white border-gray-200 shadow-sm'
-        }`}>
+        <div className="mb-6 p-4 rounded-xl flex flex-col sm:flex-row items-start sm:items-center gap-3" style={{
+          background: isBrokerConnected ? 'rgba(34,197,94,0.08)' : 'var(--bg-card)',
+          border: '1px solid',
+          borderColor: isBrokerConnected ? 'rgba(34,197,94,0.2)' : 'var(--border)'
+        }}>
           <div className="flex items-center gap-3 flex-1 min-w-0">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-              isBrokerConnected
-                ? connectedBroker?.color === 'orange' ? 'bg-orange-100'
-                  : connectedBroker?.color === 'purple' ? 'bg-purple-100'
-                  : 'bg-emerald-100'
-                : 'bg-gray-100'
-            }`}>
+            <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{
+              background: isBrokerConnected ? 'rgba(34,197,94,0.15)' : 'rgba(255,255,255,0.05)'
+            }}>
               {isBrokerConnected
-                ? <Link2 className={`w-5 h-5 ${
-                    connectedBroker?.color === 'orange' ? 'text-orange-500'
-                    : connectedBroker?.color === 'purple' ? 'text-purple-500'
-                    : 'text-emerald-500'
-                  }`} />
-                : <Unplug className="w-5 h-5 text-gray-400" />
+                ? <Link2 className="w-5 h-5" style={{color: '#22c55e'}} />
+                : <Unplug className="w-5 h-5" style={{color: '#6b6580'}} />
               }
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-gray-900">
+                <span className="text-sm font-semibold" style={{color: '#f0e6d0'}}>
                   {isBrokerConnected ? `${connectedBroker.name} Connected` : 'Broker Not Connected'}
                 </span>
                 {isBrokerConnected && (
-                  <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${
-                    connectedBroker?.color === 'orange' ? 'bg-orange-100 text-orange-600'
-                    : connectedBroker?.color === 'purple' ? 'bg-purple-100 text-purple-600'
-                    : 'bg-emerald-100 text-emerald-600'
-                  }`}>LIVE</span>
+                  <span className="px-1.5 py-0.5 rounded text-xs font-bold" style={{background: 'rgba(34,197,94,0.15)', color: '#22c55e'}}>LIVE</span>
                 )}
               </div>
-              <p className="text-xs text-gray-600 truncate">
+              <p className="text-xs" style={{color: '#a09880', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
                 {isBrokerConnected
                   ? `Account: ${connectedBroker.userId} · Orders placed via ${connectedBroker.name}`
                   : 'Connect your broker account to enable order placement'
@@ -1673,14 +1662,14 @@ function App() {
                 : connectedBroker?.name === 'AliceBlue' ? disconnectAliceBlue
                 : disconnectZerodha
               } disabled={disconnecting}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border border-red-200 text-red-600 hover:bg-red-50 transition disabled:opacity-50">
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition disabled:opacity-50" style={{borderColor: 'rgba(239,68,68,0.3)', color: '#ef4444', background: 'rgba(239,68,68,0.08)'}}>
                 <Power className="w-3.5 h-3.5" />
                 {disconnecting ? 'Disconnecting...' : 'Disconnect'}
               </button>
             ) : (
               <button onClick={() => { setConnectingBroker(true); setShowSettings(true); setTimeout(() => setConnectingBroker(false), 1500) }}
                 disabled={connectingBroker}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white transition shadow-sm disabled:opacity-70">
+                className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold text-black transition shadow-sm disabled:opacity-70" style={{background: 'linear-gradient(135deg, #d4a843, #b8922e)'}}>
                 <Link2 className={`w-3.5 h-3.5 ${connectingBroker ? 'animate-pulse' : ''}`} />
                 {connectingBroker ? 'Opening...' : 'Connect Broker'}
               </button>
@@ -1690,16 +1679,17 @@ function App() {
 
         {/* ── Trade Mode Toggle — only during trade window ─────── */}
         {isTradeWindowOpen && (
-        <div className="mb-6 flex items-center gap-3 p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
-          <Radio className="w-4 h-4 text-gray-500 flex-shrink-0" />
-          <span className="text-xs text-gray-600 flex-shrink-0">Trade Mode:</span>
-          <div className="flex bg-gray-100 rounded-lg p-0.5 gap-0.5">
+        <div className="mb-6 flex items-center gap-3 p-4 rounded-xl" style={{background: 'var(--bg-card)', border: '1px solid var(--border)'}}>
+          <Radio className="w-4 h-4 flex-shrink-0" style={{color: '#d4a843'}} />
+          <span className="text-xs flex-shrink-0" style={{color: '#a09880'}}>Trade Mode:</span>
+          <div className="flex rounded-lg p-0.5 gap-0.5" style={{background: 'rgba(255,255,255,0.05)'}}>
             <button onClick={() => toggleTradeMode('manual')}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-md text-xs font-semibold transition-all ${
                 tradeMode === 'manual'
-                  ? 'bg-white text-gray-900 shadow-sm border border-gray-200'
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}>
+                  ? 'shadow-sm'
+                  : ''
+              }`}
+              style={tradeMode === 'manual' ? {background: 'var(--bg-elevated)', color: '#f0e6d0', border: '1px solid rgba(212,168,67,0.2)'} : {color: '#6b6580'}}>
               <ToggleLeft className="w-3.5 h-3.5" />
               Manual Trade
             </button>
@@ -1712,16 +1702,17 @@ function App() {
             }}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-md text-xs font-semibold transition-all ${
                 tradeMode === 'auto'
-                  ? 'bg-emerald-500 text-white shadow-sm'
+                  ? 'shadow-sm'
                   : pnlLocked
-                  ? 'bg-amber-50 text-amber-600 animate-pulse border border-amber-300'
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}>
+                  ? 'animate-pulse'
+                  : ''
+              }`}
+              style={tradeMode === 'auto' ? {background: 'linear-gradient(135deg, #d4a843, #b8922e)', color: '#000'} : pnlLocked ? {background: 'rgba(212,168,67,0.15)', color: '#d4a843', border: '1px solid rgba(212,168,67,0.3)'} : {color: '#6b6580'}}>
               <ToggleRight className="w-3.5 h-3.5" />
               {pnlLocked && tradeMode !== 'auto' ? 'Resume Auto' : 'Auto Trade'}
             </button>
           </div>
-          <span className="text-xs text-gray-500 ml-auto hidden sm:block">
+          <span className="text-xs ml-auto hidden sm:block" style={{color: '#6b6580'}}>
             {pnlLocked
               ? 'P&L limit hit — tap Auto Trade to override'
               : tradeMode === 'auto'
@@ -1734,55 +1725,63 @@ function App() {
         {/* ── Summary Bar — only during trade window ─────────────── */}
         {isTradeWindowOpen && (
         <div className="grid grid-cols-5 gap-2 mb-4">
-          <StatCard label="Active" value={stats.active} icon={<Activity className="w-4 h-4" />} color="text-blue-600" bgColor="bg-blue-500/10" />
-          <StatCard label="🎯 Target" value={stats.targetHit} icon={<Target className="w-4 h-4" />} color="text-green-600" bgColor="bg-green-500/10" />
-          <StatCard label="🛑 SL Hit" value={stats.slHit} icon={<ShieldCheck className="w-4 h-4" />} color="text-red-600" bgColor="bg-red-500/10" />
+          <StatCard label="Active" value={stats.active} icon={<Activity className="w-4 h-4" />} color="#6366f1" />
+          <StatCard label="Target" value={stats.targetHit} icon={<Target className="w-4 h-4" />} color="#22c55e" />
+          <StatCard label="SL Hit" value={stats.slHit} icon={<ShieldCheck className="w-4 h-4" />} color="#ef4444" />
           <StatCard label="Win Rate" value={stats.closed > 0 ? `${stats.winRate}%` : '—'}
             icon={<BarChart3 className="w-4 h-4" />}
-            color={stats.winRate >= 50 ? 'text-green-600' : 'text-yellow-600'}
-            bgColor={stats.winRate >= 50 ? 'bg-green-500/10' : 'bg-yellow-500/10'} />
+            color={stats.winRate >= 50 ? '#22c55e' : '#d4a843'} />
           <StatCard label={stats.hasUserOrders ? 'My P&L' : 'Day P&L'} value={`₹${stats.dayPnl >= 0 ? '+' : ''}${stats.dayPnl.toFixed(0)}`}
             icon={<TrendingUp className="w-4 h-4" />}
-            color={stats.dayPnl >= 0 ? 'text-green-600' : 'text-red-600'}
-            bgColor={stats.dayPnl >= 0 ? 'bg-green-500/10' : 'bg-red-500/10'} />
+            color={stats.dayPnl >= 0 ? '#22c55e' : '#ef4444'} />
         </div>
         )}
 
-        {/* ── Dashboard Meta Stats — always visible ─────────────── */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
-          <StatCard label="Telegram Subs" value={telegramSubscribers?.count ?? telegramSubscribers?.total ?? telegramSubscribers?.subscribers ?? '—'}
-            icon={<Send className="w-4 h-4" />} color="text-sky-600" bgColor="bg-sky-500/10" />
-          <StatCard label="Credits" value={creditBalance?.balance != null ? creditBalance.balance.toLocaleString() : '—'}
-            icon={<Coins className="w-4 h-4" />} color="text-violet-600" bgColor="bg-violet-500/10" />
-          <StatCard label="Dashboard Credits" value={dashboardCreditBalance?.balance != null ? dashboardCreditBalance.balance.toLocaleString() : '—'}
-            icon={<Coins className="w-4 h-4" />} color="text-emerald-600" bgColor="bg-emerald-500/10" />
-        </div>
-
         {/* ── Broker vs Bot P&L comparison — shows when broker is connected ── */}
         {isTradeWindowOpen && isBrokerConnected && paperStats && paperStats.total_closed > 0 && (
-        <div className="mb-6 flex items-center gap-3 p-3 bg-white rounded-xl border border-gray-200 shadow-sm">
+        <div className="mb-6 flex items-center gap-3 p-3 rounded-xl" style={{background: 'var(--bg-card)', border: '1px solid var(--border)'}}>
           <div className="flex-1 flex items-center gap-2">
-            <span className="text-xs text-gray-600 uppercase tracking-wider">Broker (Live)</span>
-            <span className={`font-mono font-bold text-sm ${stats.dayPnl >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+            <span className="text-xs uppercase tracking-wider" style={{color: '#a09880'}}>Broker (Live)</span>
+            <span className={`font-mono font-bold text-sm ${stats.dayPnl >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
               ₹{stats.dayPnl >= 0 ? '+' : ''}{stats.dayPnl.toFixed(0)}
             </span>
-            <span className="text-gray-500 text-xs">({stats.closed} trades)</span>
+            <span className="text-xs" style={{color: '#6b6580'}}>({stats.closed} trades)</span>
           </div>
-          <div className="w-px h-6 bg-gray-200" />
+          <div className="w-px h-6" style={{background: 'var(--border)'}} />
           <div className="flex-1 flex items-center gap-2">
-            <span className="text-xs text-gray-600 uppercase tracking-wider">Bot (Paper)</span>
-            <span className={`font-mono font-bold text-sm ${paperStats.total_pnl >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+            <span className="text-xs uppercase tracking-wider" style={{color: '#a09880'}}>Bot (Paper)</span>
+            <span className={`font-mono font-bold text-sm ${paperStats.total_pnl >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
               ₹{paperStats.total_pnl >= 0 ? '+' : ''}{paperStats.total_pnl.toFixed(0)}
             </span>
-            <span className="text-gray-500 text-xs">({paperStats.total_closed} trades)</span>
+            <span className="text-xs" style={{color: '#6b6580'}}>({paperStats.total_closed} trades)</span>
           </div>
         </div>
         )}
 
         {/* ── Daily Profit Target & Stop Loss Control ─────────────── */}
+        {isTradeWindowOpen && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+          <div className="lg:col-span-2">
+            <ProfitTargetControl apiKey={apiKey} sessionId={apiKey} brokerPnlData={brokerPnlData} />
+          </div>
+          <div className="lg:col-span-1 space-y-2">
+            <div className="grid grid-cols-1 gap-2">
+              <StatCard label="Telegram Subs" value={telegramSubscribers?.count ?? telegramSubscribers?.total ?? telegramSubscribers?.subscribers ?? '—'}
+                icon={<Send className="w-4 h-4" />} color="#38bdf8" />
+              <StatCard label="Credits" value={creditBalance?.balance != null ? creditBalance.balance.toLocaleString() : '—'}
+                icon={<Coins className="w-4 h-4" />} color="#a78bfa" />
+              <StatCard label="Dashboard Credits" value={dashboardCreditBalance?.balance != null ? dashboardCreditBalance.balance.toLocaleString() : '—'}
+                icon={<Coins className="w-4 h-4" />} color="#22c55e" />
+            </div>
+          </div>
+        </div>
+        )}
+
+        {!isTradeWindowOpen && (
         <div className="mb-4">
           <ProfitTargetControl apiKey={apiKey} sessionId={apiKey} brokerPnlData={brokerPnlData} />
         </div>
+        )}
 
         {/* ── Auto-Trigger Panel ──────────────────────────────────── */}
         {showAutoTrigger && (
@@ -1971,16 +1970,16 @@ function App() {
             brokerPnlData={brokerPnlData}
           />
         ) : (
-          <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8 text-center">
-            <Moon className="w-10 h-10 mx-auto mb-3 text-indigo-500" />
-            <h3 className="text-gray-900 font-semibold text-lg mb-1">Markets Closed</h3>
-            <p className="text-gray-600 text-sm">Trading signals will appear here when markets open at 9:15 AM</p>
-            <p className="text-gray-500 text-xs mt-2">Market Pulse &amp; News widgets are available above</p>
+          <div className="rounded-xl p-8 text-center" style={{background: 'var(--bg-card)', border: '1px solid var(--border)'}}>
+            <Moon className="w-10 h-10 mx-auto mb-3" style={{color: '#d4a843'}} />
+            <h3 className="font-semibold text-lg mb-1" style={{color: '#f0e6d0'}}>Markets Closed</h3>
+            <p className="text-sm" style={{color: '#a09880'}}>Trading signals will appear here when markets open at 9:15 AM</p>
+            <p className="text-xs mt-2" style={{color: '#6b6580'}}>Market Pulse &amp; News widgets are available above</p>
           </div>
         )}
       </main>
 
-      <footer className="mt-8 py-4 text-center text-xs text-gray-500">
+      <footer className="mt-8 py-4 text-center text-xs" style={{color: '#6b6580'}}>
         TradeVault Signals
       </footer>
     </div>
@@ -2025,9 +2024,9 @@ function NewsMoodBar({ newsData, moodData }) {
 
   const light = moodBias === 'bullish' ? 'green' : moodBias === 'bearish' ? 'red' : 'gray'
   const lightConfig = {
-    green: { label: moodLabel, labelColor: 'text-emerald-600', barBg: 'bg-emerald-50', borderColor: 'border-emerald-200', barColor: 'bg-emerald-500' },
-    red:   { label: moodLabel, labelColor: 'text-red-600',   barBg: 'bg-red-50',   borderColor: 'border-red-200',   barColor: 'bg-red-500' },
-    gray:  { label: moodLabel, labelColor: 'text-gray-500',  barBg: 'bg-gray-50',  borderColor: 'border-gray-200',  barColor: 'bg-gray-400' },
+    green: { label: moodLabel, labelColor: '#22c55e', barBg: 'rgba(34,197,94,0.08)', borderColor: 'rgba(34,197,94,0.2)', barColor: '#22c55e' },
+    red:   { label: moodLabel, labelColor: '#ef4444', barBg: 'rgba(239,68,68,0.08)', borderColor: 'rgba(239,68,68,0.2)', barColor: '#ef4444' },
+    gray:  { label: moodLabel, labelColor: '#a09880', barBg: 'rgba(255,255,255,0.03)', borderColor: 'rgba(255,255,255,0.08)', barColor: '#6b6580' },
   }
   const lc = lightConfig[light]
 
@@ -2038,9 +2037,9 @@ function NewsMoodBar({ newsData, moodData }) {
     : Math.min(100, Math.max(0, ((displayScore + 30) / 60) * 100))
 
   const Chip = ({ label, score, icon }) => {
-    const chipColor = score > 10 ? 'text-emerald-600 bg-emerald-50 border border-emerald-200' : score < -10 ? 'text-red-600 bg-red-50 border border-red-200' : 'text-gray-600 bg-gray-100 border border-gray-200'
+    const chipColor = score > 10 ? {color: '#22c55e', background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)'} : score < -10 ? {color: '#ef4444', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)'} : {color: '#a09880', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)'}
     return (
-      <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-xs font-medium ${chipColor}`}>
+      <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-xs font-medium" style={chipColor}>
         {icon && <span className="text-xs">{icon}</span>}
         {label}
         <span className="font-mono ml-0.5">{score > 0 ? '+' : ''}{Math.round(score)}</span>
@@ -2049,10 +2048,10 @@ function NewsMoodBar({ newsData, moodData }) {
   }
 
   return (
-    <div className={`${lc.barBg} border ${lc.borderColor} rounded-xl mb-4 overflow-hidden shadow-sm`}>
+    <div className="rounded-xl mb-4 overflow-hidden" style={{background: lc.barBg, border: `1px solid ${lc.borderColor}`}}>
       <button
         onClick={() => setExpanded(!expanded)}
-        className="w-full p-2.5 flex items-center gap-3 hover:bg-black/[0.02] transition"
+        className="w-full p-2.5 flex items-center gap-3 transition hover:bg-white/[0.02]"
       >
         <div className="flex gap-1.5 flex-shrink-0">
           <div className={`w-3 h-3 rounded-full transition-all duration-500 ${
@@ -2068,16 +2067,12 @@ function NewsMoodBar({ newsData, moodData }) {
 
         <div className="flex flex-col flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs text-gray-600 uppercase tracking-wider">
+            <span className="text-xs uppercase tracking-wider" style={{color: '#a09880'}}>
               {hasComposite ? 'Market Mood' : 'News Mood'}
             </span>
-            <span className={`text-xs font-bold ${lc.labelColor}`}>{lc.label}</span>
+            <span className="text-xs font-bold" style={{color: lc.labelColor}}>{lc.label}</span>
             {vix.available && (
-                <span className={`text-xs px-1.5 py-0.5 rounded font-medium border ${
-                vix.value < 16 ? 'bg-emerald-50 text-emerald-600 border-emerald-200'
-                : vix.value < 20 ? 'bg-gray-100 text-gray-600 border-gray-200'
-                : 'bg-red-50 text-red-600 border-red-200'
-              }`}>
+                <span className="text-xs px-1.5 py-0.5 rounded font-medium border" style={vix.value < 16 ? {background: 'rgba(34,197,94,0.1)', color: '#22c55e', borderColor: 'rgba(34,197,94,0.2)'} : vix.value < 20 ? {background: 'rgba(255,255,255,0.05)', color: '#a09880', borderColor: 'rgba(255,255,255,0.1)'} : {background: 'rgba(239,68,68,0.1)', color: '#ef4444', borderColor: 'rgba(239,68,68,0.2)'}}>
                 VIX {vix.value}
               </span>
             )}
@@ -2089,35 +2084,33 @@ function NewsMoodBar({ newsData, moodData }) {
               </div>
             )}
           </div>
-          <div className="w-full h-1.5 bg-gray-100 rounded-full mt-1 overflow-hidden">
+          <div className="w-full h-1.5 rounded-full mt-1 overflow-hidden" style={{background: 'rgba(255,255,255,0.05)'}}>
             <div
-              className={`h-full rounded-full transition-all duration-700 ${lc.barColor}`}
-              style={{ width: `${barPct}%` }}
+              className="h-full rounded-full transition-all duration-700"
+              style={{width: `${barPct}%`, background: lc.barColor}}
             />
           </div>
         </div>
 
         {highImpact.length > 0 && (
           <div className="flex-shrink-0 hidden sm:flex items-center gap-1">
-            <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
-            <span className="text-xs text-red-600 font-medium">{highImpact.length} Alert</span>
+            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{background: '#ef4444'}} />
+            <span className="text-xs font-medium" style={{color: '#ef4444'}}>{highImpact.length} Alert</span>
           </div>
         )}
 
-          <div className={`flex-shrink-0 px-2 py-0.5 rounded-md text-[11px] font-mono font-bold ${
-          displayScore > 0 ? 'bg-emerald-50 text-emerald-600' : displayScore < 0 ? 'bg-red-50 text-red-600' : 'bg-gray-100 text-gray-600'
-        }`}>
+          <div className="flex-shrink-0 px-2 py-0.5 rounded-md text-[11px] font-mono font-bold" style={displayScore > 0 ? {background: 'rgba(34,197,94,0.1)', color: '#22c55e'} : displayScore < 0 ? {background: 'rgba(239,68,68,0.1)', color: '#ef4444'} : {background: 'rgba(255,255,255,0.05)', color: '#6b6580'}}>
           {displayScore > 0 ? '+' : ''}{hasComposite ? compositeScore.toFixed(0) : displayScore.toFixed(0)}
         </div>
 
-        <svg className={`w-3 h-3 text-gray-500 transition-transform ${expanded ? 'rotate-180' : ''}`}
+        <svg className={`w-3 h-3 transition-transform ${expanded ? 'rotate-180' : ''}`} style={{color: '#6b6580'}}
           fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
         </svg>
       </button>
 
       {expanded && hasComposite && (
-        <div className="px-3 pb-3 pt-1 border-t border-gray-100 space-y-2">
+        <div className="px-3 pb-3 pt-1 space-y-2" style={{borderTop: '1px solid var(--border)'}}>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {[
               { label: 'News', score: newsBreak.score || 0, weight: newsBreak.weight, icon: '📰',
@@ -2132,37 +2125,31 @@ function NewsMoodBar({ newsData, moodData }) {
               const barW = Math.min(100, Math.max(0, ((item.score + 100) / 200) * 100))
               const barC = item.score > 10 ? 'bg-emerald-500' : item.score < -10 ? 'bg-red-500' : 'bg-gray-300'
               return (
-                <div key={item.label} className="bg-gray-50 rounded-lg p-2 border border-gray-100">
+                <div key={item.label} className="rounded-lg p-2" style={{background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)'}}>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-gray-600">{item.icon} {item.label} <span className="text-gray-500">({Math.round((item.weight || 0) * 100)}%)</span></span>
-                    <span className={`text-xs font-mono font-bold ${
-                      item.score > 0 ? 'text-emerald-600' : item.score < 0 ? 'text-red-600' : 'text-gray-500'
-                    }`}>{item.score > 0 ? '+' : ''}{Math.round(item.score)}</span>
+                    <span className="text-xs" style={{color: '#a09880'}}>{item.icon} {item.label} <span style={{color: '#6b6580'}}>({Math.round((item.weight || 0) * 100)}%)</span></span>
+                    <span className="text-xs font-mono font-bold" style={item.score > 0 ? {color: '#22c55e'} : item.score < 0 ? {color: '#ef4444'} : {color: '#6b6580'}}>{item.score > 0 ? '+' : ''}{Math.round(item.score)}</span>
                   </div>
-                  <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                    <div className={`h-full rounded-full transition-all duration-500 ${barC}`} style={{ width: `${barW}%` }} />
+                  <div className="w-full h-1.5 rounded-full overflow-hidden" style={{background: 'rgba(255,255,255,0.05)'}}>
+                    <div className="h-full rounded-full transition-all duration-500" style={{width: `${barW}%`, background: barC === 'bg-emerald-500' ? '#22c55e' : barC === 'bg-red-500' ? '#ef4444' : '#6b6580'}} />
                   </div>
-                  <div className="text-xs text-gray-500 mt-1 truncate">{item.detail}</div>
+                  <div className="text-xs mt-1 truncate" style={{color: '#6b6580'}}>{item.detail}</div>
                 </div>
               )
             })}
           </div>
           {vix.available && (
-            <div className="bg-gray-50 rounded-lg p-2 flex items-center gap-3 border border-gray-100">
-              <span className="text-xs text-gray-500">India VIX</span>
-              <span className={`text-xs font-bold ${
-                vix.value < 16 ? 'text-emerald-600' : vix.value < 20 ? 'text-amber-600' : 'text-red-600'
-              }`}>{vix.value}</span>
-              <span className="text-xs text-gray-500">{vix.label}</span>
-              <span className={`text-xs font-mono ml-auto ${
-                vix.score > 0 ? 'text-emerald-600' : vix.score < 0 ? 'text-red-600' : 'text-gray-500'
-              }`}>Score: {vix.score > 0 ? '+' : ''}{vix.score}</span>
+            <div className="rounded-lg p-2 flex items-center gap-3" style={{background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)'}}>
+              <span className="text-xs" style={{color: '#6b6580'}}>India VIX</span>
+              <span className="text-xs font-bold" style={vix.value < 16 ? {color: '#22c55e'} : vix.value < 20 ? {color: '#d4a843'} : {color: '#ef4444'}}>{vix.value}</span>
+              <span className="text-xs" style={{color: '#a09880'}}>{vix.label}</span>
+              <span className="text-xs font-mono ml-auto" style={vix.score > 0 ? {color: '#22c55e'} : vix.score < 0 ? {color: '#ef4444'} : {color: '#6b6580'}}>Score: {vix.score > 0 ? '+' : ''}{vix.score}</span>
             </div>
           )}
           <div className="flex items-center gap-1 flex-wrap">
-            <span className="text-xs text-gray-500">Sources:</span>
+            <span className="text-xs" style={{color: '#6b6580'}}>Sources:</span>
             {(moodData.data_sources || []).map((src, i) => (
-              <span key={i} className="text-xs text-gray-500 bg-gray-100 border border-gray-200 px-1.5 py-0.5 rounded">{src}</span>
+              <span key={i} className="text-xs px-1.5 py-0.5 rounded" style={{background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', color: '#a09880'}}>{src}</span>
             ))}
           </div>
         </div>
@@ -2209,58 +2196,56 @@ function MarketPulse({ apiKey, onDataUpdate }) {
     <div className="mb-4">
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="w-full flex items-center justify-between px-3 py-2 bg-white rounded-t-xl border border-gray-200 shadow-sm hover:bg-gray-50 transition"
+        className="w-full flex items-center justify-between px-3 py-2 rounded-t-xl transition" 
+        style={{background: 'var(--bg-card)', border: '1px solid var(--border)'}}
+        onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-elevated)'}
+        onMouseLeave={e => e.currentTarget.style.background = 'var(--bg-card)'}
       >
-        <span className="text-xs font-semibold flex items-center gap-2 text-gray-700">
-          <Activity className="w-3.5 h-3.5 text-blue-500" />
+        <span className="text-xs font-semibold flex items-center gap-2" style={{color: '#f0e6d0'}}>
+          <Activity className="w-3.5 h-3.5" style={{color: '#d4a843'}} />
           Market Pulse
-          <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${
-            isMarketHours ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-gray-100 text-gray-600 border border-gray-200'
-          }`}>
+          <span className="px-1.5 py-0.5 rounded text-xs font-bold" style={isMarketHours ? {background: 'rgba(34,197,94,0.1)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.2)'} : {background: 'rgba(255,255,255,0.05)', color: '#a09880', border: '1px solid rgba(255,255,255,0.1)'}}>
             {timeLabel}
           </span>
         </span>
-        <span className="text-gray-500 text-xs">{collapsed ? '▸' : '▾'}</span>
+        <span style={{color: '#6b6580'}} className="text-xs">{collapsed ? '▸' : '▾'}</span>
       </button>
 
       {!collapsed && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-3 bg-white rounded-b-xl border border-t-0 border-gray-200 shadow-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-3 rounded-b-xl" style={{background: 'var(--bg-card)', border: '1px solid var(--border)', borderTop: 'none'}}>
           {pulseData.indices.map((idx) => {
             const s = STANCE_STYLES[idx.stance_color] || STANCE_STYLES.gray
-            const rsiColor = idx.rsi > 70 ? 'text-red-600' : idx.rsi < 30 ? 'text-emerald-600' : 'text-gray-700'
+            const rsiColor = idx.rsi > 70 ? '#ef4444' : idx.rsi < 30 ? '#22c55e' : '#a09880'
 
             return (
-              <div key={idx.index} className={`${s.bg} rounded-lg p-3 border ${s.border}`}>
+              <div key={idx.index} className="rounded-lg p-3" style={{background: idx.stance_color === 'green' ? 'rgba(34,197,94,0.06)' : idx.stance_color === 'red' ? 'rgba(239,68,68,0.06)' : idx.stance_color === 'amber' ? 'rgba(212,168,67,0.08)' : 'rgba(255,255,255,0.03)', border: '1px solid', borderColor: idx.stance_color === 'green' ? 'rgba(34,197,94,0.15)' : idx.stance_color === 'red' ? 'rgba(239,68,68,0.15)' : idx.stance_color === 'amber' ? 'rgba(212,168,67,0.2)' : 'var(--border)'}}>
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-gray-900">{idx.index}</span>
+                    <span className="text-sm font-bold" style={{color: '#f0e6d0'}}>{idx.index}</span>
                     {idx.price && (
-                      <span className="text-xs text-gray-600 font-mono">₹{idx.price.toLocaleString()}</span>
+                      <span className="text-xs font-mono" style={{color: '#a09880'}}>₹{idx.price.toLocaleString()}</span>
                     )}
                   </div>
-                  <span className={`px-2 py-0.5 rounded text-xs font-bold ${s.bg} ${s.text} border ${s.border}`}>
+                  <span className="px-2 py-0.5 rounded text-xs font-bold" style={{background: idx.stance_color === 'green' ? 'rgba(34,197,94,0.1)' : idx.stance_color === 'red' ? 'rgba(239,68,68,0.1)' : idx.stance_color === 'amber' ? 'rgba(212,168,67,0.12)' : 'rgba(255,255,255,0.05)', color: idx.stance_color === 'green' ? '#22c55e' : idx.stance_color === 'red' ? '#ef4444' : idx.stance_color === 'amber' ? '#d4a843' : '#a09880', border: '1px solid', borderColor: idx.stance_color === 'green' ? 'rgba(34,197,94,0.2)' : idx.stance_color === 'red' ? 'rgba(239,68,68,0.2)' : idx.stance_color === 'amber' ? 'rgba(212,168,67,0.25)' : 'var(--border)'}}>
                     {idx.stance_icon} {idx.stance}
                   </span>
                 </div>
 
-                <p className="text-xs text-gray-600 mb-2">{idx.stance_desc}</p>
+                <p className="text-xs mb-2" style={{color: '#a09880'}}>{idx.stance_desc}</p>
 
                 <div className="flex items-center gap-3 text-xs">
                   {idx.rsi != null && (
-                    <span className={rsiColor}>
+                    <span style={{color: rsiColor}}>
                       RSI: <span className="font-mono font-bold">{idx.rsi}</span>
                     </span>
                   )}
                   {idx.volatility_pct != null && (
-                    <span className="text-gray-600">
+                    <span style={{color: '#a09880'}}>
                       Vol: <span className="font-mono">{idx.volatility_pct}%</span>
                     </span>
                   )}
                   {idx.bot_decision && (
-                    <span className={`ml-auto font-semibold ${
-                      idx.bot_decision === 'WAIT' ? 'text-gray-500' :
-                      idx.bot_decision === 'POSITION_OPEN' ? 'text-blue-600' : 'text-amber-600'
-                    }`}>
+                    <span className="ml-auto font-semibold" style={idx.bot_decision === 'WAIT' ? {color: '#a09880'} : idx.bot_decision === 'POSITION_OPEN' ? {color: '#6366f1'} : {color: '#d4a843'}}>
                       {idx.bot_decision}
                     </span>
                   )}
@@ -2280,15 +2265,15 @@ function MarketPulse({ apiKey, onDataUpdate }) {
 // ═══════════════════════════════════════════════════════════════════════
 
 const SENTIMENT_BADGE = {
-  bullish: { bg: 'bg-emerald-50 text-emerald-600 border border-emerald-200', text: 'text-emerald-600', icon: '📈' },
-  bearish: { bg: 'bg-red-50 text-red-600 border border-red-200', text: 'text-red-600', icon: '📉' },
-  neutral: { bg: 'bg-gray-50 text-gray-500 border border-gray-200', text: 'text-gray-500', icon: '➖' },
-  mixed:   { bg: 'bg-amber-50 text-amber-600 border border-amber-200', text: 'text-amber-600', icon: '⚖️' },
+  bullish: { bg: 'rgba(34,197,94,0.18)', text: '#4ade80', icon: '📈' },
+  bearish: { bg: 'rgba(239,68,68,0.18)', text: '#f87171', icon: '📉' },
+  neutral: { bg: 'rgba(255,255,255,0.08)', text: '#f0e6d0', icon: '➖' },
+  mixed:   { bg: 'rgba(212,168,67,0.18)', text: '#f0d68a', icon: '⚖️' },
 }
 
 const IMPACT_BADGE = {
-  high:   { bg: 'bg-red-50 border border-red-200', text: 'text-red-600', label: 'HIGH' },
-  medium: { bg: 'bg-amber-50 border border-amber-200', text: 'text-amber-600', label: 'MED' },
+  high:   { bg: 'rgba(239,68,68,0.18)', text: '#f87171', label: 'HIGH' },
+  medium: { bg: 'rgba(212,168,67,0.18)', text: '#f0d68a', label: 'MED' },
 }
 
 const CATEGORY_ICONS = {
@@ -2328,37 +2313,42 @@ function MarketNewsWidget({ newsData: parentNewsData, apiKey, onRefreshComplete 
     <div className="mb-4">
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="w-full flex items-center justify-between px-3 py-2 bg-white rounded-t-xl border border-gray-200 shadow-sm hover:bg-gray-50 transition"
+        className="w-full flex items-center justify-between px-3 py-2 rounded-t-xl transition"
+        style={{background: 'var(--bg-card)', border: '1px solid var(--border)'}}
+        onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-elevated)'}
+        onMouseLeave={e => e.currentTarget.style.background = 'var(--bg-card)'}
       >
-        <span className="text-xs font-semibold flex items-center gap-2 text-gray-700">
-          <Newspaper className="w-3.5 h-3.5 text-purple-500" />
+        <span className="text-xs font-semibold flex items-center gap-2" style={{color: '#f0e6d0'}}>
+          <Newspaper className="w-3.5 h-3.5" style={{color: '#d4a843'}} />
           Market News
           {headlines.length > 0 && (
-            <span className="px-1.5 py-0.5 rounded text-xs font-bold bg-purple-50 text-purple-600 border border-purple-200">
+            <span className="px-1.5 py-0.5 rounded text-xs font-bold" style={{background: 'rgba(212,168,67,0.15)', color: '#d4a843', border: '1px solid rgba(212,168,67,0.3)'}}>
               {headlines.length}
             </span>
           )}
         </span>
-        <span className="text-gray-500 text-xs">{collapsed ? '▸' : '▾'}</span>
+        <span style={{color: '#6b6580'}} className="text-xs">{collapsed ? '▸' : '▾'}</span>
       </button>
 
       {!collapsed && (
-        <div className="bg-white rounded-b-xl border border-t-0 border-gray-200 shadow-sm p-3">
+        <div className="rounded-b-xl p-3" style={{background: 'var(--bg-card)', border: '1px solid var(--border)', borderTop: 'none'}}>
           <div className="flex items-center gap-2 mb-3">
             <button
               onClick={() => setShowOutlook(false)}
-              className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${
-                !showOutlook ? 'bg-purple-50 text-purple-600 border border-purple-200' : 'text-gray-500 hover:text-gray-700'
-              }`}
+              className="px-3 py-1 rounded-lg text-xs font-semibold transition"
+              style={!showOutlook ? {background: 'rgba(212,168,67,0.12)', color: '#d4a843', border: '1px solid rgba(212,168,67,0.25)'} : {color: '#6b6580'}}
+              onMouseEnter={e => { if(showOutlook) e.currentTarget.style.color = '#a09880' }}
+              onMouseLeave={e => { if(showOutlook) e.currentTarget.style.color = '#6b6580' }}
             >
               📰 Headlines
             </button>
             {showOutlookTab && (
               <button
                 onClick={() => setShowOutlook(true)}
-                className={`px-3 py-1 rounded-lg text-xs font-semibold transition ${
-                  showOutlook ? 'bg-blue-50 text-blue-600 border border-blue-200' : 'text-gray-500 hover:text-gray-700'
-                }`}
+                className="px-3 py-1 rounded-lg text-xs font-semibold transition"
+                style={showOutlook ? {background: 'rgba(99,102,241,0.12)', color: '#818cf8', border: '1px solid rgba(99,102,241,0.25)'} : {color: '#6b6580'}}
+                onMouseEnter={e => { if(!showOutlook) e.currentTarget.style.color = '#a09880' }}
+                onMouseLeave={e => { if(!showOutlook) e.currentTarget.style.color = '#6b6580' }}
               >
                 🔮 Tomorrow's Outlook
               </button>
@@ -2366,65 +2356,87 @@ function MarketNewsWidget({ newsData: parentNewsData, apiKey, onRefreshComplete 
             <button
               onClick={handleRefresh}
               disabled={refreshing}
-              className="ml-auto p-1 rounded hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition"
+              className="ml-auto p-1 rounded transition"
+              style={{color: '#6b6580'}}
               title="Refresh news"
+              onMouseEnter={e => { if(!refreshing) e.currentTarget.style.background = 'rgba(212,168,67,0.1)'; e.currentTarget.style.color = '#d4a843' }}
+              onMouseLeave={e => { if(!refreshing) e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#6b6580' }}
             >
               <RefreshCw className={`w-3 h-3 ${refreshing ? 'animate-spin' : ''}`} />
             </button>
           </div>
 
           {!showOutlook && (
-            <div className="space-y-2 max-h-[340px] overflow-y-auto pr-1">
+            <div className="max-h-[400px] overflow-y-auto pr-1">
               {headlines.length === 0 ? (
-                <p className="text-center text-gray-500 text-xs py-4">
+                <p className="text-center text-xs py-4" style={{color: '#6b6580'}}>
                   No market-impacting news yet today. News updates every 2 min during market hours.
                 </p>
               ) : (
-                headlines.map((item, i) => {
-                  const impact = IMPACT_BADGE[item.impact_level] || IMPACT_BADGE.medium
-                  const sent = SENTIMENT_BADGE[item.sentiment] || SENTIMENT_BADGE.neutral
-                  const catIcon = CATEGORY_ICONS[item.category] || '📰'
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="border-b uppercase tracking-wider font-semibold" style={{borderColor: 'var(--border)', color: '#d4a843'}}>
+                      <th className="text-left py-2 pr-2 w-8"></th>
+                      <th className="text-left py-2 px-2">Headline</th>
+                      <th className="text-center py-2 px-2 w-14">Impact</th>
+                      <th className="text-center py-2 px-2 w-20">Sentiment</th>
+                      <th className="text-left py-2 px-2 w-16">Source</th>
+                      <th className="text-right py-2 pl-2 w-16">Time</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[...headlines].sort((a, b) => {
+                      const ta = a.published_at ? new Date(a.published_at.endsWith('Z') ? a.published_at : a.published_at + 'Z').getTime() : 0
+                      const tb = b.published_at ? new Date(b.published_at.endsWith('Z') ? b.published_at : b.published_at + 'Z').getTime() : 0
+                      return tb - ta
+                    }).map((item, i) => {
+                      const impact = IMPACT_BADGE[item.impact_level] || IMPACT_BADGE.medium
+                      const sent = SENTIMENT_BADGE[item.sentiment] || SENTIMENT_BADGE.neutral
+                      const catIcon = CATEGORY_ICONS[item.category] || '📰'
 
-                  return (
-                    <div key={item.id || i} className="bg-gray-50 rounded-lg p-2.5 border border-gray-100 hover:border-gray-200 transition">
-                      <div className="flex items-start gap-2">
-                        <span className="text-sm mt-0.5">{catIcon}</span>
-                        <div className="flex-1 min-w-0">
-                          <a
-                            href={item.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-xs font-medium text-gray-700 hover:text-gray-900 transition leading-tight line-clamp-2 block"
-                          >
-                            {item.headline}
-                          </a>
-
-                          {item.ai_summary && (
-                            <p className="text-xs text-gray-600 mt-1 italic">{item.ai_summary}</p>
-                          )}
-
-                          <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-                            <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${impact.bg} ${impact.text}`}>
+                      return (
+                        <tr key={item.id || i} className="transition" style={{borderBottom: '1px solid var(--border)'}} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                          <td className="py-2.5 pr-2 text-center text-sm">{catIcon}</td>
+                          <td className="py-2.5 px-2">
+                            <a
+                              href={item.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-medium transition leading-tight block"
+                              style={{color: '#e8dcc8'}}
+                              onMouseEnter={e => e.currentTarget.style.color = '#d4a843'}
+                              onMouseLeave={e => e.currentTarget.style.color = '#e8dcc8'}
+                            >
+                              {item.headline}
+                              {item.ai_summary && (
+                                <span className="font-normal block mt-0.5 italic" style={{color: '#6b6580'}}>— {item.ai_summary}</span>
+                              )}
+                            </a>
+                          </td>
+                          <td className="py-2.5 px-2 text-center">
+                            <span className="px-1.5 py-0.5 rounded font-bold" style={{background: impact.bg, color: impact.text}}>
                               {impact.label}
                             </span>
-                            <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${sent.bg}`}>
+                          </td>
+                          <td className="py-2.5 px-2 text-center">
+                            <span className="px-1.5 py-0.5 rounded font-bold" style={{background: sent.bg, color: sent.text}}>
                               {sent.icon} {item.sentiment}
                             </span>
-                            <span className="text-xs text-gray-500">{item.source}</span>
-                            {item.published_at && (
-                              <span className="text-xs text-gray-500 ml-auto">
-                                {(() => {
+                          </td>
+                          <td className="py-2.5 px-2" style={{color: '#a09880'}}>{item.source}</td>
+                          <td className="py-2.5 pl-2 text-right whitespace-nowrap" style={{color: '#a09880'}}>
+                            {item.published_at
+                              ? (() => {
                                   const ts = item.published_at.endsWith('Z') ? item.published_at : item.published_at + 'Z'
                                   return new Date(ts).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Kolkata' })
-                                })()}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )
-                })
+                                })()
+                              : '—'}
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
               )}
             </div>
           )}
@@ -2432,13 +2444,13 @@ function MarketNewsWidget({ newsData: parentNewsData, apiKey, onRefreshComplete 
           {showOutlook && (
             <div>
               {hasOutlook ? (
-                <div className="bg-gray-50 rounded-lg p-4 border border-blue-200">
+                <div className="rounded-lg p-4" style={{background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.2)'}}>
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <span className="text-lg">{SENTIMENT_BADGE[outlook.sentiment]?.icon || '📊'}</span>
                       <div>
-                        <p className="text-sm font-bold text-gray-900">Next-Day Outlook</p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-sm font-bold" style={{color: '#f0e6d0'}}>Next-Day Outlook</p>
+                        <p className="text-xs" style={{color: '#6b6580'}}>
                           Generated {outlook.generated_at ? new Date(outlook.generated_at.endsWith?.('Z') ? outlook.generated_at : outlook.generated_at + 'Z').toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Kolkata' }) : ''}
                         </p>
                       </div>
@@ -2456,14 +2468,14 @@ function MarketNewsWidget({ newsData: parentNewsData, apiKey, onRefreshComplete 
                     )}
                   </div>
 
-                  <p className="text-xs text-gray-600 leading-relaxed mb-3">{outlook.summary}</p>
+                  <p className="text-xs leading-relaxed mb-3" style={{color: '#a09880'}}>{outlook.summary}</p>
 
                   {outlook.key_factors?.length > 0 && (
                     <div className="mb-3">
-                      <p className="text-xs font-semibold text-gray-600 mb-1">Key Factors</p>
+                      <p className="text-xs font-semibold mb-1" style={{color: '#a09880'}}>Key Factors</p>
                       <div className="flex flex-wrap gap-1.5">
                         {outlook.key_factors.map((f, i) => (
-                          <span key={i} className="px-2 py-0.5 rounded-full text-xs bg-blue-50 text-blue-600 border border-blue-200">
+                          <span key={i} className="px-2 py-0.5 rounded-full text-xs" style={{background: 'rgba(99,102,241,0.1)', color: '#818cf8', border: '1px solid rgba(99,102,241,0.2)'}}>
                             {f}
                           </span>
                         ))}
@@ -2473,10 +2485,10 @@ function MarketNewsWidget({ newsData: parentNewsData, apiKey, onRefreshComplete 
 
                   {outlook.sectors_to_watch?.length > 0 && (
                     <div>
-                      <p className="text-xs font-semibold text-gray-600 mb-1">Sectors to Watch</p>
+                      <p className="text-xs font-semibold mb-1" style={{color: '#a09880'}}>Sectors to Watch</p>
                       <div className="flex flex-wrap gap-1.5">
                         {outlook.sectors_to_watch.map((s, i) => (
-                          <span key={i} className="px-2 py-0.5 rounded-full text-xs bg-amber-50 text-amber-600 border border-amber-200">
+                          <span key={i} className="px-2 py-0.5 rounded-full text-xs" style={{background: 'rgba(212,168,67,0.1)', color: '#d4a843', border: '1px solid rgba(212,168,67,0.2)'}}>
                             {s}
                           </span>
                         ))}
@@ -2485,7 +2497,7 @@ function MarketNewsWidget({ newsData: parentNewsData, apiKey, onRefreshComplete 
                   )}
                 </div>
               ) : (
-                <p className="text-center text-gray-500 text-xs py-6">
+                <p className="text-center text-xs py-6" style={{color: '#6b6580'}}>
                   Market outlook refreshes at 8:30 AM (before market open) with overnight developments.
                 </p>
               )}
@@ -2502,14 +2514,16 @@ function MarketNewsWidget({ newsData: parentNewsData, apiKey, onRefreshComplete 
 //  STAT CARD (summary bar)
 // ═══════════════════════════════════════════════════════════════════════
 
-function StatCard({ label, value, icon, color, bgColor }) {
+function StatCard({ label, value, icon, color }) {
   return (
-    <div className="bg-white rounded-xl p-3 border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+    <div className="rounded-xl p-3 transition-all" style={{background: 'var(--bg-card)', border: '1px solid var(--border)'}}
+      onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(212,168,67,0.3)'; e.currentTarget.style.boxShadow = '0 0 20px rgba(212,168,67,0.08)' }}
+      onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.boxShadow = 'none' }}>
       <div className="flex items-center gap-1.5 mb-1">
-        <span className={`${color}`}>{icon}</span>
-        <span className="text-xs text-gray-500 uppercase tracking-wide leading-tight">{label}</span>
+        <span style={{color}}>{icon}</span>
+        <span className="text-xs uppercase tracking-wide leading-tight" style={{color: '#a09880'}}>{label}</span>
       </div>
-      <div className={`text-lg font-bold ${color} leading-tight`}>{value}</div>
+      <div className="text-lg font-bold leading-tight" style={{color}}>{value}</div>
     </div>
   )
 }
@@ -2519,7 +2533,7 @@ function StatCard({ label, value, icon, color, bgColor }) {
 //  SIGNAL BOARD — Active trades (top) + Closed history (bottom)
 // ═══════════════════════════════════════════════════════════════════════
 
-const INDEX_SLOTS = ['NIFTY', 'BANKNIFTY', 'SENSEX', 'BANKEX']
+const INDEX_SLOTS = ['NIFTY', 'BANKNIFTY', 'SENSEX']
 
 function SignalBoard({ signals, loadingSignals, onRefresh, onPlaceOrder, zerodhaConnected, tradeMode, autoTriggerConfigs = [], marketPulse, isBrokerConnected = false, backendStats = null, backendClosedOrders = [], brokerPnlData = null }) {
   const [showClosed, setShowClosed] = useState(false)
@@ -2591,27 +2605,30 @@ function SignalBoard({ signals, loadingSignals, onRefresh, onPlaceOrder, zerodha
     <div>
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <h2 className="text-lg font-semibold flex items-center gap-2 text-gray-900">
-            <Radio className="w-5 h-5 text-blue-500" /> Live Trades
+          <h2 className="text-lg font-semibold flex items-center gap-2" style={{color: '#f0e6d0'}}>
+            <Radio className="w-5 h-5" style={{color: '#d4a843'}} /> Live Trades
           </h2>
           {isBrokerConnected && (
-            <span className="text-xs bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full font-semibold border border-emerald-200">
+            <span className="text-xs px-2 py-0.5 rounded-full font-semibold border" style={{background: 'rgba(34,197,94,0.1)', color: '#22c55e', borderColor: 'rgba(34,197,94,0.2)'}}>
               Broker Connected
             </span>
           )}
           {!isBrokerConnected && (
-            <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full font-semibold border border-blue-200">
+            <span className="text-xs px-2 py-0.5 rounded-full font-semibold border" style={{background: 'rgba(99,102,241,0.1)', color: '#818cf8', borderColor: 'rgba(99,102,241,0.2)'}}>
               Paper Mode
             </span>
           )}
         </div>
         <button onClick={onRefresh}
-          className="p-2 hover:bg-gray-100 rounded-lg transition text-gray-500 hover:text-gray-700" title="Refresh">
+          className="p-2 rounded-lg transition" title="Refresh"
+          style={{color: '#a09880'}}
+          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(212,168,67,0.1)'; e.currentTarget.style.color = '#d4a843' }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#a09880' }}>
           <RefreshCw className={`w-4 h-4 ${loadingSignals ? 'animate-spin' : ''}`} />
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
         {INDEX_SLOTS.map(idx => {
           const signal = activeByIndex[idx]
           if (signal) {
@@ -2628,63 +2645,66 @@ function SignalBoard({ signals, loadingSignals, onRefresh, onPlaceOrder, zerodha
             )
           }
           return (
-            <div key={idx} className="bg-white rounded-xl border border-dashed border-gray-200 p-4 flex flex-col items-center justify-center min-h-[100px] shadow-sm cursor-default hover:bg-gray-50 hover:border-gray-300 transition">
-              <span className="text-xs font-bold text-gray-500 mb-1">{idx}</span>
-              <span className="text-xs text-gray-400">No active trade</span>
+            <div key={idx} className="rounded-xl border border-dashed p-4 flex flex-col items-center justify-center min-h-[100px] cursor-default transition" style={{borderColor: 'var(--border)', background: 'rgba(255,255,255,0.02)'}}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(212,168,67,0.2)'; e.currentTarget.style.background = 'rgba(212,168,67,0.04)' }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.background = 'rgba(255,255,255,0.02)' }}>
+              <span className="text-xs font-bold mb-1" style={{color: '#a09880'}}>{idx}</span>
+              <span className="text-xs" style={{color: '#6b6580'}}>No active trade</span>
             </div>
           )
         })}
       </div>
 
       {signals.length === 0 && (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8 text-center mb-4">
-          <Activity className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-          <p className="text-gray-600 text-sm font-medium">
+        <div className="rounded-xl p-8 text-center mb-4" style={{background: 'var(--bg-card)', border: '1px solid var(--border)'}}>
+          <Activity className="w-8 h-8 mx-auto mb-2" style={{color: '#6b6580'}} />
+          <p className="text-sm font-medium" style={{color: '#a09880'}}>
             {loadingSignals ? 'Loading signals...' : 'No signals yet today'}
           </p>
-          <p className="text-xs text-gray-500 mt-1">Signals appear here in real-time during market hours</p>
+          <p className="text-xs mt-1" style={{color: '#6b6580'}}>Signals appear here in real-time during market hours</p>
         </div>
       )}
 
       {(useBackendOrders ? backendClosedOrders.length > 0 : (closedSignals.length > 0 || (backendStats && backendStats.total_closed > 0))) && (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div className="rounded-xl overflow-hidden" style={{background: 'var(--bg-card)', border: '1px solid var(--border)'}}>
           <button onClick={() => setShowClosed(!showClosed)}
-            className="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition">
-            <span className="text-sm font-semibold flex items-center gap-2 text-gray-700">
-              <Clock className="w-4 h-4 text-gray-400" />
+            className="w-full flex items-center justify-between px-4 py-3 transition"
+            style={{color: '#a09880'}}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+            <span className="text-sm font-semibold flex items-center gap-2" style={{color: '#f0e6d0'}}>
+              <Clock className="w-4 h-4" style={{color: '#6b6580'}} />
               Closed Trades
-              <span className="text-xs bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded-full font-bold border border-emerald-200">
+              <span className="text-xs px-1.5 py-0.5 rounded-full font-bold border" style={{background: 'rgba(34,197,94,0.1)', color: '#22c55e', borderColor: 'rgba(34,197,94,0.2)'}}>
                 🎯 {targetHits}
               </span>
-              <span className="text-xs bg-red-50 text-red-600 px-1.5 py-0.5 rounded-full font-bold border border-red-200">
+              <span className="text-xs px-1.5 py-0.5 rounded-full font-bold border" style={{background: 'rgba(239,68,68,0.1)', color: '#ef4444', borderColor: 'rgba(239,68,68,0.2)'}}>
                 🛑 {slHits}
               </span>
               {totalPnl !== 0 && (
-                <span className={`text-xs font-mono font-bold ml-1 ${
-                  totalPnl >= 0 ? 'text-emerald-600' : 'text-red-600'
-                }`}>
+                <span className="text-xs font-mono font-bold ml-1" style={totalPnl >= 0 ? {color: '#22c55e'} : {color: '#ef4444'}}>
                   ₹{totalPnl >= 0 ? '+' : ''}{totalPnl.toFixed(0)}
                 </span>
               )}
             </span>
-            <span className="text-gray-500 text-xs">{showClosed ? '▾ Hide' : `▸ Show (${useBackendOrders ? backendClosedOrders.length : closedSignals.length})`}</span>
+            <span className="text-xs" style={{color: '#6b6580'}}>{showClosed ? '▾ Hide' : `▸ Show (${useBackendOrders ? backendClosedOrders.length : closedSignals.length})`}</span>
           </button>
 
           {showClosed && (
-            <div className="overflow-x-auto border-t border-gray-100">
+            <div className="overflow-x-auto" style={{borderTop: '1px solid var(--border)'}}>
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="bg-gray-100">
-                    <th className="px-3 py-2 text-left text-xs text-gray-700 uppercase tracking-wider font-semibold whitespace-nowrap">Time</th>
-                    <th className="px-3 py-2 text-left text-xs text-gray-700 uppercase tracking-wider font-semibold whitespace-nowrap">Symbol</th>
-                    <th className="px-3 py-2 text-center text-xs text-gray-700 uppercase tracking-wider font-semibold whitespace-nowrap">Type</th>
-                    <th className="px-3 py-2 text-right text-xs text-gray-700 uppercase tracking-wider font-semibold whitespace-nowrap">Entry</th>
-                    <th className="px-3 py-2 text-right text-xs text-gray-700 uppercase tracking-wider font-semibold whitespace-nowrap">Exit</th>
-                    <th className="px-3 py-2 text-center text-xs text-gray-700 uppercase tracking-wider font-semibold whitespace-nowrap">Result</th>
-                    <th className="px-3 py-2 text-right text-xs text-gray-700 uppercase tracking-wider font-semibold whitespace-nowrap">P&L</th>
+                  <tr style={{background: 'rgba(255,255,255,0.03)'}}>
+                    <th className="px-3 py-2 text-left text-xs uppercase tracking-wider font-semibold whitespace-nowrap" style={{color: '#d4a843'}}>Time</th>
+                    <th className="px-3 py-2 text-left text-xs uppercase tracking-wider font-semibold whitespace-nowrap" style={{color: '#d4a843'}}>Symbol</th>
+                    <th className="px-3 py-2 text-center text-xs uppercase tracking-wider font-semibold whitespace-nowrap" style={{color: '#d4a843'}}>Type</th>
+                    <th className="px-3 py-2 text-right text-xs uppercase tracking-wider font-semibold whitespace-nowrap" style={{color: '#d4a843'}}>Entry</th>
+                    <th className="px-3 py-2 text-right text-xs uppercase tracking-wider font-semibold whitespace-nowrap" style={{color: '#d4a843'}}>Exit</th>
+                    <th className="px-3 py-2 text-center text-xs uppercase tracking-wider font-semibold whitespace-nowrap" style={{color: '#d4a843'}}>Result</th>
+                    <th className="px-3 py-2 text-right text-xs uppercase tracking-wider font-semibold whitespace-nowrap" style={{color: '#d4a843'}}>P&L</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y" style={{borderColor: 'var(--border)'}}>
                   {useBackendOrders
                     ? backendClosedOrders.map(order => (
                         <ClosedOrderRow key={order.id} order={order} brokerPositionsMap={brokerPositionsMap} />
@@ -2756,7 +2776,7 @@ function ActiveTradeCard({ signal, onPlaceOrder, zerodhaConnected, tradeMode, au
     : null
 
   // Calculate actual P&L in rupees using lot size
-  const LOT_SIZES = { NIFTY: 65, BANKNIFTY: 30, SENSEX: 20, BANKEX: 30 }
+  const LOT_SIZES = { NIFTY: 65, BANKNIFTY: 30, SENSEX: 20 }
   const lotSize = hasOrder && data.my_order?.quantity ? data.my_order.quantity : (LOT_SIZES[index.toUpperCase()] || 30)
   // For in-market trades: prefer broker_unrealised_pnl (from kite.positions), fallback to (LTP - entry) × qty
   const unrealizedPnl = data.broker_unrealised_pnl != null
@@ -2816,10 +2836,10 @@ function ActiveTradeCard({ signal, onPlaceOrder, zerodhaConnected, tradeMode, au
   const aiBg = aiConf >= 75 ? 'bg-emerald-500' : aiConf >= 50 ? 'bg-amber-500' : 'bg-red-500'
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm border-l-4 overflow-hidden relative">
+    <div className="rounded-xl overflow-hidden relative" style={{background: 'var(--bg-card)', border: '1px solid var(--border)', borderLeft: `4px solid ${isCE ? '#22c55e' : '#ef4444'}`}}>
 
-      <div className={`flex items-center justify-between px-3 py-1.5 border-b ${modeBorder} ${modeBg}`}>
-        <span className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${modeText}`}>
+      <div className="flex items-center justify-between px-3 py-1.5" style={{borderBottom: '1px solid var(--border)', background: isLive ? 'rgba(34,197,94,0.08)' : orderFailed ? 'rgba(239,68,68,0.08)' : isAuto ? 'rgba(212,168,67,0.08)' : 'rgba(255,255,255,0.03)'}}>
+        <span className="text-xs font-bold uppercase tracking-wider flex items-center gap-1.5" style={{color: isLive ? '#22c55e' : orderFailed ? '#ef4444' : isAuto ? '#d4a843' : '#a09880'}}>
           {modeIcon} {modeLabel}
         </span>
         {status === 'in_market' && (
@@ -2829,35 +2849,35 @@ function ActiveTradeCard({ signal, onPlaceOrder, zerodhaConnected, tradeMode, au
           </span>
         )}
         {status === 'active' && (
-          <span className="text-xs text-amber-600 font-semibold animate-pulse">WAITING...</span>
+          <span className="text-xs font-semibold animate-pulse" style={{color: '#d4a843'}}>WAITING...</span>
         )}
       </div>
 
       <div className="p-3">
         <div className="flex items-center gap-2 mb-1">
-          <span className="text-base font-bold text-gray-900 leading-tight">{index}</span>
-          {derivedStrike && <span className="text-xs font-mono text-gray-500">{derivedStrike}</span>}
-          <span className={`px-2 py-0.5 rounded border text-xs font-bold ${dirBg}`}>
+          <span className="text-base font-bold leading-tight" style={{color: '#f0e6d0'}}>{index}</span>
+          {derivedStrike && <span className="text-xs font-mono" style={{color: '#a09880'}}>{derivedStrike}</span>}
+          <span className="px-2 py-0.5 rounded border text-xs font-bold" style={isCE ? {background: 'rgba(34,197,94,0.1)', color: '#22c55e', borderColor: 'rgba(34,197,94,0.2)'} : {background: 'rgba(239,68,68,0.1)', color: '#ef4444', borderColor: 'rgba(239,68,68,0.2)'}}>
             {isCE ? '▲' : '▼'} {direction}
           </span>
           {aiConf != null && (
-            <span className={`ml-auto text-xs font-bold font-mono flex items-center gap-1 ${aiColor}`}>
+            <span className="ml-auto text-xs font-bold font-mono flex items-center gap-1" style={{color: aiColor === 'text-emerald-600' ? '#22c55e' : aiColor === 'text-amber-600' ? '#d4a843' : '#ef4444'}}>
               🧠 {aiConf}%
             </span>
           )}
         </div>
           {estimatedSymbol && (
-            <div className="text-xs font-mono text-gray-500 mb-2 truncate" title={estimatedSymbol}>
+            <div className="text-xs font-mono mb-2 truncate" style={{color: '#6b6580'}} title={estimatedSymbol}>
               📋 {estimatedSymbol}
             </div>
           )}
 
         {optionLTP && (
           <div className="flex items-center gap-2 mb-2 text-xs">
-            <span className="text-gray-500">💹 LTP:</span>
-            <span className="font-mono font-bold text-gray-900">₹{optionLTP.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
+            <span style={{color: '#6b6580'}}>💹 LTP:</span>
+            <span className="font-mono font-bold" style={{color: '#f0e6d0'}}>₹{optionLTP.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</span>
             {optionMove != null && (
-              <span className={`font-mono font-semibold ${optionMoveDirection === 'up' ? 'text-emerald-600' : 'text-red-600'}`}>
+              <span className="font-mono font-semibold" style={optionMoveDirection === 'up' ? {color: '#22c55e'} : {color: '#ef4444'}}>
                 ({optionMove >= 0 ? '+' : ''}{optionMove.toFixed(2)})
               </span>
             )}
@@ -2865,74 +2885,73 @@ function ActiveTradeCard({ signal, onPlaceOrder, zerodhaConnected, tradeMode, au
         )}
 
         {status === 'in_market' && unrealizedPnl != null && (
-          <div className={`flex items-center justify-between mb-2 px-2 py-1.5 rounded-lg text-xs font-semibold ${
-            unrealizedPnl >= 0 ? 'bg-emerald-50 border border-emerald-200' : 'bg-red-50 border border-red-200'
-          }`}>
-            <span className="text-gray-600 text-xs">📊 Unrealized P&L</span>
-            <span className={`font-mono font-bold ${unrealizedPnl >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+          <div className="flex items-center justify-between mb-2 px-2 py-1.5 rounded-lg text-xs font-semibold" style={unrealizedPnl >= 0 ? {background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.15)'} : {background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)'}}>
+            <span className="text-xs" style={{color: '#a09880'}}>📊 Unrealized P&L</span>
+            <span className="font-mono font-bold" style={unrealizedPnl >= 0 ? {color: '#22c55e'} : {color: '#ef4444'}}>
               ₹{unrealizedPnl >= 0 ? '+' : ''}{unrealizedPnl.toLocaleString('en-IN')}
             </span>
           </div>
         )}
         {status !== 'in_market' && status !== 'active' && closedPnl != null && closedPnl !== 0 && (
-          <div className={`flex items-center justify-between mb-2 px-2 py-1.5 rounded-lg text-xs font-semibold ${
-            closedPnl >= 0 ? 'bg-emerald-50 border border-emerald-200' : 'bg-red-50 border border-red-200'
-          }`}>
-            <span className="text-gray-600 text-xs">💰 P&L</span>
-            <span className={`font-mono font-bold ${closedPnl >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+          <div className="flex items-center justify-between mb-2 px-2 py-1.5 rounded-lg text-xs font-semibold" style={closedPnl >= 0 ? {background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.15)'} : {background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)'}}>
+            <span className="text-xs" style={{color: '#a09880'}}>💰 P&L</span>
+            <span className="font-mono font-bold" style={closedPnl >= 0 ? {color: '#22c55e'} : {color: '#ef4444'}}>
               ₹{closedPnl >= 0 ? '+' : ''}{Math.round(closedPnl).toLocaleString('en-IN')}
             </span>
           </div>
         )}
 
         <div className="flex items-center gap-1 mb-2 text-xs">
-          <div className="flex-1 bg-gray-50 rounded-lg px-2 py-1.5 text-center border border-gray-100">
-            <div className="text-xs text-gray-600 uppercase">Entry</div>
-            <div className="font-mono font-bold text-gray-900 text-sm">{fmtPrice(entryPrice)}</div>
+          <div className="flex-1 rounded-lg px-2 py-1.5 text-center" style={{background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)'}}>
+            <div className="text-xs uppercase" style={{color: '#6b6580'}}>Entry</div>
+            <div className="font-mono font-bold text-sm" style={{color: '#f0e6d0'}}>{fmtPrice(entryPrice)}</div>
           </div>
-          <span className="text-gray-400">→</span>
-          <div className="flex-1 bg-gray-50 rounded-lg px-2 py-1.5 text-center border border-gray-100">
-            <div className="text-xs text-emerald-600 uppercase">Target</div>
-            <div className="font-mono font-bold text-emerald-600 text-sm">{fmtPrice(targetPrice)}</div>
+          <span style={{color: '#6b6580'}}>→</span>
+          <div className="flex-1 rounded-lg px-2 py-1.5 text-center" style={{background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.15)'}}>
+            <div className="text-xs uppercase" style={{color: '#22c55e'}}>Target</div>
+            <div className="font-mono font-bold text-sm" style={{color: '#22c55e'}}>{fmtPrice(targetPrice)}</div>
           </div>
-          <span className="text-gray-400">|</span>
-          <div className="flex-1 bg-gray-50 rounded-lg px-2 py-1.5 text-center border border-gray-100">
-            <div className="text-xs text-red-600 uppercase">SL</div>
-            <div className="font-mono font-bold text-red-600 text-sm">{fmtPrice(slPrice)}</div>
+          <span style={{color: '#6b6580'}}>|</span>
+          <div className="flex-1 rounded-lg px-2 py-1.5 text-center" style={{background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)'}}>
+            <div className="text-xs uppercase" style={{color: '#ef4444'}}>SL</div>
+            <div className="font-mono font-bold text-sm" style={{color: '#ef4444'}}>{fmtPrice(slPrice)}</div>
           </div>
         </div>
 
         {aiConf != null && (
           <div className="mb-2">
-            <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+            <div className="w-full h-1.5 rounded-full overflow-hidden" style={{background: 'rgba(255,255,255,0.05)'}}>
               <div className={`h-full rounded-full transition-all duration-500 ${aiBg}`}
                 style={{ width: `${aiConf}%` }} />
             </div>
             {data.ai_narration && (
               <button onClick={() => setShowNarration(!showNarration)}
-                className="text-xs text-gray-500 hover:text-gray-700 mt-1 transition">
+                className="text-xs mt-1 transition"
+                style={{color: '#6b6580'}}
+                onMouseEnter={e => e.currentTarget.style.color = '#a09880'}
+                onMouseLeave={e => e.currentTarget.style.color = '#6b6580'}>
                 {showNarration ? '▾ Hide AI insight' : '▸ View AI insight'}
               </button>
             )}
             {showNarration && data.ai_narration && (
-              <p className="text-xs text-gray-600 italic leading-relaxed mt-1 pl-2 border-l-2 border-purple-300">
+              <p className="text-xs italic leading-relaxed mt-1 pl-2" style={{color: '#a09880', borderLeft: '2px solid rgba(212,168,67,0.3)'}}>
                 {data.ai_narration}
               </p>
             )}
             {(data.ai_target_pts || data.ai_sl_pts) && entryPrice && showNarration && (
               <div className="flex items-center gap-3 mt-1 text-xs">
                 {data.ai_target_pts && data.ai_target_pts !== data.target_points && (
-                  <span className="text-emerald-600">AI Target: {fmtPrice(entryPrice + data.ai_target_pts)}</span>
+                  <span style={{color: '#22c55e'}}>AI Target: {fmtPrice(entryPrice + data.ai_target_pts)}</span>
                 )}
                 {data.ai_sl_pts && data.ai_sl_pts !== data.sl_points && (
-                  <span className="text-red-600">AI SL: {fmtPrice(entryPrice - data.ai_sl_pts)}</span>
+                  <span style={{color: '#ef4444'}}>AI SL: {fmtPrice(entryPrice - data.ai_sl_pts)}</span>
                 )}
               </div>
             )}
             {data.ai_risk_factors?.length > 0 && (
               <div className="flex items-center gap-1 mt-1">
                 {data.ai_risk_factors.slice(0, 3).map((risk, i) => (
-                  <span key={i} className="text-xs bg-orange-50 text-orange-600 border border-orange-200 px-1.5 py-0.5 rounded">⚠ {risk}</span>
+                  <span key={i} className="text-xs px-1.5 py-0.5 rounded" style={{background: 'rgba(251,146,60,0.1)', color: '#fb923c', border: '1px solid rgba(251,146,60,0.2)'}}>⚠ {risk}</span>
                 ))}
               </div>
             )}
@@ -2944,7 +2963,7 @@ function ActiveTradeCard({ signal, onPlaceOrder, zerodhaConnected, tradeMode, au
           if (sigAge < 120) {
             return (
               <div className="mb-2">
-              <span className="text-xs text-gray-500 flex items-center gap-1.5">
+              <span className="text-xs flex items-center gap-1.5" style={{color: '#6b6580'}}>
                 🧠 <span className="animate-pulse">AI analyzing...</span>
               </span>
               </div>
@@ -2953,38 +2972,35 @@ function ActiveTradeCard({ signal, onPlaceOrder, zerodhaConnected, tradeMode, au
           return null
         })()}
 
-        <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-          <span className="text-xs text-gray-500 flex items-center gap-1">
+        <div className="flex items-center justify-between pt-2" style={{borderTop: '1px solid var(--border)'}}>
+          <span className="text-xs flex items-center gap-1" style={{color: '#6b6580'}}>
             <Clock className="w-3 h-3" /> {timeStr}
           </span>
 
           {!hasOrder && (tradeMode === 'manual' || !indexAutoEnabled) && status === 'in_market' ? (
             <button onClick={handlePlaceOrder} disabled={orderLoading}
-              className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition disabled:opacity-50 shadow-sm ${
-                zerodhaConnected
-                  ? 'bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white'
-                  : 'bg-gray-500 hover:bg-gray-600 text-white'
-              }`}>
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition disabled:opacity-50 text-black"
+              style={{background: zerodhaConnected ? 'linear-gradient(135deg, #22c55e, #16a34a)' : 'linear-gradient(135deg, #6b6580, #4a4560)'}}>
               {orderLoading ? <RefreshCw className="w-3 h-3 animate-spin" /> : zerodhaConnected ? <Zap className="w-3 h-3" /> : <Target className="w-3 h-3" />}
               {zerodhaConnected ? 'Place Live Order' : 'Paper Trade'}
             </button>
           ) : orderFailed ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-red-50 text-red-600 border border-red-200"
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold" style={{background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.2)'}}
               title={data.my_order?.error_message || 'Order failed'}>
               ❌ Order Failed
             </span>
           ) : orderPlaced ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-emerald-50 text-emerald-600 border border-emerald-200">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold" style={{background: 'rgba(34,197,94,0.1)', color: '#22c55e', border: '1px solid rgba(34,197,94,0.2)'}}>
               <Check className="w-3 h-3" /> Live Order Active
             </span>
           ) : isAuto ? (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-cyan-50 text-cyan-600 border border-cyan-200">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold" style={{background: 'rgba(212,168,67,0.1)', color: '#d4a843', border: '1px solid rgba(212,168,67,0.2)'}}>
               ⚡ Auto Trading
             </span>
           ) : null}
 
           {orderMsg && (
-            <span className={`text-xs ml-2 ${orderMsg.success ? 'text-emerald-600' : 'text-red-600'}`}>
+            <span className="text-xs ml-2" style={orderMsg.success ? {color: '#22c55e'} : {color: '#ef4444'}}>
               {orderMsg.message?.substring(0, 25)}
             </span>
           )}
@@ -3028,7 +3044,7 @@ function ClosedTradeRow({ signal }) {
   const fmtPrice = (v) => v != null ? `₹${Number(v).toFixed(2)}` : '—'
 
   return (
-    <tr className="hover:bg-gray-50 transition" title={estimatedSymbol || undefined}>
+    <tr className="transition" title={estimatedSymbol || undefined} style={{background: 'transparent'}} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
       <td className="px-3 py-2.5 whitespace-nowrap">
         <span className="text-xs text-gray-500 font-mono">{timeStr}</span>
       </td>
@@ -3105,7 +3121,7 @@ function ClosedOrderRow({ order, brokerPositionsMap = {} }) {
     pnl = brokerPos.is_closed ? (brokerPos.realised || brokerPos.pnl || 0) : (brokerPos.pnl || 0)
   } else {
     // Fallback: compute exit_price from pnl when missing
-    const LOT = { NIFTY: 65, BANKNIFTY: 30, SENSEX: 20, BANKEX: 30 }
+    const LOT = { NIFTY: 65, BANKNIFTY: 30, SENSEX: 20 }
     const lotSize = order.quantity || LOT[index] || 30
     if (exitPrice == null && entryPrice != null && pnl !== 0) {
       exitPrice = Math.round((entryPrice + pnl / lotSize) * 100) / 100
@@ -3121,7 +3137,7 @@ function ClosedOrderRow({ order, brokerPositionsMap = {} }) {
   const fmtPrice = (v) => v != null ? `₹${Number(v).toFixed(2)}` : '—'
 
   return (
-    <tr className="hover:bg-gray-50 transition" title={symbol || undefined}>
+    <tr className="transition" title={symbol || undefined} style={{background: 'transparent'}} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
       <td className="px-3 py-2.5 whitespace-nowrap">
         <span className="text-xs text-gray-500 font-mono">{timeStr}</span>
       </td>
@@ -3165,18 +3181,18 @@ function ClosedOrderRow({ order, brokerPositionsMap = {} }) {
 // ═══════════════════════════════════════════════════════════════════════
 
 function AutoTriggerPanel({ configs, onUpdate, zerodhaConnected }) {
-  const indices = ['NIFTY', 'BANKNIFTY', 'SENSEX', 'BANKEX']
+  const indices = ['NIFTY', 'BANKNIFTY', 'SENSEX']
 
   return (
-    <div className="mb-6 p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
-      <h3 className="text-sm font-bold mb-3 flex items-center gap-2 text-gray-900">
-        <Zap className="w-4 h-4 text-blue-500" />
+    <div className="mb-6 p-4 rounded-xl" style={{background: 'var(--bg-card)', border: '1px solid var(--border)'}}>
+      <h3 className="text-sm font-bold mb-3 flex items-center gap-2" style={{color: '#f0e6d0'}}>
+        <Zap className="w-4 h-4" style={{color: '#d4a843'}} />
         Auto-Trigger Settings
         {!zerodhaConnected && (
-          <span className="text-xs px-2 py-0.5 rounded bg-amber-50 text-amber-600 border border-amber-200">Paper Mode</span>
+          <span className="text-xs px-2 py-0.5 rounded" style={{background: 'rgba(212,168,67,0.12)', color: '#d4a843', border: '1px solid rgba(212,168,67,0.25)'}}>Paper Mode</span>
         )}
       </h3>
-      <p className="text-xs text-gray-600 mb-3">
+      <p className="text-xs mb-3" style={{color: '#a09880'}}>
         When enabled, orders are automatically placed when signals arrive for the selected index.
       </p>
 
@@ -3202,16 +3218,17 @@ function AutoTriggerRow({ indexName, config, onUpdate }) {
   }
 
   return (
-    <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 border border-gray-100">
+    <div className="flex items-center justify-between p-3 rounded-lg" style={{background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)'}}>
       <div>
-        <span className="text-sm font-bold text-gray-900">{indexName}</span>
+        <span className="text-sm font-bold" style={{color: '#f0e6d0'}}>{indexName}</span>
       </div>
       <button
         onClick={toggle}
         disabled={loading}
-        className={`relative w-12 h-6 rounded-full transition-colors ${config.is_enabled ? 'bg-blue-500' : 'bg-gray-300'}`}
+        className="relative w-12 h-6 rounded-full transition-colors"
+        style={{background: config.is_enabled ? '#d4a843' : 'rgba(255,255,255,0.15)'}}
       >
-        <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform shadow-sm ${config.is_enabled ? 'translate-x-6' : ''}`} />
+        <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full transition-transform shadow-sm`} style={{background: '#1a1a24', transform: config.is_enabled ? 'translateX(24px)' : 'none'}} />
       </button>
     </div>
   )
@@ -4468,34 +4485,38 @@ function SettingsPanel({ apiKey, user, zerodhaStatus, upstoxStatus, aliceBlueSta
   }
 
   return (
-    <div className="mb-6 p-4 bg-white rounded-xl border border-gray-200 shadow-sm space-y-4">
-      <h3 className="text-sm font-bold flex items-center gap-2 text-gray-900">
-        <Settings className="w-4 h-4 text-gray-400" /> Settings
+    <div className="mb-6 p-4 rounded-xl space-y-4" style={{background: 'var(--bg-card)', border: '1px solid var(--border)'}}>
+      <h3 className="text-sm font-bold flex items-center gap-2" style={{color: '#f0e6d0'}}>
+        <Settings className="w-4 h-4" style={{color: '#d4a843'}} /> Settings
       </h3>
 
       {/* User Info */}
-      <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
-        <div className="text-xs text-gray-500">Logged in as</div>
-        <div className="font-medium text-gray-900">{user?.full_name || user?.email}</div>
-        <div className="text-xs text-gray-500">{user?.email}</div>
+      <div className="p-3 rounded-lg" style={{background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)'}}>
+        <div className="text-xs" style={{color: '#6b6580'}}>Logged in as</div>
+        <div className="font-medium" style={{color: '#f0e6d0'}}>{user?.full_name || user?.email}</div>
+        <div className="text-xs" style={{color: '#a09880'}}>{user?.email}</div>
       </div>
 
       {/* API Key */}
-      <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
-        <div className="text-xs text-gray-500 mb-1">API Key</div>
+      <div className="p-3 rounded-lg" style={{background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)'}}>
+        <div className="text-xs mb-1" style={{color: '#6b6580'}}>API Key</div>
         <div className="flex items-center gap-2">
-          <code className="flex-1 text-sm font-mono text-blue-600 break-all">
+          <code className="flex-1 text-sm font-mono break-all" style={{color: '#d4a843'}}>
             {showKey ? apiKey : apiKey?.substring(0, 8) + '••••••••••'}
           </code>
-          <button onClick={() => setShowKey(!showKey)} className="p-1 hover:bg-gray-200 rounded transition">
-            {showKey ? <EyeOff className="w-3.5 h-3.5 text-gray-400" /> : <Eye className="w-3.5 h-3.5 text-gray-400" />}
+          <button onClick={() => setShowKey(!showKey)} className="p-1 rounded transition" style={{color: '#6b6580'}}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+            {showKey ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
           </button>
-          <button onClick={copyKey} className="p-1 hover:bg-gray-200 rounded transition">
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5 text-gray-400" />}
+          <button onClick={copyKey} className="p-1 rounded transition" style={{color: '#6b6580'}}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+            {copied ? <Check className="w-3.5 h-3.5" style={{color: '#22c55e'}} /> : <Copy className="w-3.5 h-3.5" />}
           </button>
         </div>
         <button onClick={handleRegenerate} disabled={regenLoading}
-          className="mt-2 text-xs text-amber-600 hover:text-amber-700 flex items-center gap-1 transition disabled:opacity-50">
+          className="mt-2 text-xs flex items-center gap-1 transition disabled:opacity-50" style={{color: '#d4a843'}}>
           <RefreshCw className={`w-3 h-3 ${regenLoading ? 'animate-spin' : ''}`} />
           {regenLoading ? 'Regenerating...' : 'Regenerate Key'}
         </button>
@@ -4504,21 +4525,25 @@ function SettingsPanel({ apiKey, user, zerodhaStatus, upstoxStatus, aliceBlueSta
       {/* Integrations — only one broker at a time */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <button onClick={onConnectTelegram}
-          className="p-3 bg-gray-50 rounded-lg text-left hover:bg-gray-100 transition border border-gray-100">
+          className="p-3 rounded-lg text-left transition" style={{background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: '#a09880'}}
+          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(212,168,67,0.08)'; e.currentTarget.style.borderColor = 'rgba(212,168,67,0.2)' }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.borderColor = 'var(--border)' }}>
           <div className="flex items-center gap-2 mb-1">
-            <Send className="w-4 h-4 text-blue-500" />
-            <span className="text-sm font-medium text-gray-900">Telegram</span>
+            <Send className="w-4 h-4" style={{color: '#38bdf8'}} />
+            <span className="text-sm font-medium" style={{color: '#f0e6d0'}}>Telegram</span>
           </div>
-          <span className="text-xs text-gray-500">Get signals on Telegram</span>
+          <span className="text-xs" style={{color: '#6b6580'}}>Get signals on Telegram</span>
         </button>
 
         <button onClick={onConnectZerodha}
-          className={`p-3 bg-gray-50 rounded-lg text-left transition border border-gray-100 ${zerodhaStatus?.is_connected ? 'border-emerald-300 bg-emerald-50' : (upstoxStatus?.is_connected || aliceBlueStatus?.is_connected) ? 'opacity-40 cursor-not-allowed' : 'hover:bg-gray-100'}`}>
+          className="p-3 rounded-lg text-left transition" style={zerodhaStatus?.is_connected ? {background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)'} : (upstoxStatus?.is_connected || aliceBlueStatus?.is_connected) ? {background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', opacity: 0.4, cursor: 'not-allowed'} : {background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)'}}
+          onMouseEnter={e => { if (!(upstoxStatus?.is_connected || aliceBlueStatus?.is_connected)) { e.currentTarget.style.background = 'rgba(212,168,67,0.08)'; e.currentTarget.style.borderColor = 'rgba(212,168,67,0.2)' }}}
+          onMouseLeave={e => { if (!(upstoxStatus?.is_connected || aliceBlueStatus?.is_connected)) { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.borderColor = 'var(--border)' }}}>
           <div className="flex items-center gap-2 mb-1">
-            <ExternalLink className={`w-4 h-4 ${zerodhaStatus?.is_connected ? 'text-emerald-500' : 'text-gray-400'}`} />
-            <span className="text-sm font-medium text-gray-900">Zerodha</span>
+            <ExternalLink className="w-4 h-4" style={{color: zerodhaStatus?.is_connected ? '#22c55e' : '#6b6580'}} />
+            <span className="text-sm font-medium" style={{color: '#f0e6d0'}}>Zerodha</span>
           </div>
-          <span className="text-xs text-gray-500">
+          <span className="text-xs" style={{color: '#6b6580'}}>
             {zerodhaStatus?.is_connected
               ? `Connected (${zerodhaStatus.zerodha_user_id})`
               : zerodhaStatus?.has_credentials
@@ -4528,12 +4553,14 @@ function SettingsPanel({ apiKey, user, zerodhaStatus, upstoxStatus, aliceBlueSta
         </button>
 
         <button onClick={upstoxStatus?.is_connected ? onDisconnectUpstox : onConnectUpstox}
-          className={`p-3 bg-gray-50 rounded-lg text-left transition border border-gray-100 ${upstoxStatus?.is_connected ? 'border-orange-300 bg-orange-50' : (zerodhaStatus?.is_connected || aliceBlueStatus?.is_connected) ? 'opacity-40 cursor-not-allowed' : 'hover:bg-gray-100'}`}>
+          className="p-3 rounded-lg text-left transition" style={upstoxStatus?.is_connected ? {background: 'rgba(251,146,60,0.08)', border: '1px solid rgba(251,146,60,0.2)'} : (zerodhaStatus?.is_connected || aliceBlueStatus?.is_connected) ? {background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', opacity: 0.4, cursor: 'not-allowed'} : {background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)'}}
+          onMouseEnter={e => { if (!(zerodhaStatus?.is_connected || aliceBlueStatus?.is_connected)) { e.currentTarget.style.background = 'rgba(212,168,67,0.08)'; e.currentTarget.style.borderColor = 'rgba(212,168,67,0.2)' }}}
+          onMouseLeave={e => { if (!(zerodhaStatus?.is_connected || aliceBlueStatus?.is_connected)) { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.borderColor = 'var(--border)' }}}>
           <div className="flex items-center gap-2 mb-1">
-            <Link2 className={`w-4 h-4 ${upstoxStatus?.is_connected ? 'text-orange-500' : 'text-gray-400'}`} />
-            <span className="text-sm font-medium text-gray-900">Upstox</span>
+            <Link2 className="w-4 h-4" style={{color: upstoxStatus?.is_connected ? '#fb923c' : '#6b6580'}} />
+            <span className="text-sm font-medium" style={{color: '#f0e6d0'}}>Upstox</span>
           </div>
-          <span className="text-xs text-gray-500">
+          <span className="text-xs" style={{color: '#6b6580'}}>
             {upstoxStatus?.is_connected
               ? `Connected (${upstoxStatus.upstox_user_id})`
               : upstoxStatus?.has_credentials
@@ -4543,12 +4570,14 @@ function SettingsPanel({ apiKey, user, zerodhaStatus, upstoxStatus, aliceBlueSta
         </button>
 
         <button onClick={aliceBlueStatus?.is_connected ? onDisconnectAliceBlue : onConnectAliceBlue}
-          className={`p-3 bg-gray-50 rounded-lg text-left transition border border-gray-100 ${aliceBlueStatus?.is_connected ? 'border-purple-300 bg-purple-50' : (zerodhaStatus?.is_connected || upstoxStatus?.is_connected) ? 'opacity-40 cursor-not-allowed' : 'hover:bg-gray-100'}`}>
+          className="p-3 rounded-lg text-left transition" style={aliceBlueStatus?.is_connected ? {background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.2)'} : (zerodhaStatus?.is_connected || upstoxStatus?.is_connected) ? {background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', opacity: 0.4, cursor: 'not-allowed'} : {background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)'}}
+          onMouseEnter={e => { if (!(zerodhaStatus?.is_connected || upstoxStatus?.is_connected)) { e.currentTarget.style.background = 'rgba(212,168,67,0.08)'; e.currentTarget.style.borderColor = 'rgba(212,168,67,0.2)' }}}
+          onMouseLeave={e => { if (!(zerodhaStatus?.is_connected || upstoxStatus?.is_connected)) { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.borderColor = 'var(--border)' }}}>
           <div className="flex items-center gap-2 mb-1">
-            <Link2 className={`w-4 h-4 ${aliceBlueStatus?.is_connected ? 'text-purple-500' : 'text-gray-400'}`} />
-            <span className="text-sm font-medium text-gray-900">AliceBlue</span>
+            <Link2 className="w-4 h-4" style={{color: aliceBlueStatus?.is_connected ? '#a855f7' : '#6b6580'}} />
+            <span className="text-sm font-medium" style={{color: '#f0e6d0'}}>AliceBlue</span>
           </div>
-          <span className="text-xs text-gray-500">
+          <span className="text-xs" style={{color: '#6b6580'}}>
             {aliceBlueStatus?.is_connected
               ? `Connected (${aliceBlueStatus.aliceblue_user_id})`
               : aliceBlueStatus?.has_credentials
@@ -4559,8 +4588,8 @@ function SettingsPanel({ apiKey, user, zerodhaStatus, upstoxStatus, aliceBlueSta
       </div>
 
       {/* Rate Limiting Info */}
-      <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
-        <p className="text-xs text-gray-500">
+      <div className="p-3 rounded-lg" style={{background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)'}}>
+        <p className="text-xs" style={{color: '#6b6580'}}>
           Only one broker can be connected at a time. Disconnect your current broker to switch.
           Orders are placed via your own API key. Auto-trigger orders fire within seconds of signal.
         </p>

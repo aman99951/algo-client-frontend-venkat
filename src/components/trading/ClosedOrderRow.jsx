@@ -23,7 +23,7 @@ function ClosedOrderRow({ order, brokerPositionsMap = {} }) {
     if (brokerPos.is_closed && brokerPos.sell_price > 0) exitPrice = brokerPos.sell_price
     pnl = brokerPos.is_closed ? (brokerPos.realised || brokerPos.pnl || 0) : (brokerPos.pnl || 0)
   } else {
-    const LOT = { NIFTY: 65, BANKNIFTY: 30, SENSEX: 20, BANKEX: 30 }
+    const LOT = { NIFTY: 65, BANKNIFTY: 30, SENSEX: 20 }
     const lotSize = order.quantity || LOT[index] || 30
     if (exitPrice == null && entryPrice != null && pnl !== 0) {
       exitPrice = Math.round((entryPrice + pnl / lotSize) * 100) / 100
