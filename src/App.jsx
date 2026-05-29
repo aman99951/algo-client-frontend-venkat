@@ -1558,21 +1558,21 @@ function App() {
       <CreditStore apiKey={apiKey} isOpen={showCreditStore} onClose={() => setShowCreditStore(false)} />
 
       {/* Header */}
-      <header className="sticky top-0 z-50 glass shadow-[0_4px_30px_rgba(0,0,0,0.3)]">
-        <div className="w-full px-2 sm:px-6 lg:px-8 py-2 sm:py-3 flex items-center justify-between gap-1">
+      <header className="sticky top-0 z-[100] glass shadow-[0_4px_30px_rgba(0,0,0,0.3)]">
+        <div className="w-full px-1 sm:px-6 lg:px-8 py-1.5 sm:py-3 flex items-center justify-between">
           <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
             <div className="p-1 sm:p-1.5 rounded-lg" style={{background: 'linear-gradient(135deg, #d4a843, #b8922e)'}}>
               <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-black" />
             </div>
-            <h1 className="text-base sm:text-xl font-bold gold-text leading-tight">TradeVault</h1>
+            <h1 className="hidden sm:block text-base sm:text-xl font-bold gold-text leading-tight">TradeVault</h1>
           </div>
 
-          <div className="flex items-center gap-0.5 sm:gap-2 min-w-0">
+          <div className="flex items-center gap-0.5 sm:gap-2 overflow-x-auto no-scrollbar">
             {/* Connection Status — tiny dot on mobile */}
             <div className="sm:hidden flex-shrink-0">
               <span className={`block w-2 h-2 rounded-full ${isConnected ? 'bg-emerald-400' : 'bg-red-400'}`} title={connectionStatus} />
             </div>
-            <div className="hidden sm:flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border" style={{
+            <div className="hidden sm:flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border flex-shrink-0" style={{
               borderColor: isConnected ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)',
               color: isConnected ? '#22c55e' : '#ef4444',
               background: isConnected ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)'
@@ -1583,7 +1583,7 @@ function App() {
 
             {/* Broker Account Info — name + balance */}
             {brokerAccountInfo?.connected && (
-              <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border flex-shrink-0" style={{background: 'rgba(212,168,67,0.1)', borderColor: 'rgba(212,168,67,0.3)', color: '#f0d68a'}}>
+              <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border flex-shrink-0" style={{background: 'rgba(212,168,67,0.1)', borderColor: 'rgba(212,168,67,0.3)', color: '#f0d68a'}}>
                 <span className="font-semibold">{brokerAccountInfo.user_name || brokerAccountInfo.user_id}</span>
                 <span style={{color: '#6b6580'}}>·</span>
                 <span className="font-mono">₹{Number(brokerAccountInfo.available_balance).toLocaleString('en-IN')}</span>
@@ -1594,14 +1594,14 @@ function App() {
             <div className="flex-shrink-0"><CreditBadge apiKey={apiKey} onBuyClick={() => setShowCreditStore(true)} /></div>
 
             <button onClick={() => setSoundEnabled(!soundEnabled)}
-              className="p-1.5 sm:p-2 rounded-lg transition flex-shrink-0" style={{color: '#a09880'}} 
+              className="hidden sm:flex p-1.5 sm:p-2 rounded-lg transition flex-shrink-0" style={{color: '#a09880'}} 
               onMouseEnter={e => e.currentTarget.style.background = 'rgba(212,168,67,0.1)'} 
               onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
               {soundEnabled ? <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <VolumeX className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
             </button>
 
             <button onClick={() => { setShowAutoTrigger(!showAutoTrigger); setShowSettings(false) }}
-              className="p-1.5 sm:p-2 rounded-lg transition flex-shrink-0" title="Auto-Trigger Settings"
+              className="p-1 sm:p-2 rounded-lg transition flex-shrink-0" title="Auto-Trigger Settings"
               style={{color: showAutoTrigger ? '#d4a843' : '#a09880', background: showAutoTrigger ? 'rgba(212,168,67,0.1)' : 'transparent'}}
               onMouseEnter={e => { if(!showAutoTrigger) e.currentTarget.style.background = 'rgba(212,168,67,0.08)' }} 
               onMouseLeave={e => { if(!showAutoTrigger) e.currentTarget.style.background = 'transparent' }}>
@@ -1609,7 +1609,7 @@ function App() {
             </button>
 
             <button onClick={() => { setShowSettings(!showSettings); setShowAutoTrigger(false) }}
-              className="p-1.5 sm:p-2 rounded-lg transition flex-shrink-0" title="Settings"
+              className="p-1 sm:p-2 rounded-lg transition flex-shrink-0" title="Settings"
               style={{color: showSettings ? '#d4a843' : '#a09880', background: showSettings ? 'rgba(212,168,67,0.1)' : 'transparent'}}
               onMouseEnter={e => { if(!showSettings) e.currentTarget.style.background = 'rgba(212,168,67,0.08)' }} 
               onMouseLeave={e => { if(!showSettings) e.currentTarget.style.background = 'transparent' }}>
@@ -1617,7 +1617,7 @@ function App() {
             </button>
 
             <button onClick={handleLogout}
-              className="p-1.5 sm:p-2 rounded-lg transition flex-shrink-0" title="Logout"
+              className="p-1 sm:p-2 rounded-lg transition flex-shrink-0" title="Logout"
               style={{color: '#ef4444'}}
               onMouseEnter={e => e.currentTarget.style.background = 'rgba(239,68,68,0.1)'} 
               onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
@@ -1626,6 +1626,107 @@ function App() {
           </div>
         </div>
       </header>
+
+      {/* ── Top Bar Dropdowns ──────────────────────────────────── */}
+      {(showAutoTrigger || showSettings) && (
+        <>
+          <div className="fixed left-0 right-0" style={{top: '48px', bottom: 0, zIndex: 90}} onClick={() => { setShowAutoTrigger(false); setShowSettings(false) }} />
+          {showAutoTrigger && (
+            <div className="fixed right-4" style={{top: '60px', zIndex: 95}}>
+              <div className="w-[calc(100vw-32px)] max-w-sm rounded-xl shadow-2xl p-4" style={{background: 'var(--bg-card)', border: '1px solid var(--border)', boxShadow: '0 20px 60px rgba(0,0,0,0.5)'}}>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-sm font-bold flex items-center gap-2" style={{color: '#f0e6d0'}}>
+                    <Zap className="w-4 h-4" style={{color: '#d4a843'}} />
+                    Auto-Trigger Settings
+                    {!isBrokerConnected && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded" style={{background: 'rgba(212,168,67,0.12)', color: '#d4a843', border: '1px solid rgba(212,168,67,0.25)'}}>Paper Mode</span>
+                    )}
+                  </h3>
+                  <button onClick={() => setShowAutoTrigger(false)}
+                    className="p-1 rounded-lg transition" style={{color: '#6b6580'}}
+                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="space-y-2">
+                  {['NIFTY', 'BANKNIFTY', 'SENSEX'].map(idx => {
+                    const config = autoTriggerConfigs.find(c => c.index_name === idx) || { is_enabled: false, lot_size: 1, max_orders_per_day: 5, orders_placed_today: 0 }
+                    return (
+                      <div key={idx} className="flex items-center justify-between p-2.5 rounded-lg" style={{background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)'}}>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-semibold" style={{color: '#f0e6d0'}}>{idx}</span>
+                          {config.orders_placed_today > 0 && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded" style={{background: 'rgba(99,102,241,0.1)', color: '#818cf8', border: '1px solid rgba(99,102,241,0.2)'}}>
+                              {config.orders_placed_today}/{config.max_orders_per_day} today
+                            </span>
+                          )}
+                        </div>
+                        <button
+                          onClick={async () => { await updateAutoTrigger(idx, !config.is_enabled, config.lot_size, config.max_orders_per_day) }}
+                          className="relative w-12 h-6 rounded-full transition-colors"
+                          style={{background: config.is_enabled ? '#d4a843' : 'rgba(255,255,255,0.15)'}}
+                        >
+                          <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full transition-transform shadow-sm`} style={{background: '#1a1a24', transform: config.is_enabled ? 'translateX(24px)' : 'none'}} />
+                        </button>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+          {showSettings && (
+            <div className="fixed right-4" style={{top: '60px', maxHeight: 'calc(100vh - 80px)', overflowY: 'auto', zIndex: 95}}>
+              <div className="w-[calc(100vw-32px)] max-w-sm rounded-xl shadow-2xl" style={{background: 'var(--bg-card)', border: '1px solid var(--border)', boxShadow: '0 20px 60px rgba(0,0,0,0.5)'}}>
+                <div className="flex items-center justify-between px-4 pt-4 pb-0">
+                  <h3 className="text-sm font-bold flex items-center gap-2" style={{color: '#f0e6d0'}}>
+                    <Settings className="w-4 h-4" style={{color: '#d4a843'}} /> Settings
+                  </h3>
+                  <button onClick={() => setShowSettings(false)}
+                    className="p-1 rounded-lg transition" style={{color: '#6b6580'}}
+                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                <SettingsPanel
+                  apiKey={apiKey}
+                  user={user}
+                  zerodhaStatus={zerodhaStatus}
+                  upstoxStatus={upstoxStatus}
+                  aliceBlueStatus={aliceBlueStatus}
+                  onConnectTelegram={openTelegram}
+                  onConnectZerodha={connectZerodha}
+                  onConnectUpstox={connectUpstox}
+                  onDisconnectUpstox={disconnectUpstox}
+                  onConnectAliceBlue={connectAliceBlue}
+                  onDisconnectAliceBlue={disconnectAliceBlue}
+                  onRegenerateKey={async () => {
+                    try {
+                      const res = await fetch(`${API_BASE}/api/signals/regenerate-key`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: user.email, api_key: apiKey })
+                      })
+                      const data = await res.json()
+                      if (data.api_key) {
+                        setApiKey(data.api_key)
+                        localStorage.setItem('tv_api_key', data.api_key)
+                        alert('New API key generated! Check your email.')
+                      } else {
+                        alert(data.detail || 'Failed to regenerate key.')
+                      }
+                    } catch {
+                      alert('Failed to regenerate key.')
+                    }
+                  }}
+                />
+              </div>
+            </div>
+          )}
+        </>
+      )}
 
       <main className="w-full px-2 sm:px-6 lg:px-8 py-4 sm:py-6 mx-auto" style={{maxWidth:'100vw', overflowX:'hidden'}}>
         {/* ── Broker Connection Bar ───────────────────────────────── */}
@@ -1788,15 +1889,6 @@ function App() {
         </div>
         )}
 
-        {/* ── Auto-Trigger Panel ──────────────────────────────────── */}
-        {showAutoTrigger && (
-          <AutoTriggerPanel
-            configs={autoTriggerConfigs}
-            onUpdate={updateAutoTrigger}
-            zerodhaConnected={isBrokerConnected}
-          />
-        )}
-
         {/* ── Broker Credentials Modal (Zerodha) ──────────────────── */}
         {showBrokerModal && (
           <BrokerCredentialsModal
@@ -1901,53 +1993,8 @@ function App() {
           </div>
         )}
 
-        {/* ── Settings Panel ──────────────────────────────────────── */}
-        {showSettings && (
-          <SettingsPanel
-            apiKey={apiKey}
-            user={user}
-            zerodhaStatus={zerodhaStatus}
-            upstoxStatus={upstoxStatus}
-            aliceBlueStatus={aliceBlueStatus}
-            onConnectTelegram={openTelegram}
-            onConnectZerodha={connectZerodha}
-            onConnectUpstox={connectUpstox}
-            onDisconnectUpstox={disconnectUpstox}
-            onConnectAliceBlue={connectAliceBlue}
-            onDisconnectAliceBlue={disconnectAliceBlue}
-            onRegenerateKey={async () => {
-              try {
-                const res = await fetch(`${API_BASE}/api/signals/regenerate-key`, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ email: user.email, api_key: apiKey })
-                })
-                const data = await res.json()
-                if (data.api_key) {
-                  setApiKey(data.api_key)
-                  localStorage.setItem('tv_api_key', data.api_key)
-                  alert('New API key generated! Check your email.')
-                } else {
-                  alert(data.detail || 'Failed to regenerate key.')
-                }
-              } catch {
-                alert('Failed to regenerate key.')
-              }
-            }}
-          />
-        )}
-
         {/* ── Market Mood Bar — composite sentiment + real data ──── */}
         <NewsMoodBar newsData={newsData} moodData={moodData} />
-
-        {/* ── Market Pulse — independent regime display ───────────── */}
-        <MarketPulse apiKey={apiKey} onDataUpdate={setMarketPulseData} />
-
-        {/* ── Safety Shield — hidden from end-user view ─────────── */}
-        {/* <SafetyShield marketPulseData={marketPulseData} /> */}
-
-        {/* ── Market News — AI-curated market-impacting headlines ── */}
-        <MarketNewsWidget newsData={newsData} apiKey={apiKey} onRefreshComplete={fetchNewsData} />
 
         {/* ── Signal Board — Active Trades + Closed History ──────── */}
         {isTradeWindowOpen ? (
@@ -1970,9 +2017,18 @@ function App() {
             <Moon className="w-10 h-10 mx-auto mb-3" style={{color: '#d4a843'}} />
             <h3 className="font-semibold text-lg mb-1" style={{color: '#f0e6d0'}}>Markets Closed</h3>
             <p className="text-sm" style={{color: '#a09880'}}>Trading signals will appear here when markets open at 9:15 AM</p>
-            <p className="text-xs mt-2" style={{color: '#6b6580'}}>Market Pulse &amp; News widgets are available above</p>
+            <p className="text-xs mt-2" style={{color: '#6b6580'}}>Market Pulse &amp; News widgets are available below</p>
           </div>
         )}
+
+        {/* ── Market Pulse — independent regime display ───────────── */}
+        <MarketPulse apiKey={apiKey} onDataUpdate={setMarketPulseData} />
+
+        {/* ── Safety Shield — hidden from end-user view ─────────── */}
+        {/* <SafetyShield marketPulseData={marketPulseData} /> */}
+
+        {/* ── Market News — AI-curated market-impacting headlines ── */}
+        <MarketNewsWidget newsData={newsData} apiKey={apiKey} onRefreshComplete={fetchNewsData} />
       </main>
 
       <footer className="mt-8 py-4 text-center text-xs" style={{color: '#6b6580'}}>
@@ -3169,65 +3225,6 @@ function ClosedOrderRow({ order, brokerPositionsMap = {} }) {
         </span>
       </td>
     </tr>
-  )
-}
-
-
-// ═══════════════════════════════════════════════════════════════════════
-//  AUTO-TRIGGER PANEL
-// ═══════════════════════════════════════════════════════════════════════
-
-function AutoTriggerPanel({ configs, onUpdate, zerodhaConnected }) {
-  const indices = ['NIFTY', 'BANKNIFTY', 'SENSEX']
-
-  return (
-    <div className="mb-6 p-4 rounded-xl" style={{background: 'var(--bg-card)', border: '1px solid var(--border)'}}>
-      <h3 className="text-sm font-bold mb-3 flex items-center gap-2" style={{color: '#f0e6d0'}}>
-        <Zap className="w-4 h-4" style={{color: '#d4a843'}} />
-        Auto-Trigger Settings
-        {!zerodhaConnected && (
-          <span className="text-xs px-2 py-0.5 rounded" style={{background: 'rgba(212,168,67,0.12)', color: '#d4a843', border: '1px solid rgba(212,168,67,0.25)'}}>Paper Mode</span>
-        )}
-      </h3>
-      <p className="text-xs mb-3" style={{color: '#a09880'}}>
-        When enabled, orders are automatically placed when signals arrive for the selected index.
-      </p>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {indices.map(idx => {
-          const config = configs.find(c => c.index_name === idx) || { is_enabled: false, lot_size: 1, max_orders_per_day: 5, orders_placed_today: 0 }
-          return (
-            <AutoTriggerRow key={idx} indexName={idx} config={config} onUpdate={onUpdate} />
-          )
-        })}
-      </div>
-    </div>
-  )
-}
-
-function AutoTriggerRow({ indexName, config, onUpdate }) {
-  const [loading, setLoading] = useState(false)
-
-  const toggle = async () => {
-    setLoading(true)
-    await onUpdate(indexName, !config.is_enabled, config.lot_size, config.max_orders_per_day)
-    setLoading(false)
-  }
-
-  return (
-    <div className="flex items-center justify-between p-3 rounded-lg" style={{background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)'}}>
-      <div>
-        <span className="text-sm font-bold" style={{color: '#f0e6d0'}}>{indexName}</span>
-      </div>
-      <button
-        onClick={toggle}
-        disabled={loading}
-        className="relative w-12 h-6 rounded-full transition-colors"
-        style={{background: config.is_enabled ? '#d4a843' : 'rgba(255,255,255,0.15)'}}
-      >
-        <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full transition-transform shadow-sm`} style={{background: '#1a1a24', transform: config.is_enabled ? 'translateX(24px)' : 'none'}} />
-      </button>
-    </div>
   )
 }
 
@@ -4532,10 +4529,7 @@ function SettingsPanel({ apiKey, user, zerodhaStatus, upstoxStatus, aliceBlueSta
   }
 
   return (
-    <div className="mb-6 p-4 rounded-xl space-y-4" style={{background: 'var(--bg-card)', border: '1px solid var(--border)'}}>
-      <h3 className="text-sm font-bold flex items-center gap-2" style={{color: '#f0e6d0'}}>
-        <Settings className="w-4 h-4" style={{color: '#d4a843'}} /> Settings
-      </h3>
+    <div className="p-4 space-y-4">
 
       {/* User Info */}
       <div className="p-3 rounded-lg" style={{background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)'}}>

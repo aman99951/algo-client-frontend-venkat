@@ -112,9 +112,8 @@ body {
 
 /* Glass effect */
 .glass {
-  background: rgba(26, 26, 36, 0.8);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(212, 168, 67, 0.1);
+  background: rgba(20, 20, 28, 0.95);
+  border-bottom: 1px solid rgba(212, 168, 67, 0.1);
 }
 
 /* Slider styling */
@@ -168,4 +167,13 @@ input[type="range"]:active::-moz-range-thumb {
 .table-gold th {
   color: var(--gold);
   border-bottom-color: var(--border-gold);
+}
+
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
