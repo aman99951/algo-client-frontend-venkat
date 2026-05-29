@@ -50,6 +50,7 @@ function App() {
   const [zerodhaStatus, setZerodhaStatus] = useState(null)
   const [autoTriggerConfigs, setAutoTriggerConfigs] = useState([])
   const [showAutoTrigger, setShowAutoTrigger] = useState(false)
+  const [showProfitTarget, setShowProfitTarget] = useState(false)
   const [loadingSignals, setLoadingSignals] = useState(false)
   const [showBrokerModal, setShowBrokerModal] = useState(false)
   const [pendingRequestToken, setPendingRequestToken] = useState('')
@@ -1600,6 +1601,14 @@ function App() {
               {soundEnabled ? <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <VolumeX className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
             </button>
 
+            <button onClick={() => { setShowProfitTarget(!showProfitTarget); setShowAutoTrigger(false); setShowSettings(false) }}
+              className="p-1 sm:p-2 rounded-lg transition flex-shrink-0" title="Daily Profit Target"
+              style={{color: showProfitTarget ? '#d4a843' : '#a09880', background: showProfitTarget ? 'rgba(212,168,67,0.1)' : 'transparent'}}
+              onMouseEnter={e => { if(!showProfitTarget) e.currentTarget.style.background = 'rgba(212,168,67,0.08)' }} 
+              onMouseLeave={e => { if(!showProfitTarget) e.currentTarget.style.background = 'transparent' }}>
+              <Target className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            </button>
+
             <button onClick={() => { setShowAutoTrigger(!showAutoTrigger); setShowSettings(false) }}
               className="p-1 sm:p-2 rounded-lg transition flex-shrink-0" title="Auto-Trigger Settings"
               style={{color: showAutoTrigger ? '#d4a843' : '#a09880', background: showAutoTrigger ? 'rgba(212,168,67,0.1)' : 'transparent'}}
@@ -1628,9 +1637,9 @@ function App() {
       </header>
 
       {/* ── Top Bar Dropdowns ──────────────────────────────────── */}
-      {(showAutoTrigger || showSettings) && (
+      {(showAutoTrigger || showSettings || showProfitTarget) && (
         <>
-          <div className="fixed left-0 right-0" style={{top: '48px', bottom: 0, zIndex: 90}} onClick={() => { setShowAutoTrigger(false); setShowSettings(false) }} />
+          <div className="fixed left-0 right-0" style={{top: '48px', bottom: 0, zIndex: 90}} onClick={() => { setShowAutoTrigger(false); setShowSettings(false); setShowProfitTarget(false) }} />
           {showAutoTrigger && (
             <div className="fixed right-4" style={{top: '60px', zIndex: 95}}>
               <div className="w-[calc(100vw-32px)] max-w-sm rounded-xl shadow-2xl p-4" style={{background: 'var(--bg-card)', border: '1px solid var(--border)', boxShadow: '0 20px 60px rgba(0,0,0,0.5)'}}>
@@ -1725,6 +1734,26 @@ function App() {
               </div>
             </div>
           )}
+          {showProfitTarget && (
+            <div className="fixed right-4" style={{top: '60px', maxHeight: 'calc(100vh - 80px)', overflowY: 'auto', zIndex: 95}}>
+              <div className="w-[calc(100vw-32px)] max-w-md rounded-xl shadow-2xl" style={{background: 'var(--bg-card)', border: '1px solid var(--border)', boxShadow: '0 20px 60px rgba(0,0,0,0.5)'}}>
+                <div className="flex items-center justify-between px-4 pt-4 pb-0">
+                  <h3 className="text-sm font-bold flex items-center gap-2" style={{color: '#f0e6d0'}}>
+                    <Target className="w-4 h-4" style={{color: '#d4a843'}} /> Daily Profit Target
+                  </h3>
+                  <button onClick={() => setShowProfitTarget(false)}
+                    className="p-1 rounded-lg transition" style={{color: '#6b6580'}}
+                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="p-4">
+                  <ProfitTargetControl apiKey={apiKey} sessionId={apiKey} brokerPnlData={brokerPnlData} />
+                </div>
+              </div>
+            </div>
+          )}
         </>
       )}
 
@@ -1744,21 +1773,44 @@ function App() {
                 : <Unplug className="w-5 h-5" style={{color: '#6b6580'}} />
               }
             </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold" style={{color: '#f0e6d0'}}>
-                  {isBrokerConnected ? `${connectedBroker.name} Connected` : 'Broker Not Connected'}
-                </span>
-                {isBrokerConnected && (
-                  <span className="px-1.5 py-0.5 rounded text-xs font-bold" style={{background: 'rgba(34,197,94,0.15)', color: '#22c55e'}}>LIVE</span>
-                )}
+            <div className="flex items-center gap-2">
+              <span className={`w-2 h-2 rounded-full ${isBrokerConnected ? 'bg-green-500' : 'bg-gray-500'}`} style={{boxShadow: isBrokerConnected ? '0 0 6px #22c55e' : 'none'}} />
+              <span className="text-xs font-medium" style={{color: isBrokerConnected ? '#22c55e' : '#6b6580'}}>
+                {isBrokerConnected ? `${connectedBroker.name}` : 'Disconnected'}
+              </span>
+            </div>
+            <div className="flex items-center gap-3 flex-1">
+              <span className="text-xs font-medium" style={{color: '#a09880'}}>Trade Mode:</span>
+              <div className="flex rounded-lg p-0.5 gap-0.5" style={{background: 'rgba(255,255,255,0.05)'}}>
+                <button onClick={() => toggleTradeMode('manual')}
+                  className={`flex items-center gap-1.5 px-4 py-2 rounded-md text-xs font-semibold transition-all ${
+                    tradeMode === 'manual'
+                      ? 'shadow-sm'
+                      : ''
+                  }`}
+                  style={tradeMode === 'manual' ? {background: 'var(--bg-elevated)', color: '#f0e6d0', border: '1px solid rgba(212,168,67,0.2)'} : {color: '#6b6580'}}>
+                  <ToggleLeft className="w-3.5 h-3.5" />
+                  Manual Trade
+                </button>
+                <button onClick={() => {
+                  if (!isBrokerConnected) {
+                    alert('Connect a broker account first to enable auto-trading.')
+                    return
+                  }
+                  toggleTradeMode('auto')
+                }}
+                  className={`flex items-center gap-1.5 px-4 py-2 rounded-md text-xs font-semibold transition-all ${
+                    tradeMode === 'auto'
+                      ? 'shadow-sm'
+                      : pnlLocked
+                      ? 'animate-pulse'
+                      : ''
+                  }`}
+                  style={tradeMode === 'auto' ? {background: 'linear-gradient(135deg, #d4a843, #b8922e)', color: '#000'} : pnlLocked ? {background: 'rgba(212,168,67,0.15)', color: '#d4a843', border: '1px solid rgba(212,168,67,0.3)'} : {color: '#6b6580'}}>
+                  <ToggleRight className="w-3.5 h-3.5" />
+                  {pnlLocked && tradeMode !== 'auto' ? 'Resume Auto' : 'Auto Trade'}
+                </button>
               </div>
-              <p className="text-xs" style={{color: '#a09880', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
-                {isBrokerConnected
-                  ? `Account: ${connectedBroker.userId} · Orders placed via ${connectedBroker.name}`
-                  : 'Connect your broker account to enable order placement'
-                }
-              </p>
             </div>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
@@ -1783,50 +1835,7 @@ function App() {
           </div>
         </div>
 
-        {/* ── Trade Mode Toggle — only during trade window ─────── */}
-        {isTradeWindowOpen && (
-        <div className="mb-6 flex items-center gap-3 p-4 rounded-xl" style={{background: 'var(--bg-card)', border: '1px solid var(--border)'}}>
-          <Radio className="w-4 h-4 flex-shrink-0" style={{color: '#d4a843'}} />
-          <span className="text-xs flex-shrink-0" style={{color: '#a09880'}}>Trade Mode:</span>
-          <div className="flex rounded-lg p-0.5 gap-0.5" style={{background: 'rgba(255,255,255,0.05)'}}>
-            <button onClick={() => toggleTradeMode('manual')}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-md text-xs font-semibold transition-all ${
-                tradeMode === 'manual'
-                  ? 'shadow-sm'
-                  : ''
-              }`}
-              style={tradeMode === 'manual' ? {background: 'var(--bg-elevated)', color: '#f0e6d0', border: '1px solid rgba(212,168,67,0.2)'} : {color: '#6b6580'}}>
-              <ToggleLeft className="w-3.5 h-3.5" />
-              Manual Trade
-            </button>
-            <button onClick={() => {
-              if (!isBrokerConnected) {
-                alert('Connect a broker account first to enable auto-trading.')
-                return
-              }
-              toggleTradeMode('auto')
-            }}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-md text-xs font-semibold transition-all ${
-                tradeMode === 'auto'
-                  ? 'shadow-sm'
-                  : pnlLocked
-                  ? 'animate-pulse'
-                  : ''
-              }`}
-              style={tradeMode === 'auto' ? {background: 'linear-gradient(135deg, #d4a843, #b8922e)', color: '#000'} : pnlLocked ? {background: 'rgba(212,168,67,0.15)', color: '#d4a843', border: '1px solid rgba(212,168,67,0.3)'} : {color: '#6b6580'}}>
-              <ToggleRight className="w-3.5 h-3.5" />
-              {pnlLocked && tradeMode !== 'auto' ? 'Resume Auto' : 'Auto Trade'}
-            </button>
-          </div>
-          <span className="text-xs ml-auto hidden sm:block" style={{color: '#6b6580'}}>
-            {pnlLocked
-              ? 'P&L limit hit — tap Auto Trade to override'
-              : tradeMode === 'auto'
-              ? 'Orders placed automatically on signal'
-              : 'You place orders manually from signals'}
-          </span>
-        </div>
-        )}
+
 
         {/* ── Summary Bar — only during trade window ─────────────── */}
         {isTradeWindowOpen && (
@@ -1861,31 +1870,6 @@ function App() {
             </span>
             <span className="text-xs" style={{color: '#6b6580'}}>({paperStats.total_closed} trades)</span>
           </div>
-        </div>
-        )}
-
-        {/* ── Daily Profit Target & Stop Loss Control ─────────────── */}
-        {isTradeWindowOpen && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-          <div className="lg:col-span-2">
-            <ProfitTargetControl apiKey={apiKey} sessionId={apiKey} brokerPnlData={brokerPnlData} />
-          </div>
-          <div className="lg:col-span-1 space-y-2">
-            <div className="grid grid-cols-1 gap-2">
-              <StatCard label="Telegram Subs" value={telegramSubscribers?.count ?? telegramSubscribers?.total ?? telegramSubscribers?.subscribers ?? '—'}
-                icon={<Send className="w-4 h-4" />} color="#38bdf8" />
-              <StatCard label="Credits" value={creditBalance?.balance != null ? creditBalance.balance.toLocaleString() : '—'}
-                icon={<Coins className="w-4 h-4" />} color="#a78bfa" />
-              <StatCard label="Dashboard Credits" value={dashboardCreditBalance?.balance != null ? dashboardCreditBalance.balance.toLocaleString() : '—'}
-                icon={<Coins className="w-4 h-4" />} color="#22c55e" />
-            </div>
-          </div>
-        </div>
-        )}
-
-        {!isTradeWindowOpen && (
-        <div className="mb-4">
-          <ProfitTargetControl apiKey={apiKey} sessionId={apiKey} brokerPnlData={brokerPnlData} />
         </div>
         )}
 
@@ -4531,101 +4515,98 @@ function SettingsPanel({ apiKey, user, zerodhaStatus, upstoxStatus, aliceBlueSta
   return (
     <div className="p-4 space-y-4">
 
-      {/* User Info */}
-      <div className="p-3 rounded-lg" style={{background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)'}}>
-        <div className="text-xs" style={{color: '#6b6580'}}>Logged in as</div>
-        <div className="font-medium" style={{color: '#f0e6d0'}}>{user?.full_name || user?.email}</div>
-        <div className="text-xs" style={{color: '#a09880'}}>{user?.email}</div>
-      </div>
-
-      {/* API Key */}
-      <div className="p-3 rounded-lg" style={{background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)'}}>
-        <div className="text-xs mb-1" style={{color: '#6b6580'}}>API Key</div>
-        <div className="flex items-center gap-2">
-          <code className="flex-1 text-sm font-mono break-all" style={{color: '#d4a843'}}>
-            {showKey ? apiKey : apiKey?.substring(0, 8) + '••••••••••'}
-          </code>
-          <button onClick={() => setShowKey(!showKey)} className="p-1 rounded transition" style={{color: '#6b6580'}}
-            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
-            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-            {showKey ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+      {/* Broker Section */}
+      <div>
+        <div className="text-xs font-semibold uppercase tracking-wider mb-2" style={{color: '#6b6580'}}>Broker:</div>
+        <div className="grid grid-cols-1 gap-2">
+          <button onClick={onConnectZerodha}
+            className="flex items-center justify-between p-3 rounded-lg transition" style={zerodhaStatus?.is_connected ? {background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)'} : (upstoxStatus?.is_connected || aliceBlueStatus?.is_connected) ? {background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', opacity: 0.4, cursor: 'not-allowed'} : {background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)'}}
+            onMouseEnter={e => { if (!(upstoxStatus?.is_connected || aliceBlueStatus?.is_connected)) { e.currentTarget.style.background = 'rgba(212,168,67,0.08)'; e.currentTarget.style.borderColor = 'rgba(212,168,67,0.2)' }}}
+            onMouseLeave={e => { if (!(upstoxStatus?.is_connected || aliceBlueStatus?.is_connected)) { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.borderColor = 'var(--border)' }}}>
+            <div className="flex items-center gap-2">
+              <ExternalLink className="w-4 h-4" style={{color: zerodhaStatus?.is_connected ? '#22c55e' : '#6b6580'}} />
+              <span className="text-sm font-medium" style={{color: '#f0e6d0'}}>Zerodha</span>
+            </div>
+            <span className="text-xs" style={{color: zerodhaStatus?.is_connected ? '#22c55e' : '#6b6580'}}>
+              {zerodhaStatus?.is_connected ? 'Connected' : zerodhaStatus?.has_credentials ? 'Update' : 'Connect'}
+            </span>
           </button>
-          <button onClick={copyKey} className="p-1 rounded transition" style={{color: '#6b6580'}}
-            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
-            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-            {copied ? <Check className="w-3.5 h-3.5" style={{color: '#22c55e'}} /> : <Copy className="w-3.5 h-3.5" />}
+
+          <button onClick={upstoxStatus?.is_connected ? onDisconnectUpstox : onConnectUpstox}
+            className="flex items-center justify-between p-3 rounded-lg transition" style={upstoxStatus?.is_connected ? {background: 'rgba(251,146,60,0.08)', border: '1px solid rgba(251,146,60,0.2)'} : (zerodhaStatus?.is_connected || aliceBlueStatus?.is_connected) ? {background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', opacity: 0.4, cursor: 'not-allowed'} : {background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)'}}
+            onMouseEnter={e => { if (!(zerodhaStatus?.is_connected || aliceBlueStatus?.is_connected)) { e.currentTarget.style.background = 'rgba(212,168,67,0.08)'; e.currentTarget.style.borderColor = 'rgba(212,168,67,0.2)' }}}
+            onMouseLeave={e => { if (!(zerodhaStatus?.is_connected || aliceBlueStatus?.is_connected)) { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.borderColor = 'var(--border)' }}}>
+            <div className="flex items-center gap-2">
+              <Link2 className="w-4 h-4" style={{color: upstoxStatus?.is_connected ? '#fb923c' : '#6b6580'}} />
+              <span className="text-sm font-medium" style={{color: '#f0e6d0'}}>Upstox</span>
+            </div>
+            <span className="text-xs" style={{color: upstoxStatus?.is_connected ? '#fb923c' : '#6b6580'}}>
+              {upstoxStatus?.is_connected ? 'Connected' : upstoxStatus?.has_credentials ? 'Update' : 'Connect'}
+            </span>
+          </button>
+
+          <button onClick={aliceBlueStatus?.is_connected ? onDisconnectAliceBlue : onConnectAliceBlue}
+            className="flex items-center justify-between p-3 rounded-lg transition" style={aliceBlueStatus?.is_connected ? {background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.2)'} : (zerodhaStatus?.is_connected || upstoxStatus?.is_connected) ? {background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', opacity: 0.4, cursor: 'not-allowed'} : {background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)'}}
+            onMouseEnter={e => { if (!(zerodhaStatus?.is_connected || upstoxStatus?.is_connected)) { e.currentTarget.style.background = 'rgba(212,168,67,0.08)'; e.currentTarget.style.borderColor = 'rgba(212,168,67,0.2)' }}}
+            onMouseLeave={e => { if (!(zerodhaStatus?.is_connected || upstoxStatus?.is_connected)) { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.borderColor = 'var(--border)' }}}>
+            <div className="flex items-center gap-2">
+              <Link2 className="w-4 h-4" style={{color: aliceBlueStatus?.is_connected ? '#a855f7' : '#6b6580'}} />
+              <span className="text-sm font-medium" style={{color: '#f0e6d0'}}>AliceBlue</span>
+            </div>
+            <span className="text-xs" style={{color: aliceBlueStatus?.is_connected ? '#a855f7' : '#6b6580'}}>
+              {aliceBlueStatus?.is_connected ? 'Connected' : aliceBlueStatus?.has_credentials ? 'Reconnect' : 'Connect'}
+            </span>
           </button>
         </div>
-        <button onClick={handleRegenerate} disabled={regenLoading}
-          className="mt-2 text-xs flex items-center gap-1 transition disabled:opacity-50" style={{color: '#d4a843'}}>
-          <RefreshCw className={`w-3 h-3 ${regenLoading ? 'animate-spin' : ''}`} />
-          {regenLoading ? 'Regenerating...' : 'Regenerate Key'}
-        </button>
       </div>
 
-      {/* Integrations — only one broker at a time */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      {/* Alert Section */}
+      <div>
+        <div className="text-xs font-semibold uppercase tracking-wider mb-2" style={{color: '#6b6580'}}>Alert:</div>
         <button onClick={onConnectTelegram}
-          className="p-3 rounded-lg text-left transition" style={{background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', color: '#a09880'}}
+          className="flex items-center justify-between w-full p-3 rounded-lg transition" style={{background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)'}}
           onMouseEnter={e => { e.currentTarget.style.background = 'rgba(212,168,67,0.08)'; e.currentTarget.style.borderColor = 'rgba(212,168,67,0.2)' }}
           onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.borderColor = 'var(--border)' }}>
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex items-center gap-2">
             <Send className="w-4 h-4" style={{color: '#38bdf8'}} />
             <span className="text-sm font-medium" style={{color: '#f0e6d0'}}>Telegram</span>
           </div>
           <span className="text-xs" style={{color: '#6b6580'}}>Get signals on Telegram</span>
         </button>
+      </div>
 
-        <button onClick={onConnectZerodha}
-          className="p-3 rounded-lg text-left transition" style={zerodhaStatus?.is_connected ? {background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)'} : (upstoxStatus?.is_connected || aliceBlueStatus?.is_connected) ? {background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', opacity: 0.4, cursor: 'not-allowed'} : {background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)'}}
-          onMouseEnter={e => { if (!(upstoxStatus?.is_connected || aliceBlueStatus?.is_connected)) { e.currentTarget.style.background = 'rgba(212,168,67,0.08)'; e.currentTarget.style.borderColor = 'rgba(212,168,67,0.2)' }}}
-          onMouseLeave={e => { if (!(upstoxStatus?.is_connected || aliceBlueStatus?.is_connected)) { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.borderColor = 'var(--border)' }}}>
-          <div className="flex items-center gap-2 mb-1">
-            <ExternalLink className="w-4 h-4" style={{color: zerodhaStatus?.is_connected ? '#22c55e' : '#6b6580'}} />
-            <span className="text-sm font-medium" style={{color: '#f0e6d0'}}>Zerodha</span>
-          </div>
-          <span className="text-xs" style={{color: '#6b6580'}}>
-            {zerodhaStatus?.is_connected
-              ? `Connected (${zerodhaStatus.zerodha_user_id})`
-              : zerodhaStatus?.has_credentials
-                ? 'Tap to update credentials & login'
-                : 'Tap to connect for auto-trade'}
-          </span>
-        </button>
+      {/* Profile Info Section */}
+      <div>
+        <div className="text-xs font-semibold uppercase tracking-wider mb-2" style={{color: '#6b6580'}}>Profile Info:</div>
+        <div className="p-3 rounded-lg mb-2" style={{background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)'}}>
+          <div className="text-xs" style={{color: '#6b6580'}}>Logged in as</div>
+          <div className="font-medium" style={{color: '#f0e6d0'}}>{user?.full_name || user?.email}</div>
+          <div className="text-xs" style={{color: '#a09880'}}>{user?.email}</div>
+        </div>
 
-        <button onClick={upstoxStatus?.is_connected ? onDisconnectUpstox : onConnectUpstox}
-          className="p-3 rounded-lg text-left transition" style={upstoxStatus?.is_connected ? {background: 'rgba(251,146,60,0.08)', border: '1px solid rgba(251,146,60,0.2)'} : (zerodhaStatus?.is_connected || aliceBlueStatus?.is_connected) ? {background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', opacity: 0.4, cursor: 'not-allowed'} : {background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)'}}
-          onMouseEnter={e => { if (!(zerodhaStatus?.is_connected || aliceBlueStatus?.is_connected)) { e.currentTarget.style.background = 'rgba(212,168,67,0.08)'; e.currentTarget.style.borderColor = 'rgba(212,168,67,0.2)' }}}
-          onMouseLeave={e => { if (!(zerodhaStatus?.is_connected || aliceBlueStatus?.is_connected)) { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.borderColor = 'var(--border)' }}}>
-          <div className="flex items-center gap-2 mb-1">
-            <Link2 className="w-4 h-4" style={{color: upstoxStatus?.is_connected ? '#fb923c' : '#6b6580'}} />
-            <span className="text-sm font-medium" style={{color: '#f0e6d0'}}>Upstox</span>
+        <div className="p-3 rounded-lg" style={{background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)'}}>
+          <div className="text-xs mb-1" style={{color: '#6b6580'}}>API Key</div>
+          <div className="flex items-center gap-2">
+            <code className="flex-1 text-sm font-mono break-all" style={{color: '#d4a843'}}>
+              {showKey ? apiKey : apiKey?.substring(0, 8) + '••••••••••'}
+            </code>
+            <button onClick={() => setShowKey(!showKey)} className="p-1 rounded transition" style={{color: '#6b6580'}}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+              {showKey ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+            </button>
+            <button onClick={copyKey} className="p-1 rounded transition" style={{color: '#6b6580'}}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+              {copied ? <Check className="w-3.5 h-3.5" style={{color: '#22c55e'}} /> : <Copy className="w-3.5 h-3.5" />}
+            </button>
           </div>
-          <span className="text-xs" style={{color: '#6b6580'}}>
-            {upstoxStatus?.is_connected
-              ? `Connected (${upstoxStatus.upstox_user_id})`
-              : upstoxStatus?.has_credentials
-                ? 'Tap to update & login'
-                : 'Tap to connect Upstox'}
-          </span>
-        </button>
-
-        <button onClick={aliceBlueStatus?.is_connected ? onDisconnectAliceBlue : onConnectAliceBlue}
-          className="p-3 rounded-lg text-left transition" style={aliceBlueStatus?.is_connected ? {background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.2)'} : (zerodhaStatus?.is_connected || upstoxStatus?.is_connected) ? {background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)', opacity: 0.4, cursor: 'not-allowed'} : {background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border)'}}
-          onMouseEnter={e => { if (!(zerodhaStatus?.is_connected || upstoxStatus?.is_connected)) { e.currentTarget.style.background = 'rgba(212,168,67,0.08)'; e.currentTarget.style.borderColor = 'rgba(212,168,67,0.2)' }}}
-          onMouseLeave={e => { if (!(zerodhaStatus?.is_connected || upstoxStatus?.is_connected)) { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.borderColor = 'var(--border)' }}}>
-          <div className="flex items-center gap-2 mb-1">
-            <Link2 className="w-4 h-4" style={{color: aliceBlueStatus?.is_connected ? '#a855f7' : '#6b6580'}} />
-            <span className="text-sm font-medium" style={{color: '#f0e6d0'}}>AliceBlue</span>
-          </div>
-          <span className="text-xs" style={{color: '#6b6580'}}>
-            {aliceBlueStatus?.is_connected
-              ? `Connected (${aliceBlueStatus.aliceblue_user_id})`
-              : aliceBlueStatus?.has_credentials
-                ? 'Tap to reconnect'
-                : 'Tap to connect AliceBlue'}
-          </span>
-        </button>
+          <button onClick={handleRegenerate} disabled={regenLoading}
+            className="mt-2 text-xs flex items-center gap-1 transition disabled:opacity-50" style={{color: '#d4a843'}}>
+            <RefreshCw className={`w-3 h-3 ${regenLoading ? 'animate-spin' : ''}`} />
+            {regenLoading ? 'Regenerating...' : 'Regenerate Key'}
+          </button>
+        </div>
       </div>
 
       {/* Rate Limiting Info */}
