@@ -55,18 +55,20 @@ function ProfitTargetControl({ apiKey, sessionId, compact = false, brokerPnlData
             const s = statsData.stats
             const brokerPnl = s.total_pnl || 0
             const brokerTrades = s.total_closed || 0
+            const hasLiveBrokerPnl = (brokerPnlData?.success && brokerPnlData?.total_pnl != null)
+            const effectivePnl = hasLiveBrokerPnl ? brokerPnlData.total_pnl : brokerPnl
             if (brokerTrades > 0 || brokerPnl !== 0) {
-              setCurrentPnL(brokerPnl)
-              setRealizedPnL(brokerPnl)
+              setCurrentPnL(effectivePnl)
+              setRealizedPnL(effectivePnl)
               setUnrealizedPnL(0)
               setTradeCount({
                 total: brokerTrades + (s.active_count || 0),
                 wins: s.wins || 0,
                 losses: s.losses || 0
               })
-              if (profitTargetEnabled && brokerPnl >= profitTarget) {
+              if (profitTargetEnabled && effectivePnl >= profitTarget) {
                 setTargetReached(true)
-              } else if (profitTargetEnabled && brokerPnl <= stopLoss) {
+              } else if (profitTargetEnabled && effectivePnl <= stopLoss) {
                 setTargetReached(true)
               }
             }
@@ -112,7 +114,7 @@ function ProfitTargetControl({ apiKey, sessionId, compact = false, brokerPnlData
     fetchData()
     const interval = setInterval(fetchData, 5000)
     return () => clearInterval(interval)
-  }, [apiKey, sessionId])
+  }, [apiKey, sessionId, brokerPnlData, profitTargetEnabled, profitTarget, stopLoss])
 
   const saveSettings = async () => {
     if (!apiKey || !sessionId) return
