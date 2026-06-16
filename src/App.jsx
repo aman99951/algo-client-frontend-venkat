@@ -65,8 +65,19 @@ function App() {
   const [pnlLimit, setPnlLimit] = useState(() => {
     const saved = localStorage.getItem('tv_pnl_limit')
     return saved ? parseFloat(saved) : 2500
-  }) // User-configurable P&L limit (default ₹2500)
+  }) // Legacy symmetric P&L limit (default ₹2500) — used only as fallback when asymmetric values are unavailable
   const [pnlLimitSaving, setPnlLimitSaving] = useState(false)
+  // ── Asymmetric P&L thresholds (mirror of UserNotificationSettings panel) ──
+  // profitTargetLimit: positive number (lock when dayPnl >= this)
+  // stopLossLimit:   negative number (lock when dayPnl <= this)
+  const [profitTargetLimit, setProfitTargetLimit] = useState(() => {
+    const saved = localStorage.getItem('tv_profit_target')
+    return saved ? parseFloat(saved) : null
+  })
+  const [stopLossLimit, setStopLossLimit] = useState(() => {
+    const saved = localStorage.getItem('tv_stop_loss')
+    return saved ? parseFloat(saved) : null
+  })
   const [showFundsModal, setShowFundsModal] = useState(false) // Funds check modal
   const [fundsStatus, setFundsStatus] = useState(null) // {available, required, sufficient, indices}
 
@@ -1441,50 +1452,109 @@ function App() {
     return { active, targetHit, slHit, exited, closed, total: totalSignals, dayPnl, wins, losses, hasUserOrders, winRate, fromBackend: false }
   }, [signals, isBrokerConnected, backendStats, brokerPnlData])
 
-  // ─── P&L Auto-Lock: Switch to manual when P&L reaches ±user limit ───
-  // Triggers on BOTH profit target and loss limit.
-  // MUST be after stats definition since it depends on stats.dayPnl
+  // ─── Fetch asymmetric profit target / stop loss from backend panel settings ───
+  // These reflect the user's configuration in the Daily Profit Target panel.
+  // Auto-lock uses these instead of the legacy symmetric pnlLimit when available.
+  useEffect(() => {
+    if (!apiKey) return
+    let cancelled = false
+    fetch(`${API_BASE}/api/profit-target/settings?session_id=${apiKey}`)
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (cancelled || !data) return
+        const settings = data.settings || data
+        if (settings.daily_profit_target != null) {
+          const pt = parseFloat(settings.daily_profit_target)
+          setProfitTargetLimit(pt)
+          localStorage.setItem('tv_profit_target', String(pt))
+        }
+        if (settings.daily_stop_loss != null) {
+          const sl = parseFloat(settings.daily_stop_loss)
+          setStopLossLimit(sl)
+          localStorage.setItem('tv_stop_loss', String(sl))
+        }
+      })
+      .catch(() => {})
+    // Refresh every 30s so panel edits propagate without a reload
+    const id = setInterval(() => {
+      fetch(`${API_BASE}/api/profit-target/settings?session_id=${apiKey}`)
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (cancelled || !data) return
+          const settings = data.settings || data
+          if (settings.daily_profit_target != null) {
+            const pt = parseFloat(settings.daily_profit_target)
+            setProfitTargetLimit(pt)
+            localStorage.setItem('tv_profit_target', String(pt))
+          }
+          if (settings.daily_stop_loss != null) {
+            const sl = parseFloat(settings.daily_stop_loss)
+            setStopLossLimit(sl)
+            localStorage.setItem('tv_stop_loss', String(sl))
+          }
+        })
+        .catch(() => {})
+    }, 30000)
+    return () => { cancelled = true; clearInterval(id) }
+  }, [apiKey])
+
+  // ─── P&L Auto-Lock: Switch to manual when P&L breaches user-set thresholds ───
+  // Uses ASYMMETRIC profitTargetLimit / stopLossLimit when available
+  // (matches the Daily Profit Target panel). Falls back to legacy symmetric
+  // pnlLimit only when the asymmetric values haven't loaded yet.
   // Respects pnlOverrideUntil — if user has overridden, don't re-lock.
   useEffect(() => {
     // Skip if user has active P&L override
     if (pnlOverrideUntil && new Date() < pnlOverrideUntil) return
+    if (tradeMode !== 'auto' || pnlLocked) return
 
-    if (Math.abs(stats.dayPnl) >= pnlLimit && tradeMode === 'auto' && !pnlLocked) {
-      setPnlLocked(true)
-      setTradeMode('manual')
-      localStorage.setItem('tv_trade_mode', 'manual')
-      
-      // Sync with ALL connected brokers
-      if (zerodhaStatus?.is_connected) {
-        fetch(`${API_BASE}/api/signals/zerodha/auto-trade?api_key=${apiKey}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ auto_trade_enabled: false })
-        }).catch(() => {})
-        setZerodhaStatus(prev => ({ ...prev, auto_trade_enabled: false }))
-      }
-      if (aliceBlueStatus?.is_connected) {
-        fetch(`${API_BASE}/api/signals/aliceblue/auto-trade?api_key=${apiKey}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ auto_trade_enabled: false })
-        }).catch(() => {})
-        setAliceBlueStatus(prev => ({ ...prev, auto_trade_enabled: false }))
-      }
-      if (upstoxStatus?.is_connected) {
-        fetch(`${API_BASE}/api/signals/upstox/auto-trade?api_key=${apiKey}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ auto_trade_enabled: false })
-        }).catch(() => {})
-        setUpstoxStatus(prev => ({ ...prev, auto_trade_enabled: false }))
-      }
-      
-      // Show notification
-      const reason = stats.dayPnl >= pnlLimit ? 'Profit Target' : 'Loss Limit'
-      alert(`🔒 Auto-Trading Locked: ${reason} reached (₹${stats.dayPnl.toFixed(0)}). Switched to Manual mode.`)
+    // Determine effective thresholds
+    const ptThreshold = (profitTargetLimit != null && profitTargetLimit > 0)
+      ? profitTargetLimit
+      : pnlLimit
+    const slThreshold = (stopLossLimit != null && stopLossLimit < 0)
+      ? stopLossLimit
+      : -pnlLimit
+
+    const hitProfit = stats.dayPnl >= ptThreshold
+    const hitLoss = stats.dayPnl <= slThreshold
+    if (!hitProfit && !hitLoss) return
+
+    setPnlLocked(true)
+    setTradeMode('manual')
+    localStorage.setItem('tv_trade_mode', 'manual')
+
+    // Sync with ALL connected brokers
+    if (zerodhaStatus?.is_connected) {
+      fetch(`${API_BASE}/api/signals/zerodha/auto-trade?api_key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ auto_trade_enabled: false })
+      }).catch(() => {})
+      setZerodhaStatus(prev => ({ ...prev, auto_trade_enabled: false }))
     }
-  }, [stats.dayPnl, tradeMode, pnlLocked, pnlOverrideUntil, zerodhaStatus, aliceBlueStatus, upstoxStatus, apiKey, pnlLimit])
+    if (aliceBlueStatus?.is_connected) {
+      fetch(`${API_BASE}/api/signals/aliceblue/auto-trade?api_key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ auto_trade_enabled: false })
+      }).catch(() => {})
+      setAliceBlueStatus(prev => ({ ...prev, auto_trade_enabled: false }))
+    }
+    if (upstoxStatus?.is_connected) {
+      fetch(`${API_BASE}/api/signals/upstox/auto-trade?api_key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ auto_trade_enabled: false })
+      }).catch(() => {})
+      setUpstoxStatus(prev => ({ ...prev, auto_trade_enabled: false }))
+    }
+
+    // Show notification with the actual threshold that was breached
+    const reason = hitProfit ? 'Profit Target' : 'Loss Limit'
+    const limit = hitProfit ? ptThreshold : slThreshold
+    alert(`🔒 Auto-Trading Locked: ${reason} reached (₹${stats.dayPnl.toFixed(0)} vs ₹${limit.toFixed(0)}). Switched to Manual mode.`)
+  }, [stats.dayPnl, tradeMode, pnlLocked, pnlOverrideUntil, zerodhaStatus, aliceBlueStatus, upstoxStatus, apiKey, pnlLimit, profitTargetLimit, stopLossLimit])
 
   // Reset P&L lock when day starts fresh (P&L back to near zero)
   // MUST be after stats definition since it depends on stats.dayPnl
