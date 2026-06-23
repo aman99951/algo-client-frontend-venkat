@@ -4570,6 +4570,42 @@ function SettingsPanel({ apiKey, user, zerodhaStatus, upstoxStatus, aliceBlueSta
   const [copied, setCopied] = useState(false)
   const [regenLoading, setRegenLoading] = useState(false)
 
+  // ── Dedicated static IP (SEBI mandate: API orders must originate from a
+  //    registered static IP). Fetched from the broadcast proxy pool. ──
+  const [staticIp, setStaticIp] = useState(null)
+  const [staticIpState, setStaticIpState] = useState('loading') // loading | ready | exhausted | error
+  const [ipCopied, setIpCopied] = useState(false)
+
+  useEffect(() => {
+    if (!apiKey) return
+    let cancelled = false
+    ;(async () => {
+      try {
+        setStaticIpState('loading')
+        const res = await fetch(`${API_BASE}/api/signals/zerodha/static-ip?api_key=${apiKey}`)
+        const data = await res.json()
+        if (cancelled) return
+        if (data?.static_ip) {
+          setStaticIp(data.static_ip)
+          setStaticIpState('ready')
+        } else {
+          setStaticIp(null)
+          setStaticIpState(data?.pool_exhausted ? 'exhausted' : 'error')
+        }
+      } catch {
+        if (!cancelled) setStaticIpState('error')
+      }
+    })()
+    return () => { cancelled = true }
+  }, [apiKey])
+
+  const copyStaticIp = () => {
+    if (!staticIp) return
+    navigator.clipboard.writeText(staticIp)
+    setIpCopied(true)
+    setTimeout(() => setIpCopied(false), 2000)
+  }
+
   const handleRegenerate = async () => {
     setRegenLoading(true)
     await onRegenerateKey()
@@ -4627,6 +4663,55 @@ function SettingsPanel({ apiKey, user, zerodhaStatus, upstoxStatus, aliceBlueSta
               {aliceBlueStatus?.is_connected ? 'Connected' : aliceBlueStatus?.has_credentials ? 'Reconnect' : 'Connect'}
             </span>
           </button>
+        </div>
+      </div>
+
+      {/* ── Dedicated Static IP (SEBI mandate) ─────────────────── */}
+      <div>
+        <div className="text-xs font-semibold uppercase tracking-wider mb-2 flex items-center gap-1.5" style={{color: '#6b6580'}}>
+          <ShieldCheck className="w-3.5 h-3.5" style={{color: '#d4a843'}} /> Your Dedicated Static IP
+        </div>
+        <div className="p-3 rounded-lg" style={{background: 'rgba(212,168,67,0.06)', border: '1px solid rgba(212,168,67,0.25)'}}>
+          {staticIpState === 'loading' && (
+            <div className="flex items-center gap-2 text-xs" style={{color: '#a09880'}}>
+              <RefreshCw className="w-3.5 h-3.5 animate-spin" /> Fetching your dedicated IP…
+            </div>
+          )}
+
+          {staticIpState === 'ready' && (
+            <>
+              <div className="text-xs mb-1.5" style={{color: '#a09880'}}>
+                Whitelist this IP in your Kite Connect app so Zerodha accepts your API orders:
+              </div>
+              <div className="flex items-center gap-2 p-2 rounded-md" style={{background: 'rgba(0,0,0,0.25)', border: '1px solid rgba(212,168,67,0.2)'}}>
+                <code className="flex-1 text-base font-mono font-bold tracking-wide" style={{color: '#d4a843'}}>{staticIp}</code>
+                <button onClick={copyStaticIp} className="p-1.5 rounded transition" style={{color: '#6b6580'}}
+                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                  title="Copy IP">
+                  {ipCopied ? <Check className="w-4 h-4" style={{color: '#22c55e'}} /> : <Copy className="w-4 h-4" />}
+                </button>
+              </div>
+              <div className="text-[11px] mt-2 leading-relaxed" style={{color: '#6b6580'}}>
+                Go to <span style={{color: '#a09880'}}>developers.kite.trade → your app → IP Whitelist</span>,
+                paste the IP above (one per line), tick the confirmation box and Save.
+                Without this, all API orders are rejected (SEBI static-IP rule).
+              </div>
+            </>
+          )}
+
+          {staticIpState === 'exhausted' && (
+            <div className="text-xs leading-relaxed" style={{color: '#fb923c'}}>
+              No dedicated IP is available for your account yet. Please contact support so one can be
+              assigned before you enable auto-trading.
+            </div>
+          )}
+
+          {staticIpState === 'error' && (
+            <div className="text-xs leading-relaxed" style={{color: '#6b6580'}}>
+              Couldn’t load your dedicated IP right now. Reopen Settings to retry, or contact support.
+            </div>
+          )}
         </div>
       </div>
 
