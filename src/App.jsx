@@ -1591,28 +1591,70 @@ function App() {
   // ─── Auth Views ───────────────────────────────────────────────────
 
   if (authView !== 'dashboard') {
+    const authHighlights = [
+      { icon: Radio, title: 'Real-time signals', desc: 'Live NIFTY, BANKNIFTY & SENSEX entries the moment they trigger' },
+      { icon: Zap, title: 'Auto-trade your broker', desc: 'Signals place orders straight to your own connected account' },
+      { icon: ShieldCheck, title: 'Risk-managed exits', desc: 'Every trade protected by a GTT stop-loss with profit trailing' },
+      { icon: BarChart3, title: 'Multi-broker ready', desc: 'Works with Zerodha, AliceBlue and Upstox' },
+    ]
     return (
-      <div className="min-h-screen flex items-center justify-center px-4" style={{background: '#0a0a0f'}}>
-        <div className="w-full max-w-md">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-3 mb-2">
-              <div className="p-2 rounded-xl" style={{background: 'linear-gradient(135deg, #d4a843, #b8922e)'}}>
-                <TrendingUp className="w-7 h-7 text-black" />
+      <div className="min-h-screen lg:grid lg:grid-cols-2" style={{background: '#0a0a0f'}}>
+        {/* Left brand / value panel — desktop only, fills the empty space */}
+        <div className="hidden lg:flex flex-col justify-center px-12 xl:px-20 relative overflow-hidden" style={{borderRight: '1px solid var(--border)'}}>
+          <div className="absolute inset-0 pointer-events-none" style={{background: 'radial-gradient(circle at 25% 20%, rgba(212,168,67,0.10), transparent 55%)'}} />
+          <div className="relative">
+            <div className="inline-flex items-center gap-3 mb-8">
+              <div className="p-2.5 rounded-xl" style={{background: 'linear-gradient(135deg, #d4a843, #b8922e)'}}>
+                <TrendingUp className="w-8 h-8 text-black" />
               </div>
-              <h1 className="text-3xl font-bold gold-text">TradeVault</h1>
+              <h1 className="text-4xl font-bold gold-text">TradeVault</h1>
             </div>
-            <p style={{color: '#a09880'}}>Real-time Trading Signals</p>
+            <h2 className="text-2xl font-semibold mb-3 leading-snug" style={{color: '#f0e6d0', maxWidth: '30ch'}}>
+              Trade smarter with real-time, risk-managed signals
+            </h2>
+            <p className="text-sm mb-10" style={{color: '#a09880', maxWidth: '42ch'}}>
+              Sign in to view live index option signals and let them execute on your own broker account — with automatic stop-loss protection.
+            </p>
+            <div className="space-y-5">
+              {authHighlights.map(({ icon: Icon, title, desc }) => (
+                <div key={title} className="flex items-start gap-3">
+                  <div className="p-2 rounded-lg flex-shrink-0" style={{background: 'rgba(212,168,67,0.1)', border: '1px solid rgba(212,168,67,0.2)'}}>
+                    <Icon className="w-4 h-4" style={{color: '#d4a843'}} />
+                  </div>
+                  <div>
+                    <div className="text-sm font-semibold" style={{color: '#f0e6d0'}}>{title}</div>
+                    <div className="text-xs mt-0.5" style={{color: '#6b6580', maxWidth: '38ch'}}>{desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
+        </div>
 
-          {authView === 'login' ? (
-            <LoginForm onSuccess={handleAuthSuccess} onSwitchToRegister={() => setAuthView('register')} onForgotPassword={() => setAuthView('forgot-password')} />
-          ) : authView === 'register' ? (
-            <RegisterForm onSuccess={handleAuthSuccess} onSwitchToLogin={() => setAuthView('login')} />
-          ) : authView === 'forgot-password' ? (
-            <ForgotPasswordForm onBackToLogin={() => setAuthView('login')} />
-          ) : authView === 'reset-password' ? (
-            <ResetPasswordForm token={resetToken} email={resetEmail} onBackToLogin={() => setAuthView('login')} />
-          ) : null}
+        {/* Right auth panel */}
+        <div className="flex items-center justify-center px-4 py-10">
+          <div className="w-full max-w-md">
+            {/* Brand header — shown on mobile only (desktop shows it on the left) */}
+            <div className="text-center mb-8 lg:hidden">
+              <div className="inline-flex items-center gap-3 mb-2">
+                <div className="p-2 rounded-xl" style={{background: 'linear-gradient(135deg, #d4a843, #b8922e)'}}>
+                  <TrendingUp className="w-7 h-7 text-black" />
+                </div>
+                <h1 className="text-3xl font-bold gold-text">TradeVault</h1>
+              </div>
+              <p style={{color: '#a09880'}}>Real-time Trading Signals</p>
+            </div>
+
+            {authView === 'login' ? (
+              <LoginForm onSuccess={handleAuthSuccess} onSwitchToRegister={() => setAuthView('register')} onForgotPassword={() => setAuthView('forgot-password')} />
+            ) : authView === 'register' ? (
+              <RegisterForm onSuccess={handleAuthSuccess} onSwitchToLogin={() => setAuthView('login')} />
+            ) : authView === 'forgot-password' ? (
+              <ForgotPasswordForm onBackToLogin={() => setAuthView('login')} />
+            ) : authView === 'reset-password' ? (
+              <ResetPasswordForm token={resetToken} email={resetEmail} onBackToLogin={() => setAuthView('login')} />
+            ) : null}
+          </div>
         </div>
       </div>
     )
@@ -1665,6 +1707,8 @@ function App() {
             <div className="flex-shrink-0"><CreditBadge apiKey={apiKey} onBuyClick={() => setShowCreditStore(true)} /></div>
 
             <button onClick={() => setSoundEnabled(!soundEnabled)}
+              aria-label={soundEnabled ? 'Mute notification sound' : 'Unmute notification sound'}
+              title={soundEnabled ? 'Mute notification sound' : 'Unmute notification sound'}
               className="hidden sm:flex p-1.5 sm:p-2 rounded-lg transition flex-shrink-0" style={{color: '#a09880'}} 
               onMouseEnter={e => e.currentTarget.style.background = 'rgba(212,168,67,0.1)'} 
               onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
@@ -1672,6 +1716,7 @@ function App() {
             </button>
 
             <button onClick={() => { setShowProfitTarget(!showProfitTarget); setShowAutoTrigger(false); setShowSettings(false) }}
+              aria-label="Daily Profit Target"
               className="p-1 sm:p-2 rounded-lg transition flex-shrink-0" title="Daily Profit Target"
               style={{color: showProfitTarget ? '#d4a843' : '#a09880', background: showProfitTarget ? 'rgba(212,168,67,0.1)' : 'transparent'}}
               onMouseEnter={e => { if(!showProfitTarget) e.currentTarget.style.background = 'rgba(212,168,67,0.08)' }} 
@@ -1680,6 +1725,7 @@ function App() {
             </button>
 
             <button onClick={() => { setShowAutoTrigger(!showAutoTrigger); setShowSettings(false) }}
+              aria-label="Auto-Trigger Settings"
               className="p-1 sm:p-2 rounded-lg transition flex-shrink-0" title="Auto-Trigger Settings"
               style={{color: showAutoTrigger ? '#d4a843' : '#a09880', background: showAutoTrigger ? 'rgba(212,168,67,0.1)' : 'transparent'}}
               onMouseEnter={e => { if(!showAutoTrigger) e.currentTarget.style.background = 'rgba(212,168,67,0.08)' }} 
@@ -1688,6 +1734,7 @@ function App() {
             </button>
 
             <button onClick={() => { setShowSettings(!showSettings); setShowAutoTrigger(false) }}
+              aria-label="Settings"
               className="p-1 sm:p-2 rounded-lg transition flex-shrink-0" title="Settings"
               style={{color: showSettings ? '#d4a843' : '#a09880', background: showSettings ? 'rgba(212,168,67,0.1)' : 'transparent'}}
               onMouseEnter={e => { if(!showSettings) e.currentTarget.style.background = 'rgba(212,168,67,0.08)' }} 
@@ -1696,6 +1743,7 @@ function App() {
             </button>
 
             <button onClick={handleLogout}
+              aria-label="Logout"
               className="p-1 sm:p-2 rounded-lg transition flex-shrink-0" title="Logout"
               style={{color: '#ef4444'}}
               onMouseEnter={e => e.currentTarget.style.background = 'rgba(239,68,68,0.1)'} 
@@ -2153,6 +2201,15 @@ function NewsMoodBar({ newsData, moodData }) {
     )
   }
 
+  // Deduplicate indices — the underlying snapshot source can repeat an index.
+  const moodIndices = Array.isArray(moodData.indices)
+    ? Object.values(moodData.indices.reduce((acc, i) => {
+        const key = (i.index || '').toUpperCase()
+        if (key && !acc[key]) acc[key] = i
+        return acc
+      }, {}))
+    : []
+
   return (
     <div className="rounded-xl mb-4 overflow-hidden" style={{background: lc.barBg, border: `1px solid ${lc.borderColor}`}}>
       <button
@@ -2222,11 +2279,11 @@ function NewsMoodBar({ newsData, moodData }) {
               { label: 'News', score: newsBreak.score || 0, weight: newsBreak.weight, icon: '📰',
                 detail: `${newsBreak.bullish_count || 0}↑ ${newsBreak.bearish_count || 0}↓ ${newsBreak.neutral_count || 0}—` },
               { label: 'Regime', score: breakdown?.regime?.score || 0, weight: breakdown?.regime?.weight, icon: '📊',
-                detail: moodData.indices?.map(i => `${i.index}: ${i.regime}`).join(', ') || 'N/A' },
+                detail: moodIndices.map(i => `${i.index}: ${i.regime}`).join(', ') || 'N/A' },
               { label: 'RSI', score: breakdown?.rsi?.score || 0, weight: breakdown?.rsi?.weight, icon: '📈',
-                detail: moodData.indices?.map(i => `${i.index}: ${i.rsi}`).join(', ') || 'N/A' },
+                detail: moodIndices.map(i => `${i.index}: ${i.rsi}`).join(', ') || 'N/A' },
               { label: 'Momentum', score: breakdown?.momentum?.score || 0, weight: breakdown?.momentum?.weight, icon: '🔄',
-                detail: moodData.indices?.map(i => `${i.index}: ${i.momentum > 0 ? '+' : ''}${i.momentum?.toFixed(5)}`).join(', ') || 'N/A' },
+                detail: moodIndices.map(i => `${i.index}: ${i.momentum > 0 ? '+' : ''}${i.momentum?.toFixed(5)}`).join(', ') || 'N/A' },
             ].map(item => {
               const barW = Math.min(100, Math.max(0, ((item.score + 100) / 200) * 100))
               const barC = item.score > 10 ? 'bg-emerald-500' : item.score < -10 ? 'bg-red-500' : 'bg-gray-300'
@@ -2298,6 +2355,24 @@ function MarketPulse({ apiKey, onDataUpdate }) {
   const isMarketHours = hour >= 9 && hour < 16
   const timeLabel = isMarketHours ? 'Live' : hour >= 16 ? 'Post-Market' : 'Pre-Market'
 
+  // Deduplicate index cards — the backend market-pulse endpoint returns every
+  // snapshot row, and dual bot instances (Railway + AWS) can write more than
+  // one row per index. Keep a single card per index (freshest by updated_at
+  // when available, otherwise first-seen), preserving encounter order.
+  const uniqueIndices = Object.values(
+    (pulseData.indices || []).reduce((acc, idx) => {
+      const key = (idx.index || '').toUpperCase()
+      if (!key) return acc
+      const existing = acc[key]
+      if (!existing) {
+        acc[key] = idx
+      } else if (idx.updated_at && (!existing.updated_at || idx.updated_at > existing.updated_at)) {
+        acc[key] = idx
+      }
+      return acc
+    }, {})
+  )
+
   return (
     <div className="mb-4">
       <button
@@ -2319,7 +2394,7 @@ function MarketPulse({ apiKey, onDataUpdate }) {
 
       {!collapsed && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-3 rounded-b-xl" style={{background: 'var(--bg-card)', border: '1px solid var(--border)', borderTop: 'none'}}>
-          {pulseData.indices.map((idx) => {
+          {uniqueIndices.map((idx) => {
             const s = STANCE_STYLES[idx.stance_color] || STANCE_STYLES.gray
             const rsiColor = idx.rsi > 70 ? '#ef4444' : idx.rsi < 30 ? '#22c55e' : '#a09880'
 
@@ -2514,7 +2589,7 @@ function MarketNewsWidget({ newsData: parentNewsData, apiKey, onRefreshComplete 
                               onMouseLeave={e => e.currentTarget.style.color = '#e8dcc8'}
                             >
                               {item.headline}
-                              {item.ai_summary && (
+                              {item.ai_summary && item.ai_summary.trim().toLowerCase() !== (item.headline || '').trim().toLowerCase() && (
                                 <span className="font-normal block mt-0.5 italic" style={{color: '#6b6580'}}>— {item.ai_summary}</span>
                               )}
                             </a>
