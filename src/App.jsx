@@ -1366,9 +1366,15 @@ function App() {
     // Backend handles paper mode via SignalTracker fallback.
     // ══════════════════════════════════════════════════════════════════
     if (backendStats) {
-      // BROKER P&L OVERRIDE: Use raw kite.positions() total when available
-      // brokerPnlData comes directly from kite.positions() — most accurate
-      const dayPnl = (brokerPnlData?.success && brokerPnlData?.total_pnl != null)
+      // BROKER P&L OVERRIDE: Use raw kite.positions() total ONLY when Kite
+      // actually has positions today (count > 0). An empty positions array
+      // must never zero out real P&L from SubscriberOrders or SignalTracker.
+      const hasLiveBrokerPositions = Boolean(
+        brokerPnlData?.success &&
+        (brokerPnlData?.count > 0 || brokerPnlData?.positions?.length > 0) &&
+        brokerPnlData?.total_pnl != null
+      )
+      const dayPnl = hasLiveBrokerPositions
         ? brokerPnlData.total_pnl
         : (backendStats.total_pnl || 0)
 
@@ -1406,49 +1412,38 @@ function App() {
     })
     const active = Object.keys(activeByIdx).length
 
-    // Deduplicate closed signals for counts — one per index+direction+exit_price
+    // Deduplicate closed signals for counts — match backend dedup (signal_id or index+dir+minute)
     // ALSO filter out ghost signals (entry === exit, pnl === 0)
     const seenClosed = new Set()
     let targetHit = 0, slHit = 0, exited = 0
+    let dayPnl = 0
+    let wins = 0
+    let losses = 0
     for (const s of statsSignals) {
       const st = s.data?.status
       if (st !== 'target_hit' && st !== 'sl_hit' && st !== 'manual_exit') continue
       // Skip ghost signals: entry == exit price with no P&L
       const ep = s.data?.entry_price || 0
       const xp = s.data?.exit_price || 0
-      const pnl = s.data?.pnl || 0
+      const pnl = Number(s.data?.pnl || 0)
       if (ep && xp && Math.abs(ep - xp) < 0.01 && Math.abs(pnl) < 0.01) continue
-      const key = `${s.data?.index_name}_${s.data?.direction}_${Math.round(s.data?.exit_price || 0)}`
+      const idx = (s.data?.index || s.data?.index_name || '').toUpperCase()
+      const dir = (s.data?.direction || '').toUpperCase()
+      const entryTs = String(s.data?.entry_time || s.data?.signal_time || s.timestamp || '').slice(0, 16)
+      const key = s.signal_id || `${idx}_${dir}_${entryTs}`
       if (seenClosed.has(key)) continue
       seenClosed.add(key)
       if (st === 'target_hit') targetHit++
       else if (st === 'sl_hit') slHit++
       else exited++
-    }
-    const closed = targetHit + slHit + exited
-
-    // P&L calculation — skip ghosts
-    const seenTrades = new Set()
-    let dayPnl = 0
-    let wins = 0
-    let losses = 0
-    for (const s of statsSignals) {
-      const pnl = s.data?.pnl || 0
-      if (pnl === 0 && !s.data?.exit_price) continue  // still in market
-      // Skip ghost signals
-      const ep = s.data?.entry_price || 0
-      const xp = s.data?.exit_price || 0
-      if (ep && xp && Math.abs(ep - xp) < 0.01 && Math.abs(pnl) < 0.01) continue
-      const key = `${s.data?.index_name}_${s.data?.direction}_${Math.round(s.data?.exit_price || 0)}`
-      if (seenTrades.has(key)) continue
-      seenTrades.add(key)
       dayPnl += pnl
       if (pnl > 0) wins++
       else if (pnl < 0) losses++
     }
+    const closed = targetHit + slHit + exited
     const hasUserOrders = false
     const totalSignals = signals.length
-    const winRate = closed > 0 ? Math.round(targetHit / closed * 100) : 0
+    const winRate = closed > 0 ? Math.round((wins / closed) * 100) : 0
     return { active, targetHit, slHit, exited, closed, total: totalSignals, dayPnl, wins, losses, hasUserOrders, winRate, fromBackend: false }
   }, [signals, isBrokerConnected, backendStats, brokerPnlData])
 
@@ -1524,12 +1519,12 @@ function App() {
     setTradeMode('manual')
     localStorage.setItem('tv_trade_mode', 'manual')
 
-    // Sync with ALL connected brokers
+    // Sync with ALL connected brokers (mark disabled_by='system' so Daily Auto-Reset re-enables next day)
     if (zerodhaStatus?.is_connected) {
       fetch(`${API_BASE}/api/signals/zerodha/auto-trade?api_key=${apiKey}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ auto_trade_enabled: false })
+        body: JSON.stringify({ auto_trade_enabled: false, disabled_by: 'system' })
       }).catch(() => {})
       setZerodhaStatus(prev => ({ ...prev, auto_trade_enabled: false }))
     }
@@ -1537,7 +1532,7 @@ function App() {
       fetch(`${API_BASE}/api/signals/aliceblue/auto-trade?api_key=${apiKey}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ auto_trade_enabled: false })
+        body: JSON.stringify({ auto_trade_enabled: false, disabled_by: 'system' })
       }).catch(() => {})
       setAliceBlueStatus(prev => ({ ...prev, auto_trade_enabled: false }))
     }
@@ -1545,7 +1540,7 @@ function App() {
       fetch(`${API_BASE}/api/signals/upstox/auto-trade?api_key=${apiKey}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ auto_trade_enabled: false })
+        body: JSON.stringify({ auto_trade_enabled: false, disabled_by: 'system' })
       }).catch(() => {})
       setUpstoxStatus(prev => ({ ...prev, auto_trade_enabled: false }))
     }
@@ -2735,10 +2730,13 @@ function SignalBoard({ signals, loadingSignals, onRefresh, onPlaceOrder, zerodha
       if (ep && xp && Math.abs(ep - xp) < 0.01 && Math.abs(pnl) < 0.01) return false
       return true
     })
-    // Deduplicate: keep only newest signal per index+direction+exit_price combo
+    // Deduplicate: match backend dedup (signal_id or index+direction+entry_time minute bucket)
     const seen = new Set()
     return all.filter(s => {
-      const key = `${s.data?.index_name}_${s.data?.direction}_${Math.round(s.data?.exit_price || 0)}`
+      const idx = (s.data?.index || s.data?.index_name || '').toUpperCase()
+      const dir = (s.data?.direction || '').toUpperCase()
+      const entryTs = String(s.data?.entry_time || s.data?.signal_time || s.timestamp || '').slice(0, 16)
+      const key = s.signal_id || `${idx}_${dir}_${entryTs}`
       if (seen.has(key)) return false
       seen.add(key)
       return true
@@ -2755,20 +2753,6 @@ function SignalBoard({ signals, loadingSignals, onRefresh, onPlaceOrder, zerodha
     }
   })
 
-  // Closed trades stats for the header
-  // Always use backend stats when available (works for both broker + paper mode)
-  // This ensures Closed Trades header matches the top stats bar exactly
-  const targetHits = backendStats ? (backendStats.target_count || 0)
-    : closedSignals.filter(s => s.data?.status === 'target_hit').length
-  const slHits = backendStats ? (backendStats.sl_count || 0)
-    : closedSignals.filter(s => s.data?.status === 'sl_hit').length
-  // BROKER P&L: Use raw kite.positions() total_pnl as single source of truth
-  // Falls back to backendStats (which also has positions override) then to local signals
-  const totalPnl = (brokerPnlData?.success && brokerPnlData?.total_pnl != null)
-    ? brokerPnlData.total_pnl
-    : backendStats ? (backendStats.total_pnl || 0)
-    : closedSignals.reduce((sum, s) => sum + (s.data?.pnl || 0), 0)
-
   // Build broker positions lookup for ClosedOrderRow to use
   const brokerPositionsMap = useMemo(() => {
     if (!brokerPnlData?.positions) return {}
@@ -2779,8 +2763,67 @@ function SignalBoard({ signals, loadingSignals, onRefresh, onPlaceOrder, zerodha
     return map
   }, [brokerPnlData])
 
-  // Use backend orders for table rows when broker connected
+  // Use backend orders for table rows when broker connected and user has closed orders today
   const useBackendOrders = isBrokerConnected && backendClosedOrders.length > 0
+
+  // Closed trades summary — always consistent with the rendered table rows
+  const closedSummary = useMemo(() => {
+    const rowsPnl = useBackendOrders
+      ? backendClosedOrders.map(order => {
+          const sym = (order.symbol || '').toUpperCase()
+          const bp = brokerPositionsMap[sym]
+          if (bp) {
+            return Number(bp.is_closed ? (bp.realised ?? bp.pnl ?? 0) : (bp.pnl ?? 0)) || 0
+          }
+          return Number(order.pnl || 0)
+        })
+      : closedSignals.map(s => Number(s.data?.pnl || 0))
+
+    let grossProfit = 0
+    let grossLoss = 0
+    let wins = 0
+    let losses = 0
+    for (const p of rowsPnl) {
+      if (p > 0) {
+        grossProfit += p
+        wins++
+      } else if (p < 0) {
+        grossLoss += p
+        losses++
+      }
+    }
+    const rowSumPnl = grossProfit + grossLoss
+    const hasLiveBrokerPositions = Boolean(
+      useBackendOrders &&
+      brokerPnlData?.success &&
+      (brokerPnlData?.count > 0 || brokerPnlData?.positions?.length > 0) &&
+      brokerPnlData?.total_pnl != null
+    )
+    const netPnl = hasLiveBrokerPositions
+      ? Number(brokerPnlData.total_pnl)
+      : rowsPnl.length > 0
+        ? rowSumPnl
+        : Number(backendStats?.total_pnl || 0)
+    const count = useBackendOrders ? backendClosedOrders.length : closedSignals.length
+    const effectiveWins = rowsPnl.length > 0 ? wins : (backendStats?.wins || 0)
+    const effectiveLosses = rowsPnl.length > 0 ? losses : (backendStats?.losses || 0)
+    const winRate = count > 0 ? Math.round((effectiveWins / count) * 100) : Math.round(backendStats?.win_rate || 0)
+    return {
+      count,
+      wins: effectiveWins,
+      losses: effectiveLosses,
+      grossProfit,
+      grossLoss,
+      netPnl,
+      winRate,
+    }
+  }, [useBackendOrders, backendClosedOrders, closedSignals, brokerPositionsMap, brokerPnlData, backendStats])
+
+  const targetHits = backendStats ? (backendStats.target_count || 0)
+    : closedSignals.filter(s => s.data?.status === 'target_hit').length
+  const slHits = backendStats ? (backendStats.sl_count || 0)
+    : closedSignals.filter(s => s.data?.status === 'sl_hit').length
+  const totalPnl = closedSummary.netPnl
 
   return (
     <div>
@@ -2853,22 +2896,28 @@ function SignalBoard({ signals, loadingSignals, onRefresh, onPlaceOrder, zerodha
             style={{color: '#a09880'}}
             onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}
             onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-            <span className="text-sm font-semibold flex items-center gap-2" style={{color: '#f0e6d0'}}>
+            <span className="text-sm font-semibold flex flex-wrap items-center gap-2" style={{color: '#f0e6d0'}}>
               <Clock className="w-4 h-4" style={{color: '#6b6580'}} />
               Closed Trades
-              <span className="text-xs px-1.5 py-0.5 rounded-full font-bold border" style={{background: 'rgba(34,197,94,0.1)', color: '#22c55e', borderColor: 'rgba(34,197,94,0.2)'}}>
+              <span className="text-xs px-1.5 py-0.5 rounded-full font-bold border" title="Target Hits" style={{background: 'rgba(34,197,94,0.1)', color: '#22c55e', borderColor: 'rgba(34,197,94,0.2)'}}>
                 🎯 {targetHits}
               </span>
-              <span className="text-xs px-1.5 py-0.5 rounded-full font-bold border" style={{background: 'rgba(239,68,68,0.1)', color: '#ef4444', borderColor: 'rgba(239,68,68,0.2)'}}>
+              <span className="text-xs px-1.5 py-0.5 rounded-full font-bold border" title="Stop Loss Hits" style={{background: 'rgba(239,68,68,0.1)', color: '#ef4444', borderColor: 'rgba(239,68,68,0.2)'}}>
                 🛑 {slHits}
               </span>
-              {totalPnl !== 0 && (
-                <span className="text-xs font-mono font-bold ml-1" style={totalPnl >= 0 ? {color: '#22c55e'} : {color: '#ef4444'}}>
-                  ₹{totalPnl >= 0 ? '+' : ''}{totalPnl.toFixed(0)}
+              {(closedSummary.wins > 0 || closedSummary.losses > 0) && (
+                <span className="text-xs px-2 py-0.5 rounded-full font-semibold border" style={{background: 'rgba(255,255,255,0.04)', color: '#d4a843', borderColor: 'rgba(212,168,67,0.25)'}}>
+                  {closedSummary.wins}W / {closedSummary.losses}L ({closedSummary.winRate}%)
                 </span>
               )}
+              <span className="text-xs font-mono font-bold px-2 py-0.5 rounded-full border ml-0.5"
+                style={totalPnl >= 0
+                  ? {color: '#22c55e', background: 'rgba(34,197,94,0.12)', borderColor: 'rgba(34,197,94,0.3)'}
+                  : {color: '#ef4444', background: 'rgba(239,68,68,0.12)', borderColor: 'rgba(239,68,68,0.3)'}}>
+                Net P&amp;L: ₹{totalPnl >= 0 ? '+' : ''}{totalPnl.toFixed(0)}
+              </span>
             </span>
-            <span className="text-xs" style={{color: '#6b6580'}}>{showClosed ? '▾ Hide' : `▸ Show (${useBackendOrders ? backendClosedOrders.length : closedSignals.length})`}</span>
+            <span className="text-xs whitespace-nowrap" style={{color: '#6b6580'}}>{showClosed ? '▾ Hide' : `▸ Show (${closedSummary.count})`}</span>
           </button>
 
           {showClosed && (
@@ -2882,7 +2931,7 @@ function SignalBoard({ signals, loadingSignals, onRefresh, onPlaceOrder, zerodha
                     <th className="hidden sm:table-cell px-3 py-2 text-right text-xs uppercase tracking-wider font-semibold whitespace-nowrap" style={{color: '#d4a843'}}>Entry</th>
                     <th className="hidden sm:table-cell px-3 py-2 text-right text-xs uppercase tracking-wider font-semibold whitespace-nowrap" style={{color: '#d4a843'}}>Exit</th>
                     <th className="px-2 sm:px-3 py-2 text-center text-[10px] sm:text-xs uppercase tracking-wider font-semibold whitespace-nowrap" style={{color: '#d4a843'}}>Result</th>
-                    <th className="px-2 sm:px-3 py-2 text-right text-[10px] sm:text-xs uppercase tracking-wider font-semibold whitespace-nowrap" style={{color: '#d4a843'}}>P&L</th>
+                    <th className="px-2 sm:px-3 py-2 text-right text-[10px] sm:text-xs uppercase tracking-wider font-semibold whitespace-nowrap" style={{color: '#d4a843'}}>P&amp;L</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y" style={{borderColor: 'var(--border)'}}>
@@ -2895,6 +2944,48 @@ function SignalBoard({ signals, loadingSignals, onRefresh, onPlaceOrder, zerodha
                       ))
                   }
                 </tbody>
+                <tfoot>
+                  <tr style={{
+                    background: totalPnl >= 0 ? 'rgba(34,197,94,0.08)' : 'rgba(239,68,68,0.08)',
+                    borderTop: '2px solid var(--border)'
+                  }}>
+                    <td colSpan={2} className="px-2 sm:px-3 py-3 whitespace-nowrap">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-2">
+                        <span className="text-xs sm:text-sm font-bold uppercase tracking-wider" style={{color: '#f0e6d0'}}>
+                          Overall Total ({closedSummary.count} Trades)
+                        </span>
+                        <span className="text-[10px] sm:text-xs font-mono" style={{color: '#a09880'}}>
+                          {closedSummary.wins}W / {closedSummary.losses}L • {closedSummary.winRate}% Win Rate
+                        </span>
+                      </div>
+                    </td>
+                    <td colSpan={3} className="hidden sm:table-cell px-3 py-3 text-right whitespace-nowrap">
+                      <div className="inline-flex items-center gap-3 text-xs font-mono">
+                        <span style={{color: '#22c55e'}}>
+                          Gross Profit: ₹+{closedSummary.grossProfit.toFixed(0)}
+                        </span>
+                        <span style={{color: '#6b6580'}}>|</span>
+                        <span style={{color: '#ef4444'}}>
+                          Gross Loss: ₹{closedSummary.grossLoss.toFixed(0)}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-2 sm:px-3 py-3 text-center whitespace-nowrap">
+                      <span className="px-2 py-0.5 rounded text-[10px] sm:text-xs font-bold uppercase"
+                        style={totalPnl >= 0
+                          ? {background: 'rgba(34,197,94,0.15)', color: '#22c55e'}
+                          : {background: 'rgba(239,68,68,0.15)', color: '#ef4444'}}>
+                        {totalPnl >= 0 ? 'NET PROFIT' : 'NET LOSS'}
+                      </span>
+                    </td>
+                    <td className="px-2 sm:px-3 py-3 text-right whitespace-nowrap">
+                      <span className="text-xs sm:text-base font-mono font-extrabold"
+                        style={{color: totalPnl >= 0 ? '#22c55e' : '#ef4444'}}>
+                        ₹{totalPnl >= 0 ? '+' : ''}{totalPnl.toFixed(0)}
+                      </span>
+                    </td>
+                  </tr>
+                </tfoot>
               </table>
             </div>
           )}

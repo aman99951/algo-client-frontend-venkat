@@ -20,7 +20,12 @@ function ProfitTargetControl({ apiKey, sessionId, compact = false, brokerPnlData
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    if (brokerPnlData?.success && brokerPnlData?.total_pnl != null) {
+    const hasPositions = Boolean(
+      brokerPnlData?.success &&
+      (brokerPnlData?.count > 0 || brokerPnlData?.positions?.length > 0) &&
+      brokerPnlData?.total_pnl != null
+    )
+    if (hasPositions) {
       setCurrentPnL(brokerPnlData.total_pnl)
       setRealizedPnL(brokerPnlData.total_realised || brokerPnlData.total_pnl)
       setUnrealizedPnL(brokerPnlData.total_unrealised || 0)
@@ -55,7 +60,11 @@ function ProfitTargetControl({ apiKey, sessionId, compact = false, brokerPnlData
             const s = statsData.stats
             const brokerPnl = s.total_pnl || 0
             const brokerTrades = s.total_closed || 0
-            const hasLiveBrokerPnl = (brokerPnlData?.success && brokerPnlData?.total_pnl != null)
+            const hasLiveBrokerPnl = Boolean(
+              brokerPnlData?.success &&
+              (brokerPnlData?.count > 0 || brokerPnlData?.positions?.length > 0) &&
+              brokerPnlData?.total_pnl != null
+            )
             const effectivePnl = hasLiveBrokerPnl ? brokerPnlData.total_pnl : brokerPnl
             if (brokerTrades > 0 || brokerPnl !== 0) {
               setCurrentPnL(effectivePnl)
