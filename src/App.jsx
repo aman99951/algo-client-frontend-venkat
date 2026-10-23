@@ -2197,9 +2197,9 @@ function NewsMoodBar({ newsData, moodData }) {
   }
 
   // Deduplicate indices — the underlying snapshot source can repeat an index.
-  const moodIndices = Array.isArray(moodData.indices)
+  const moodIndices = Array.isArray(moodData?.indices)
     ? Object.values(moodData.indices.reduce((acc, i) => {
-        const key = (i.index || '').toUpperCase()
+        const key = (i?.index || '').toUpperCase()
         if (key && !acc[key]) acc[key] = i
         return acc
       }, {}))
@@ -2306,7 +2306,7 @@ function NewsMoodBar({ newsData, moodData }) {
           )}
           <div className="flex items-center gap-1 flex-wrap">
             <span className="text-xs" style={{color: '#6b6580'}}>Sources:</span>
-            {(moodData.data_sources || []).map((src, i) => (
+            {(moodData?.data_sources || []).map((src, i) => (
               <span key={i} className="text-xs px-1.5 py-0.5 rounded" style={{background: 'rgba(255,255,255,0.05)', border: '1px solid var(--border)', color: '#a09880'}}>{src}</span>
             ))}
           </div>
